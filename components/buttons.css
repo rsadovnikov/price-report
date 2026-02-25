@@ -1,0 +1,151 @@
+/* === MAGENTUM BUTTONS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="buttons.css"> */
+/* Сетка: variant (primary|secondary|outline|ghost) × size (lg|md|sm) */
+
+/* --- Базовые свойства --- */
+[class^="btn-"],
+[class*=" btn-"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base);
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* ==========================================
+   SIZES
+   ========================================== */
+
+/* Large */
+.btn-primary-lg,
+.btn-secondary-lg,
+.btn-outline-lg,
+.btn-ghost-lg {
+  padding: 16px 18px;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  border-radius: var(--radius-l);
+}
+
+/* Medium */
+.btn-primary-md,
+.btn-secondary-md,
+.btn-outline-md,
+.btn-ghost-md {
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+  border-radius: var(--radius-l);
+}
+
+/* Small */
+.btn-primary-sm,
+.btn-secondary-sm,
+.btn-outline-sm,
+.btn-ghost-sm {
+  padding: 4px 10px;
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: var(--radius-m);
+}
+
+/* ==========================================
+   PRIMARY — синяя заливка, белый текст
+   ========================================== */
+
+.btn-primary-lg,
+.btn-primary-md,
+.btn-primary-sm {
+  background: var(--control-primary);
+  color: #fff;
+}
+.btn-primary-lg:hover,
+.btn-primary-md:hover,
+.btn-primary-sm:hover  { background: #0357D8; }
+.btn-primary-lg:active,
+.btn-primary-md:active,
+.btn-primary-sm:active { background: #0247B0; }
+
+/* ==========================================
+   SECONDARY — голубая заливка, синий текст
+   ========================================== */
+
+.btn-secondary-lg,
+.btn-secondary-md,
+.btn-secondary-sm {
+  background: var(--control-secondary);
+  color: var(--text-main);
+}
+.btn-secondary-lg:hover,
+.btn-secondary-md:hover,
+.btn-secondary-sm:hover { background: #D6E6FF; }
+
+/* Loading state (secondary-lg) */
+.btn-secondary-lg.loading {
+  pointer-events: none;
+  color: transparent;
+  position: relative;
+}
+.btn-secondary-lg.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   OUTLINE — белый фон, обводка
+   ========================================== */
+
+.btn-outline-sm {
+  background: var(--background-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--stroke-divider-default);
+}
+.btn-outline-sm:hover { background: var(--stroke-divider-neutral); }
+
+/* ==========================================
+   GHOST — без фона, синий текст
+   ========================================== */
+
+.btn-ghost-lg,
+.btn-ghost-sm {
+  background: none;
+  color: var(--text-main);
+}
+.btn-ghost-lg:hover,
+.btn-ghost-sm:hover { opacity: 0.75; }
+
+/* ==========================================
+   ICON BUTTON — квадрат 28×28, без фона
+   ========================================== */
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.btn-icon:hover { background: var(--stroke-divider-neutral); }
+.btn-icon svg { pointer-events: none; }

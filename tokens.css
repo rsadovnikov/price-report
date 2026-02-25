@@ -1,0 +1,39 @@
+/* === MAGENTUM DESIGN TOKENS === */
+/* Подключать первым: <link rel="stylesheet" href="tokens.css"> */
+
+:root {
+  /* Цвета — текст */
+  --text-primary:   #0D162E;
+  --text-secondary: #697797;
+  --text-main:      #005EDE;
+
+  /* Цвета — контролы */
+  --control-primary:   #0468FF;
+  --control-secondary: #E6F0FF;
+
+  /* Цвета — фон */
+  --background-primary: #FFFFFF;
+
+  /* Цвета — разделители */
+  --stroke-divider-neutral: #F3F5FA;
+  --stroke-divider-default: #D0D8E9;
+  --stroke-control-default: #D0D8E9;
+
+  /* Цвета — статусы */
+  --negative: #E84260;
+  --positive:  #227E01;
+
+  /* Сетка */
+  --unit1: 4px;
+  --unit2: 8px;
+  --unit3: 12px;
+  --unit4: 16px;
+
+  /* Скругления */
+  --radius-s: 2px;
+  --radius-m: 4px;
+  --radius-l: 8px;
+
+  /* Типографика */
+  --font-base: 'Lato', sans-serif;
+}

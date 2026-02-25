@@ -1,0 +1,60 @@
+/* === ACTION LINKS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="links.css"> */
+/* Документация по вариантам: ../links.md */
+
+/* ==========================================
+   ACTION LINK — базовые свойства
+   Только для действий (не смена URL).
+   Для навигации — используй обычный <a>.
+   ========================================== */
+
+.map-link,
+.add-comment,
+.reset-filters,
+.listing-send-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-base);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+  color: #005EDE;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.map-link:hover,
+.add-comment:hover,
+.reset-filters:hover,
+.listing-send-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================
+   ACTION LINK — icon only
+   Квадратная кнопка 28×28 с одной иконкой
+   ========================================== */
+
+.action-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #005EDE;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.action-link-icon:hover {
+  opacity: 0.75;
+}

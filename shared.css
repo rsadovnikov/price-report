@@ -1,0 +1,107 @@
+/* === RESET === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+input, button, textarea, select { font-family: inherit; font-size: inherit; }
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: var(--text-primary);
+  background: var(--background-primary);
+  min-height: 100vh;
+}
+
+/* === TYPOGRAPHY (Magentum Desktop/Typography) === */
+.heading1 { font-size: 36px; font-weight: 700; line-height: 40px; letter-spacing: 0px; }
+.heading2 { font-size: 28px; font-weight: 700; line-height: 36px; letter-spacing: -0.5px; }
+.heading3 { font-size: 22px; font-weight: 700; line-height: 28px; letter-spacing: -0.5px; }
+.heading4 { font-size: 16px; font-weight: 700; line-height: 24px; letter-spacing: -0.2px; }
+.heading5 { font-size: 14px; font-weight: 700; line-height: 20px; letter-spacing: -0.2px; }
+.body1 { font-size: 16px; font-weight: 400; line-height: 24px; letter-spacing: 0px; }
+.body2 { font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0px; }
+.caption { font-size: 12px; font-weight: 400; line-height: 16px; letter-spacing: 0px; }
+.overline { font-size: 10px; font-weight: 700; line-height: 16px; letter-spacing: 0.7px; text-transform: uppercase; }
+.text-secondary { color: var(--text-secondary); }
+.text-link { color: var(--text-main); text-decoration: none; cursor: pointer; }
+.text-link:hover { text-decoration: underline; }
+
+/* === HEADER === */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 67px;
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--stroke-divider-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 24px; }
+.header-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 22px; font-weight: 700;
+  color: var(--control-primary); text-decoration: none;
+}
+.header-logo img { height: 56px; flex-shrink: 0; }
+.header-nav { display: flex; align-items: center; gap: 20px; }
+.header-nav a {
+  font-size: 14px; color: var(--text-primary); text-decoration: none;
+  display: flex; align-items: center; gap: 4px;
+}
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+}
+.header-icon:hover { background: var(--stroke-divider-neutral); }
+.header-icon .badge {
+  position: absolute; top: 4px; right: 4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--negative); border: 2px solid #fff;
+}
+.header-avatar img { width: 40px; height: 40px; border-radius: 50%; }
+/* === LAYOUT === */
+.layout { display: flex; padding-top: 67px; min-height: 100vh; background: #F3F5FA; }
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 244px; min-width: 244px;
+  background: #F3F5FA;
+  position: sticky; top: 67px;
+  height: calc(100vh - 67px);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-menu { padding: 12px 12px 0; flex: 1; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-m);
+  font-size: 14px; color: var(--text-primary);
+  text-decoration: none; cursor: pointer;
+  line-height: 20px;
+}
+.sidebar-item:hover { background: rgba(0,0,0,0.04); }
+.sidebar-item.active { background: #fff; font-weight: 700; }
+.sidebar-item .count {
+  margin-left: auto; font-size: 14px; color: var(--text-secondary); font-weight: 400;
+}
+.sidebar-item .arrow { margin-left: auto; color: var(--text-secondary); font-size: 16px; }
+.sidebar-divider {
+  height: 1px; background: var(--stroke-divider-default);
+  margin: 8px 12px;
+}
+.sidebar-bottom { padding: 0 12px 12px; }
+
+/* === METRO ICON (shared) === */
+.metro-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 13px; height: 9px;
+  flex-shrink: 0;
+}
+.metro-icon path { fill: currentColor; }
+.metro-red { color: #E84260; }
+.metro-green { color: #29A34A; }
+.metro-blue { color: #0468FF; }
+.metro-brown { color: #8B5A2B; }
+.metro-purple { color: #7B3FAD; }

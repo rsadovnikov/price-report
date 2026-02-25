@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои объявления — ЦИАН</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../components/buttons.css">
+  <link rel="stylesheet" href="../components/links.css">
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    /* === MAIN CONTENT === */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      max-width: 1100px;
+      padding: 32px 32px 60px;
+      background: var(--background-primary);
+    }
+
+    /* Page header */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .page-header h1 {
+      font-size: 28px; font-weight: 700; line-height: 36px;
+      letter-spacing: -0.5px;
+    }
+    .search-input {
+      width: 380px; height: 40px;
+      border: 1px solid var(--stroke-divider-default);
+      border-radius: var(--radius-m);
+      padding: 0 12px 0 36px;
+      font-size: 14px; color: var(--text-primary);
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Ccircle cx='7' cy='7' r='5.5' stroke='%23697797' stroke-width='1.2'/%3E%3Cpath d='M11 11l3.5 3.5' stroke='%23697797' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 12px center no-repeat;
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--text-secondary); }
+    .search-input:focus { border-color: var(--control-primary); }
+
+    /* Tabs */
+    .status-tabs {
+      display: flex; gap: 0; border-bottom: 2px solid var(--stroke-divider-neutral);
+      margin-bottom: 16px;
+    }
+    .status-tab {
+      padding: 12px 16px;
+      font-size: 16px; font-weight: 400; line-height: 24px;
+      color: var(--text-secondary);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .status-tab:hover { color: var(--text-primary); }
+    .status-tab.active {
+      color: var(--text-main); font-weight: 700;
+      border-bottom-color: var(--text-main);
+    }
+    .status-tab .tab-count {
+      font-size: 14px; font-weight: 400;
+      color: var(--text-main); opacity: 0.7;
+    }
+    .status-tab:not(.active) .tab-count { color: var(--text-secondary); }
+
+    /* Category chips */
+    .category-row {
+      display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+    }
+    .category-row .separator {
+      width: 1px; height: 24px; background: var(--stroke-divider-default);
+      margin: 0 4px;
+    }
+    .chip {
+      padding: 6px 12px;
+      border: 1px solid var(--stroke-divider-default);
+      border-radius: var(--radius-l);
+      font-size: 14px; line-height: 20px;
+      cursor: pointer; background: #fff;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .chip:hover { background: var(--stroke-divider-neutral); }
+    .chip.active {
+      background: #fff;
+      color: var(--text-primary);
+      border-color: var(--control-primary);
+    }
+
+    /* Dropdown filters */
+    .filter-row {
+      display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .filter-select {
+      padding: 6px 28px 6px 12px;
+      border: 1px solid var(--stroke-divider-default);
+      border-radius: var(--radius-m);
+      font-size: 14px; line-height: 20px;
+      color: var(--text-primary);
+      background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23697797' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+
+    /* Checkbox filters */
+    .checkbox-filters {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .checkbox-filter {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; color: var(--text-primary); cursor: pointer;
+    }
+    .checkbox-filter input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--control-primary);
+    }
+
+    /* Strategy cards */
+    .strategy-row {
+      display: flex; gap: 12px; margin-top: 28px; margin-bottom: 24px;
+    }
+    .strategy-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: var(--radius-l);
+      cursor: pointer; min-width: 220px;
+      background: #f3f5fa;
+    }
+    .strategy-card:hover { background: #e5e9f3; }
+    .strategy-card .strategy-icon {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .strategy-card .strategy-label {
+      font-size: 14px; font-weight: 700; line-height: 20px;
+      flex: 1;
+    }
+    .strategy-card .strategy-arrow {
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+
+    /* Sort row */
+    .sort-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+    }
+    .sort-label {
+      font-size: 14px; line-height: 20px; color: var(--text-primary);
+    }
+    .sort-label a { color: var(--text-main); text-decoration: underline; cursor: pointer; }
+    .sort-actions { display: flex; gap: 8px; }
+    /* Select all */
+    .select-all {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 0;
+      font-size: 14px; color: var(--text-primary);
+    }
+    .select-all-checkbox {
+      width: 16px; height: 16px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-s);
+      background: #fff; cursor: pointer;
+      appearance: none; display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* === LISTING CARDS === */
+    .listing-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-top: 1px solid var(--stroke-divider-neutral);
+      gap: 0;
+      position: relative;
+    }
+    .listing-card:first-child { border-top: none; }
+
+    .listing-checkbox {
+      width: 32px; flex-shrink: 0;
+      padding-top: 4px;
+    }
+    .listing-checkbox input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--control-primary);
+      cursor: pointer;
+    }
+
+    .listing-photo {
+      width: 78px; height: 78px;
+      border-radius: var(--radius-m);
+      object-fit: cover;
+      flex-shrink: 0;
+      margin-right: 16px;
+    }
+
+    .listing-desc {
+      width: 225px; flex-shrink: 0; margin-right: 16px;
+    }
+    .listing-desc-title {
+      font-size: 14px; font-weight: 700; line-height: 20px;
+      margin-bottom: 2px;
+    }
+    .listing-desc-metro {
+      font-size: 13px; line-height: 18px; color: var(--text-primary);
+      display: flex; align-items: center; gap: 4px;
+      margin-bottom: 2px;
+    }
+    .listing-desc-address {
+      font-size: 13px; line-height: 18px; color: var(--text-secondary);
+    }
+
+    /* Price column */
+    .listing-price-col {
+      width: 145px; flex-shrink: 0; margin-right: 20px;
+      position: relative;
+    }
+    .listing-price {
+      font-size: 16px; font-weight: 700; line-height: 24px;
+    }
+    .listing-price-per-m {
+      font-size: 13px; line-height: 18px; color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    /* Stats column */
+    .listing-stats {
+      width: 76px; flex-shrink: 0; margin-right: 52px;
+    }
+    .stat-row {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; line-height: 20px;
+    }
+    .stat-row svg { flex-shrink: 0; }
+    .stat-delta {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    /* Position column */
+    .listing-position {
+      width: 165px; flex-shrink: 0; margin-right: 20px;
+    }
+    .position-label {
+      font-size: 13px; line-height: 18px; color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .position-rate {
+      font-size: 13px; line-height: 18px; color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .position-badges {
+      display: flex; gap: 4px; align-items: center;
+    }
+    .badge-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px;
+    }
+
+    /* Date column */
+    .listing-date {
+      width: 120px; flex-shrink: 0; margin-right: 16px;
+    }
+    .date-time {
+      font-size: 13px; line-height: 18px; color: var(--text-primary);
+    }
+    .date-remaining {
+      font-size: 13px; line-height: 18px; color: var(--text-secondary);
+    }
+
+    /* Boost button & send link (inside position column) */
+    .card-boost { margin-top: 6px; }
+    .listing-send-link {
+      font-size: 13px; color: var(--text-main);
+      text-decoration: none; cursor: pointer;
+      display: inline-block; margin-top: 4px;
+    }
+    .listing-send-link:hover { text-decoration: underline; }
+
+    /* Action icons column (far right) */
+    .listing-actions {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; width: 16px; flex-shrink: 0;
+    }
+    .action-icon {
+      width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary);
+    }
+    .action-icon:hover { opacity: 0.7; }
+
+    /* === ONBOARDING POPUP CARD === */
+    .onboarding-tooltip {
+      position: absolute;
+      top: -60px;
+      left: -8px;
+      background: #0D162E;
+      color: #fff;
+      border-radius: var(--radius-l);
+      padding: 16px;
+      width: 160px;
+      z-index: 50;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.16), 0 1px 4px rgba(0,0,0,0.08);
+      animation: tooltipFadeIn 0.3s ease;
+    }
+    .onboarding-badge {
+      position: absolute;
+      top: -10px; right: -10px;
+      display: inline-flex;
+      align-items: center;
+      background: var(--negative);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .onboarding-title {
+      font-size: 14px; line-height: 20px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .onboarding-price {
+      font-size: 14px; line-height: 20px; font-weight: 700;
+    }
+    .onboarding-price-sub {
+      font-size: 13px; line-height: 18px; color: rgba(255,255,255,0.6);
+      margin-bottom: 8px;
+    }
+
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="layout">
+  <div id="sidebar"></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>Мои объявления</h1>
+      <input class="search-input" type="text" placeholder="Поиск объявлений по ID, адресу, метро, описанию и т.д.">
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="status-tabs">
+      <a class="status-tab active" href="#">Активные <span class="tab-count">12</span></a>
+      <a class="status-tab" href="#">Неактивные <span class="tab-count">23</span></a>
+      <a class="status-tab" href="#">Отклонённые <span class="tab-count">2</span></a>
+      <a class="status-tab" href="#">Черновик <span class="tab-count">17</span></a>
+      <a class="status-tab" href="#">Архив <span class="tab-count">4</span></a>
+    </div>
+
+    <!-- Category Chips -->
+    <div class="category-row">
+      <span class="chip active">Все</span>
+      <span class="chip">Аренда</span>
+      <span class="chip">Продажа</span>
+      <div class="separator"></div>
+      <span class="chip active">Все</span>
+      <span class="chip">Квартиры и комнаты</span>
+      <span class="chip">Загородка</span>
+      <span class="chip">Коммерческая</span>
+    </div>
+
+    <!-- Dropdown Filters -->
+    <div class="filter-row">
+      <select class="filter-select"><option>Всё агентство</option></select>
+      <select class="filter-select"><option>Тип размещения</option></select>
+      <select class="filter-select"><option>Статус проверки в Росреестре</option></select>
+      <select class="filter-select"><option>За счёт агентства и сотрудника</option></select>
+    </div>
+
+    <!-- Checkbox Filters -->
+    <div class="checkbox-filters">
+      <label class="checkbox-filter"><input type="checkbox"> Размещённые вручную</label>
+      <label class="checkbox-filter"><input type="checkbox"> Видимые только агентам</label>
+      <label class="checkbox-filter"><input type="checkbox"> Без фото</label>
+      <label class="checkbox-filter"><input type="checkbox"> Неактуальные</label>
+      <label class="checkbox-filter"><input type="checkbox"> Только с дублями</label>
+      <label class="checkbox-filter"><input type="checkbox"> Со скидкой на ипотеку</label>
+    </div>
+
+    <!-- Strategy Cards -->
+    <div class="strategy-row">
+      <div class="strategy-card">
+        <div class="strategy-icon">
+          <svg aria-label="Автостратегия" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M25.9997 4C25.9997 4.33926 25.9916 4.67255 25.9802 5H30.9763L30.9929 5.98242C31.0154 7.30092 31.0538 9.35094 30.0007 11.0479C28.8921 12.8339 26.7697 13.9717 23.1247 13.9971C22.0174 15.2843 20.6233 16.1448 18.9997 16.6035V23H20.9997C22.6565 23 23.9997 24.3431 23.9997 26V29H7.99969V26C7.99969 24.3433 9.34304 23.0002 10.9997 23H12.9997V16.6045C11.3754 16.1459 9.98091 15.2848 8.87371 13.9971C5.22972 13.9714 3.10708 12.8337 1.99871 11.0479C0.945679 9.35098 0.983977 7.30087 1.00652 5.98242L1.02313 5H6.0202C6.00878 4.67255 5.99969 4.33926 5.99969 4V3H25.9997V4ZM10.9997 25C10.4476 25.0002 9.99969 25.4479 9.99969 26V27H21.9997V26C21.9997 25.4477 21.552 25 20.9997 25H10.9997ZM14.9997 23H16.9997V17H14.9997V23ZM8.02117 5C8.14746 8.36188 8.9157 10.7888 10.1432 12.3906C11.4559 14.1031 13.3891 14.9999 15.9977 15C18.6066 14.9999 20.5404 14.1038 21.8542 12.3916C23.0828 10.7901 23.8518 8.36314 23.9782 5H8.02117ZM3.00555 7C3.02878 8.07794 3.16353 9.13194 3.69793 9.99316C4.22348 10.84 5.26141 11.6702 7.52215 11.9209C6.84157 10.5323 6.39207 8.88595 6.16863 7H3.00555ZM25.8327 7C25.6091 8.8863 25.1572 10.5323 24.4763 11.9209C26.7381 11.6705 27.7757 10.8401 28.3014 9.99316C28.8359 9.1319 28.9706 8.07802 28.9938 7H25.8327Z" fill="#152242"/></svg>
+        </div>
+        <span class="strategy-label">Автостратегия</span>
+        <span class="strategy-arrow"><svg aria-label="Перейти" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.4141 7.99993L5.70696 0.292818L4.29274 1.70703L10.5856 7.99993L4.29274 14.2928L5.70696 15.707L13.4141 7.99993Z" fill="#707A95"/></svg></span>
+      </div>
+      <div class="strategy-card">
+        <div class="strategy-icon">
+          <svg aria-label="Гибкая стратегия" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M14 21C14 23.4189 12.2822 25.4361 10 25.8994L10 30L8 30L8 25.8994C5.71781 25.4361 4 23.4189 4 21C4 18.5811 5.71781 16.5639 8 16.1006L8 2L10 2L10 16.1006C12.2822 16.5639 14 18.5811 14 21ZM12 21C12 19.3431 10.6569 18 9 18C7.34314 18 6 19.3431 6 21C6 22.6569 7.34314 24 9 24C10.6569 24 12 22.6569 12 21ZM28 11C28 13.4189 26.2822 15.4361 24 15.8994L24 30L22 30L22 15.8994C19.7178 15.4361 18 13.4189 18 11C18 8.58108 19.7178 6.5639 22 6.10059L22 2L24 2L24 6.10059C26.2822 6.5639 28 8.58108 28 11ZM26 11C26 9.34315 24.6569 8 23 8C21.3431 8 20 9.34315 20 11C20 12.6569 21.3431 14 23 14C24.6569 14 26 12.6569 26 11Z" fill="#152242"/></svg>
+        </div>
+        <span class="strategy-label">Гибкая стратегия</span>
+        <span class="strategy-arrow"><svg aria-label="Перейти" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.4141 7.99993L5.70696 0.292818L4.29274 1.70703L10.5856 7.99993L4.29274 14.2928L5.70696 15.707L13.4141 7.99993Z" fill="#707A95"/></svg></span>
+      </div>
+    </div>
+
+    <!-- Sort Row -->
+    <div class="sort-row">
+      <span class="sort-label">4 объявления отсортированы <a>по дате размещения ▾</a></span>
+      <div class="sort-actions">
+        <button class="btn-outline-sm">Обновить даты</button>
+        <button class="btn-outline-sm">Настроить календарь</button>
+      </div>
+    </div>
+
+    <!-- Select All -->
+    <div class="select-all">
+      <input type="checkbox" class="select-all-checkbox">
+      <span>Выбрать все на странице</span>
+    </div>
+
+    <!-- ===== LISTING CARDS ===== -->
+    <div id="listings"></div>
+
+  </main>
+</div>
+
+<script src="../components/header.js"></script>
+<script src="../components/sidebar.js"></script>
+<script>
+renderHeader();
+renderSidebar({ active: 'Мои объявления' });
+
+const LISTINGS = [
+  {
+    photo: '../photos/1.png',
+    desc: '3-комн. кв., 50 м², 2/12 этаж',
+    metroColor: 'green',
+    metro: 'Белорусская',
+    walkMin: 15,
+    zhk: 'Bolshevik',
+    address: 'Москва, САО, р-н Беговой, м. Белорусская, Ленинградский проспект',
+    price: '12 900 000',
+    pricePerM: '258 000',
+    views: 178, viewsDelta: '+15',
+    calls: 31, callsDelta: '+11',
+    msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '',
+    position: 21, positionLabel: '21 позиция по району',
+    rate: 'Ставка 245 ₽',
+    dateTime: 'Вчера, 13:45',
+    remaining: 'осталось 14 д.',
+    showOnboarding: true
+  },
+  {
+    photo: '../photos/2.png',
+    desc: '2-комн. кв., 46 м², 12/16 этаж',
+    metroColor: 'purple',
+    metro: 'Котельники',
+    walkMin: 12,
+    zhk: '',
+    address: 'Москва, район Некрасовка 1-я Вольская ул, д. с1вл23',
+    price: '19 300 000',
+    pricePerM: '420 000',
+    views: 178, viewsDelta: '+15',
+    calls: 31, callsDelta: '+11',
+    msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '+1',
+    position: 15, positionLabel: '15 позиция по району',
+    rate: 'Ставка 140 ₽',
+    dateTime: 'Вчера, 12:27',
+    remaining: 'осталось 20 д.',
+    showOnboarding: false
+  },
+  {
+    photo: '../photos/3.png',
+    desc: '1-комн. кв., 38 м², 9/9 этаж',
+    metroColor: 'blue',
+    metro: 'Деловой Центр',
+    walkMin: 7,
+    zhk: '',
+    address: 'Москва, район Пресненский, 1-й Красногвардейский проезд, д. 21с2',
+    price: '9 100 000',
+    pricePerM: '240 000',
+    views: 178, viewsDelta: '+15',
+    calls: 31, callsDelta: '+11',
+    msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '',
+    position: 18, positionLabel: '18 позиция по району',
+    rate: 'Ставка 195 ₽',
+    dateTime: 'Вчера, 09:52',
+    remaining: 'осталось 3 д.',
+    showOnboarding: false
+  },
+  {
+    photo: '../photos/4.png',
+    desc: '1-комн. апарт., 85 м², 24/85 этаж',
+    metroColor: 'blue',
+    metro: 'Площадь Ильича',
+    walkMin: 10,
+    zhk: '',
+    address: 'Москва, район Лефортово, ш. Энтузиастов, д. 1к2',
+    price: '15 850 000',
+    pricePerM: '186 000',
+    views: 178, viewsDelta: '+15',
+    calls: 31, callsDelta: '+11',
+    msgs: 4, msgsDelta: '+2',
+    favs: 12, favsDelta: '+4',
+    position: 6, positionLabel: '6 позиция по району',
+    rate: 'Ставка 230 ₽',
+    dateTime: 'Вчера, 16:33',
+    remaining: 'осталось 28 д.',
+    showOnboarding: false
+  }
+];
+
+function renderListings() {
+  const container = document.getElementById('listings');
+  container.innerHTML = LISTINGS.map((item, i) => {
+    const zhkLine = item.zhk ? `ЖК &laquo;${item.zhk}&raquo;, ${item.address}` : item.address;
+
+    const onboarding = item.showOnboarding ? `
+      <div class="onboarding-tooltip" id="onboarding">
+        <span class="onboarding-badge">Новое</span>
+        <div class="onboarding-title">Отчёт о цене и конкурентах</div>
+        <div class="onboarding-price">${item.price} ₽</div>
+        <div class="onboarding-price-sub">${item.pricePerM} ₽/м²</div>
+        <a class="btn-secondary-sm" href="report.html">Отчёт о цене</a>
+      </div>
+    ` : '';
+
+    return `
+      <div class="listing-card">
+        <div class="listing-checkbox"><input type="checkbox"></div>
+        <img class="listing-photo" src="${item.photo}" alt="photo">
+        <div class="listing-desc">
+          <div class="listing-desc-title">${item.desc}</div>
+          <div class="listing-desc-metro">
+            <svg class="metro-icon metro-${item.metroColor}" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg>
+            ${item.metro}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg>
+            ${item.walkMin} мин
+          </div>
+          <div class="listing-desc-address">${zhkLine}</div>
+        </div>
+        <div class="listing-price-col">
+          <div class="listing-price">${item.price} ₽</div>
+          <div class="listing-price-per-m">${item.pricePerM} ₽/м²</div>
+          ${onboarding}
+          <a class="btn-secondary-sm" href="report.html" onclick="closeOnboarding(event)">Отчёт о цене</a>
+        </div>
+        <div class="listing-stats">
+          <div class="stat-row">
+            <svg aria-label="Просмотры" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 8C0 8 3 2 8 2C13 2 16 8 16 8C16 8 13 14 8 14C3 14 0 8 0 8ZM8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z" fill="#7683A0"/></svg>
+            ${item.views} <span class="stat-delta">${item.viewsDelta}</span>
+          </div>
+          <div class="stat-row">
+            <svg aria-label="Звонки" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9.02028 11.8655L4.13447 6.97972C4.83219 6.28201 5.5299 5.58429 6.22762 4.88657C6.6134 4.50079 6.61304 3.87523 6.22709 3.48963C5.06348 2.32709 3.90175 1.16322 2.73853 0L0.283622 2.4549C0.0990174 2.63951 -0.00656964 2.8899 0.000317234 3.15088C0.0929357 6.66068 1.4741 9.90432 3.78543 12.2146C6.10093 14.529 9.34962 15.907 12.8491 15.9997C13.1101 16.0066 13.3605 15.901 13.5451 15.7164L16 13.2615C14.8369 12.0984 13.6738 10.9352 12.5107 9.77212C12.125 9.38644 11.4996 9.38668 11.114 9.77241C10.4162 10.4703 9.71812 11.1677 9.02028 11.8655Z" fill="#707A95"/></svg>
+            ${item.calls} <span class="stat-delta">${item.callsDelta}</span>
+          </div>
+          <div class="stat-row">
+            <svg aria-label="Сообщения в чат" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 7.02005C16 10.8971 12.4183 14.0401 8 14.0401C7.19913 14.0401 6.42575 13.9368 5.6962 13.7446L3.28668e-05 16L1.39465 10.9816C0.514736 9.85409 0 8.48982 0 7.02005C0 3.14298 3.58172 0 8 0C12.4183 0 16 3.14298 16 7.02005ZM4.29289 6.31091C4.68342 5.91927 5.31658 5.91927 5.70711 6.31091C6.09763 6.70256 6.09763 7.33753 5.70711 7.72918C5.31658 8.12082 4.68342 8.12082 4.29289 7.72918C3.90237 7.33753 3.90237 6.70256 4.29289 6.31091ZM10.2929 7.72918C10.6834 8.12082 11.3166 8.12082 11.7071 7.72918C12.0976 7.33753 12.0976 6.70256 11.7071 6.31091C11.3166 5.91927 10.6834 5.91927 10.2929 6.31091C9.90237 6.70256 9.90237 7.33753 10.2929 7.72918ZM8.70711 7.72918C9.09763 7.33753 9.09763 6.70256 8.70711 6.31091C8.31658 5.91927 7.68342 5.91927 7.29289 6.31091C6.90237 6.70256 6.90237 7.33753 7.29289 7.72918C7.68342 8.12082 8.31658 8.12082 8.70711 7.72918Z" fill="#707A95"/></svg>
+            ${item.msgs} <span class="stat-delta">${item.msgsDelta}</span>
+          </div>
+          <div class="stat-row">
+            <svg aria-label="Добавления в избранное" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M0 5.00939C0 10.9593 8 15.5 8 15.5C8 15.5 16 10.9593 16 5.00939C16 2.51892 13.9892 0.5 11.5087 0.5C10.0889 0.5 8.82303 1.16146 8 2.1942C7.17697 1.16146 5.91105 0.5 4.49126 0.5C2.01081 0.5 0 2.51892 0 5.00939Z" fill="#7683A0"/></svg>
+            ${item.favs} ${item.favsDelta ? `<span class="stat-delta">${item.favsDelta}</span>` : ''}
+          </div>
+        </div>
+        <div class="listing-position">
+          <div class="position-label">${item.positionLabel}</div>
+          <div class="position-rate">${item.rate}</div>
+          <button class="btn-secondary-sm card-boost">Поднять</button>
+          <a class="listing-send-link" href="#">Отправить рассылку</a>
+        </div>
+        <div class="listing-date">
+          <div class="date-time">${item.dateTime}</div>
+          <div class="date-remaining">${item.remaining}</div>
+        </div>
+        <div class="listing-actions">
+          <div class="action-icon"><svg aria-label="Показать действия" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8C4 9.10457 3.10457 10 2 10C0.895431 10 0 9.10457 0 8C0 6.89543 0.895431 6 2 6C3.10457 6 4 6.89543 4 8Z" fill="#737A8E"/><path d="M10 8C10 9.10457 9.10457 10 8 10C6.89543 10 6 9.10457 6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8Z" fill="#737A8E"/><path d="M14 10C15.1046 10 16 9.10457 16 8C16 6.89543 15.1046 6 14 6C12.8954 6 12 6.89543 12 8C12 9.10457 12.8954 10 14 10Z" fill="#737A8E"/></svg></div>
+          <div class="action-icon"><svg aria-label="Редактировать объявление" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.9727 1.28407C11.594 0.905311 10.9799 0.905311 10.6012 1.28407L9.22956 2.65566L13.3443 6.77044L14.7159 5.39885C15.0947 5.02009 15.0947 4.40601 14.7159 4.02725L11.9727 1.28407Z" fill="#737A8E"/><path d="M11.9727 8.14203L7.85797 4.02725L1 10.8852V15H5.11478L11.9727 8.14203Z" fill="#737A8E"/></svg></div>
+          <div class="action-icon"><svg aria-label="Архивировать объявление" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 1C2.44772 1 2 1.44772 2 2V7H14V2C14 1.44772 13.5523 1 13 1H3ZM7 3H9V5H7V3Z" fill="#7683A0"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3 15C2.44772 15 2 14.5523 2 14V9H14V14C14 14.5523 13.5523 15 13 15H3ZM9 11H7V13H9V11Z" fill="#7683A0"/></svg></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function closeOnboarding(e) {
+  const tooltip = document.getElementById('onboarding');
+  if (tooltip) {
+    tooltip.style.opacity = '0';
+    tooltip.style.transition = 'opacity 0.2s ease';
+    setTimeout(() => tooltip.remove(), 200);
+  }
+}
+
+renderListings();
+
+// === SNACKBAR: "Отчёт сохранён" after returning from report ===
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('saved') !== '1') return;
+
+  // Clean up URL
+  history.replaceState(null, '', window.location.pathname);
+
+  // Inject snackbar container if missing
+  var container = document.getElementById('snackbarContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'snackbarContainer';
+    container.setAttribute('aria-live', 'polite');
+    container.style.cssText = 'position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column-reverse;gap:8px;z-index:200;pointer-events:none;align-items:flex-end;';
+    document.body.appendChild(container);
+  }
+
+  var item = document.createElement('div');
+  item.style.cssText = 'background:#0D162E;border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;pointer-events:auto;opacity:0;transform:translateY(12px);transition:opacity 0.2s ease,transform 0.2s ease;';
+  item.innerHTML = '<div style="width:24px;height:24px;background:#B0E899;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#0D162E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="color:#fff;font-size:16px;line-height:24px;font-family:Lato,sans-serif;white-space:nowrap">Отчёт сохранён</span>';
+  container.appendChild(item);
+
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      item.style.opacity = '1';
+      item.style.transform = 'translateY(0)';
+    });
+  });
+
+  setTimeout(function() {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(8px)';
+    setTimeout(function() {
+      if (item.parentNode) item.parentNode.removeChild(item);
+    }, 250);
+  }, 3000);
+})();
+</script>
+</body>
+</html>

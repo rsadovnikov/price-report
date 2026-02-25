@@ -1,0 +1,3316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отчёт о конкурентах — ЦИАН</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../components/buttons.css">
+  <link rel="stylesheet" href="../components/links.css">
+  <link rel="stylesheet" href="../components/tabs.css">
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+
+    /* === REPORT AREA === */
+    .report-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-top: 16px;
+      padding-right: 16px;
+      padding-bottom: 36px;
+      background: #F3F5FA;
+    }
+
+    /* === REPORT CARD (main white block) === */
+    .report-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* === OWNER REPORT CARD === */
+    .owner-report-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .owner-report-header {
+      padding: 36px 24px 20px 24px;
+    }
+    .owner-report-title {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 28px;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color 0.25s ease;
+    }
+    .owner-report-title.title-disabled {
+      color: #B1BAD2;
+    }
+    .owner-report-subtitle {
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text-primary);
+    }
+
+    /* === OWNER REPORT CONTENT (locked/unlocked) === */
+    .owner-report-content {
+      overflow: hidden;
+      max-height: 5000px;
+      opacity: 1;
+      transition: max-height 0.45s ease, opacity 0.3s ease;
+    }
+    .owner-report-content.owner-content-locked {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* === INNER STEPPER === */
+    .owner-steps {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 24px 40px 24px;
+    }
+    .owner-step {
+      display: flex;
+      gap: 20px;
+    }
+    .owner-step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 24px;
+      flex-shrink: 0;
+    }
+    .owner-step-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #F3F5FA;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      margin-top: 12px;
+    }
+    .owner-step-line {
+      flex: 1;
+      width: 1px;
+      background: #D0D8E9;
+      min-height: 16px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    .owner-step:last-child .owner-step-line {
+      display: none;
+    }
+    .owner-step-body {
+      flex: 1;
+      min-width: 0;
+      padding-top: 8px;
+      padding-bottom: 40px;
+    }
+    .owner-step:last-child .owner-step-body {
+      padding-bottom: 0;
+    }
+    .owner-step-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .owner-step-subtitle {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    /* === STEP 1 TOGGLE TITLE === */
+    .owner-step-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .owner-step-title-row:hover .owner-step-title {
+      color: var(--control-primary);
+    }
+    .step-list-chevron {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      color: var(--control-primary);
+    }
+    .step-list-chevron.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    /* === OWNER COMPETITORS MINI-LIST === */
+    .owner-comp-wrap {
+      overflow: hidden;
+      max-height: 2000px;
+      opacity: 1;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      margin-top: 16px;
+    }
+    .owner-comp-wrap.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+    .owner-comp-table-scroll {
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .owner-comp-table-scroll::-webkit-scrollbar { display: none; }
+    .owner-comp-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: max-content;
+      min-width: 100%;
+    }
+    .owner-comp-table td {
+      padding: 12px;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 20px;
+      border-top: 1px solid var(--stroke-divider-neutral);
+      white-space: nowrap;
+    }
+    .occ-photo       { width: 86px;  min-width: 86px; }
+    .occ-desc        { width: 260px; min-width: 260px; white-space: normal !important; }
+    .occ-start-price { width: 150px; min-width: 150px; }
+    .occ-price       { width: 170px; min-width: 170px; }
+    .occ-dur    { width: 150px; min-width: 150px; }
+    .occ-repair { width: 140px; min-width: 140px; white-space: normal !important; }
+    .occ-build  { width: 120px; min-width: 120px; white-space: normal !important; }
+    .occ-comment-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: nowrap;
+    }
+    .occ-comment-wrap .row-comment-controls { display: none; }
+    .occ-comment-wrap:hover .row-comment-controls { display: flex; }
+    .occ-comment-form-cell {
+      padding: 0 12px 8px 12px !important;
+      border-top: none !important;
+    }
+
+    /* === OWNER REPORT ACTION BUTTONS === */
+    .owner-report-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 24px 40px 24px;
+      border-top: 1px solid var(--stroke-divider-default);
+      margin-top: 8px;
+    }
+
+    /* === REPORT SECTION === */
+    .report-section {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 32px;
+    }
+
+    /* === REPORT HEADER === */
+    .report-header {
+      padding: 36px 24px 24px 0;
+      text-align: center;
+    }
+    .report-header .label {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 28px;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .report-header .address {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* === REPORT SUMMARY === */
+    .report-summary {
+      padding: 0 24px 16px 0;
+    }
+    .report-summary h2 {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .report-summary p {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    /* === TABLES === */
+    .table-wrapper {
+      overflow: hidden;
+      position: relative;
+    }
+    .table-inner {
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .table-inner::-webkit-scrollbar {
+      display: none;
+    }
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: max-content;
+      min-width: 100%;
+    }
+    table th,
+    table td {
+      padding: 12px;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 20px;
+      border-top: 1px solid var(--stroke-divider-neutral);
+      border-bottom: none;
+      white-space: nowrap;
+    }
+    table th {
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-align: left;
+      white-space: normal;
+      padding: 8px 12px;
+      border-top: none;
+      border-bottom: 1px solid var(--stroke-divider-default);
+      vertical-align: bottom;
+    }
+    /* Checkbox cell: different vertical padding */
+    td.sticky-checkbox {
+      padding-top: 16px;
+      padding-bottom: 8px;
+    }
+    /* Column widths */
+    .col-checkbox { width: 40px; min-width: 40px; }
+    .col-photo { width: 86px; min-width: 86px; }
+    .col-desc { width: 260px; min-width: 260px; }
+    .col-start-price { width: 150px; min-width: 150px; }
+    .col-current-price { width: 170px; min-width: 170px; }
+    .col-dynamics { width: 40px; min-width: 40px; }
+    .col-duration { width: 160px; min-width: 160px; }
+    .col-metro { display: none; }
+    .col-repair { width: 140px; min-width: 140px; }
+    .building-year {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .col-building { width: 120px; min-width: 120px; }
+    .col-views { width: 190px; min-width: 190px; }
+
+    /* Views cell */
+    .views-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    /* Merged header label (spans checkbox + photo + desc columns) */
+    .col-header-label {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+    }
+
+    /* Row hover for competitor table (exclude placeholder row and comment rows) */
+    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td {
+      background: #F3F5FA;
+    }
+    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td.sticky-checkbox,
+    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td.sticky-photo {
+      background: #F3F5FA;
+    }
+
+    /* === ROW APPEAR ANIMATION === */
+    @keyframes rowFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .row-animated {
+      animation: rowFadeIn 0.35s ease both;
+    }
+
+    /* Sticky columns */
+    .sticky-checkbox {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+    }
+    .sticky-photo {
+      position: sticky;
+      left: 40px;
+      z-index: 2;
+      background: #fff;
+    }
+
+    /* Checkbox */
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-s);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: #fff;
+    }
+    .checkbox.checked {
+      background: var(--control-primary);
+      border-color: var(--control-primary);
+    }
+    .checkbox.checked::after {
+      content: '';
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid #fff;
+      border-bottom: 1.5px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .checkbox.disabled {
+      cursor: default;
+    }
+    .checkbox.checked.disabled {
+      background: #B0B8CC;
+      border-color: #B0B8CC;
+    }
+    /* Metrics row unchecked state */
+    .metrics-row .checkbox:not(.disabled) { cursor: pointer; }
+    .metrics-row.unchecked .metrics-row-val {
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    /* Photo cell */
+    .photo-thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: var(--radius-m);
+      object-fit: cover;
+      background: #eee;
+    }
+
+    /* Description cell */
+    .desc-cell { white-space: normal; }
+    .desc-title {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 20px;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+    .desc-metro {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    /* metro-icon: see shared.css */
+    .desc-zhk {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 1px;
+    }
+    .desc-address {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Price cells */
+    .price-main-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .price-main {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+    .price-per-m {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+    }
+    .price-delta {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--positive);
+    }
+    .price-delta--up {
+      color: var(--negative);
+    }
+
+    /* Dynamics column hidden — icon moved into price cell */
+    .col-dynamics { display: none; }
+    .dynamics-icon { width: 35px; height: 27px; display: block; flex-shrink: 0; }
+
+    /* Duration */
+    .duration-days {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+    .duration-date {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Metro in table */
+    .metro-cell { white-space: normal; }
+    .metro-station {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    .metro-walk {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Badge */
+    .badge-removed {
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+      line-height: 20px;
+      padding: 2px 8px;
+      border: none;
+      border-radius: 99px;
+      background: #e1e6f4;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .desc-title.removed {
+      color: var(--text-primary);
+      cursor: default;
+    }
+    @keyframes commentSlideIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .add-comment { margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-main); text-decoration: none; font-size: 14px; line-height: 20px; }
+    .add-comment:hover { text-decoration: underline; }
+    .add-comment.animate { animation: commentSlideIn 0.25s ease both; }
+
+    /* === STICKY COMMENT ROW === */
+    /* Spacer cells mirror sticky-checkbox / sticky-photo in comment rows */
+    .comment-spacer-1 {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+      border-top: none !important;
+      padding: 0 !important;
+    }
+    .comment-spacer-2 {
+      position: sticky;
+      left: 40px;
+      z-index: 2;
+      background: #fff;
+      border-top: none !important;
+      padding: 0 !important;
+    }
+    .comment-row td.comment-row-cell {
+      /* Sticky at the same left offset as the start of col-desc so it doesn't scroll away */
+      position: sticky;
+      left: 126px;
+      z-index: 1;
+      background: #fff;
+      padding: 0 16px 6px 12px;
+      border-top: none;
+    }
+    /* Bubble row: flex container for bubble + controls */
+    .comment-sticky-wrap {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .row-comment-bubble {
+      background: #FFF2E6;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 1;
+      min-width: 0;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    .row-comment-bubble:hover { background: #FFE5CC; }
+    .row-comment-controls { display: none; align-items: center; gap: 8px; flex-shrink: 0; }
+    .comment-sticky-wrap:hover .row-comment-controls { display: flex; }
+
+    /* === INLINE COMMENT FORM === */
+    .comment-form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 560px;
+      padding: 2px 0;
+    }
+    .comment-form-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .comment-input-inline {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-m);
+      padding: 4px 10px;
+      font-family: var(--font-base);
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-primary);
+      outline: none;
+      background: #fff;
+    }
+    .comment-input-inline:focus { border-color: var(--control-primary); }
+    /* Кнопки комментариев и btn-icon: см. buttons.css */
+
+    /* === TABS === */
+    .tabs {
+      margin-top: 8px;
+    }
+
+    /* === FILTERS === */
+    .filters {
+      padding: 16px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filters-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-l);
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-primary);
+      background: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .chip .chevron {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-left: 2px;
+    }
+    .reset-filters {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-main);
+      cursor: pointer;
+      text-decoration: none;
+      padding: 6px 0;
+      white-space: nowrap;
+    }
+    .map-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-main);
+      cursor: pointer;
+      text-decoration: none;
+      padding: 6px 0;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* === RESULTS COUNTER === */
+    .results-counter {
+      padding: 0 24px 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    .results-counter strong { font-weight: 700; }
+
+    /* === CUSTOM SCROLLBAR (temporarily disabled) === */
+    #scrollbarMain,
+    #stickyScrollbarMain {
+      display: none !important;
+    }
+    .custom-scrollbar {
+      padding: 5px 24px;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    .custom-scrollbar-track {
+      position: relative;
+      height: 6px;
+      background: #E8ECF5;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .custom-scrollbar-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 6px;
+      width: 30%; /* default before JS sets exact size */
+      background: #B0B8CC;
+      border-radius: 3px;
+      cursor: grab;
+      transition: background 0.15s ease;
+      will-change: transform;
+    }
+    .custom-scrollbar-thumb:hover {
+      background: #8A94AA;
+    }
+    .custom-scrollbar-thumb.dragging {
+      cursor: grabbing;
+      background: #8A94AA;
+    }
+    /* Sticky variant: no horizontal padding (parent already has it) */
+    .sticky-custom-scrollbar {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    /* === SCROLL ARROWS === */
+    .table-nav-zone {
+      position: relative;
+    }
+    .scroll-arrow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100px;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .table-nav-zone:hover .scroll-arrow.visible,
+    .scroll-arrow.visible:focus-within {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .scroll-arrow-right {
+      right: 0;
+      background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.60) 60%);
+    }
+    .scroll-arrow-left {
+      left: 126px;
+      background: linear-gradient(to left, rgba(255,255,255,0) 0%, rgba(255,255,255,0.60) 60%);
+    }
+    .scroll-arrow-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+    .scroll-arrow-btn:hover {
+      background: rgba(0,0,0,0.75);
+    }
+    .scroll-arrow-btn:focus-visible {
+      outline: 2px solid var(--control-primary);
+      outline-offset: 2px;
+    }
+
+    /* === STICKY TABS BAR === */
+    .sticky-tabs-bar {
+      position: fixed;
+      top: 67px;
+      left: 244px;
+      right: 0;
+      z-index: 11;
+      background: var(--background-primary);
+      border-bottom: 1px solid var(--stroke-divider-default);
+      display: flex;
+      padding: 0 24px;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .sticky-tabs-bar.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    /* === STICKY TABLE HEADER === */
+    .sticky-table-header {
+      position: fixed;
+      top: 111px;
+      left: 244px;
+      right: 0;
+      z-index: 10;
+      background: var(--background-primary);
+      border-bottom: 1px solid var(--stroke-divider-default);
+      padding: 0 24px;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .sticky-table-header.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .sticky-header-inner {
+      overflow: hidden;
+    }
+    .sticky-header-inner table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: max-content;
+      min-width: 100%;
+    }
+    .sticky-table-header table th {
+      border-bottom: none;
+    }
+
+    /* === ACTION BUTTONS === */
+    .action-buttons {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    /* === SNACKBAR === */
+    .snackbar-container {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+      z-index: 200;
+      pointer-events: none;
+      align-items: flex-end;
+    }
+    .snackbar-item {
+      background: #0D162E;
+      border-radius: var(--radius-l);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .snackbar-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .snackbar-item.hiding {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .snackbar-icon {
+      width: 24px;
+      height: 24px;
+      background: #B0E899;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .snackbar-text {
+      color: #fff;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Lato', sans-serif;
+      white-space: nowrap;
+    }
+    .snackbar-action {
+      background: none;
+      border: none;
+      color: #7EB3FF;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 16px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .snackbar-action:hover {
+      color: #A8CCFF;
+    }
+
+    /* === STICKY FOOTER === */
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 244px;
+      right: 0;
+      height: 68px;
+      background: var(--background-primary);
+      border-top: 1px solid var(--stroke-divider-default);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 90;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .sticky-footer.is-visible {
+      transform: translateY(0);
+    }
+    /* Table container padding */
+    .table-section {
+      padding: 0;
+    }
+
+    /* SVG icon helpers */
+    .icon-sm { width: 16px; height: 16px; }
+    .icon-md { width: 20px; height: 20px; }
+
+    /* === EMPTY REPORT STATE === */
+    .empty-report-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .empty-report-illustration {
+      margin-bottom: 20px;
+    }
+    .empty-report-text {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      max-width: 320px;
+    }
+    .empty-report-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    /* === REPORT BLOCKS BELOW COMPETITORS (5.12–5.14) === */
+    .report-blocks-below {
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+      padding: 32px 24px 0 24px;
+    }
+    /* --- 5.12 Price Report --- */
+    .price-report-block {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      max-width: 898px;
+    }
+    .price-input-section { display: flex; flex-direction: column; gap: 8px; }
+    .price-mode-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .price-chips { display: flex; gap: 8px; }
+    .price-chip {
+      height: 44px;
+      padding: 10px 16px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-l);
+      background: #fff;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+    .price-chip.selected { background: #E6F0FF; border-color: #3686FF; }
+    .price-fields-row { display: flex; gap: 8px; }
+    .price-field {
+      width: 288px;
+      height: 44px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-l);
+      display: flex;
+      align-items: center;
+      background: #fff;
+      overflow: hidden;
+    }
+    .price-field-affix {
+      padding: 8px 12px;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+    .price-field-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text-primary);
+      padding: 8px 0;
+      background: transparent;
+    }
+    /* Cian Estimate */
+    .cian-estimate-block { display: flex; flex-direction: column; gap: 12px; max-width: 703px; }
+    .cian-estimate-desc  { display: flex; flex-direction: column; gap: 4px; }
+    .radio-options       { display: flex; flex-direction: column; gap: 4px; }
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: default;
+    }
+    .radio-input {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--control-primary);
+      cursor: default;
+      pointer-events: none;
+    }
+    .radio-label { font-size: 14px; line-height: 20px; color: var(--text-primary); }
+    /* Price Estimate Visual */
+    .price-estimate-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 600px;
+      overflow: hidden;
+      max-height: 200px;
+      opacity: 1;
+      transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease;
+    }
+    .price-estimate-visual.hidden {
+      max-height: 0;
+      opacity: 0;
+      margin-top: -12px;
+    }
+    .price-scale-row { position: relative; padding-top: 72px; }
+    .price-tooltip-wrap {
+      position: absolute;
+      top: 0;
+      left: 65%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+    }
+    .price-tooltip-bubble {
+      background: #212C46;
+      border-radius: 4px;
+      padding: 4px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .price-tooltip-lbl { font-size: 12px; line-height: 16px; color: #B1BAD2; }
+    .price-tooltip-val  { font-size: 16px; line-height: 24px; color: #fff; }
+    .price-tooltip-caret {
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #212C46;
+    }
+    .price-tooltip-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #212C46;
+      margin-top: 2px;
+    }
+    .price-scale-bar { display: flex; gap: 2px; }
+    .price-zone { flex: 1; padding: 12px 8px; font-size: 14px; line-height: 20px; text-align: center; }
+    .price-zone-lower  { background: #F3F5FA; color: #697797; border-radius: 8px 0 0 8px; }
+    .price-zone-good   { background: #EBF9E6; color: #227E01; }
+    .price-zone-higher { background: #FFE9EB; color: #C2122D; border-radius: 0 8px 8px 0; padding: 12px 36px; }
+    .price-scale-bounds { display: flex; justify-content: center; gap: 108px; }
+    .price-scale-bound { display: flex; flex-direction: column; align-items: center; }
+    .price-scale-bound-val { font-size: 14px; line-height: 20px; color: var(--text-primary); }
+    .price-scale-bound-sub { font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+
+    /* --- 5.13 Statistics --- */
+    .stats-block { display: flex; flex-direction: column; gap: 20px; max-width: 898px; }
+    .stats-section-header { display: flex; flex-direction: column; gap: 12px; }
+    .metrics-wrap {
+      max-width: 600px;
+      overflow: hidden;
+      max-height: 600px;
+      opacity: 1;
+      transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease;
+    }
+    .metrics-wrap.hidden {
+      max-height: 0;
+      opacity: 0;
+      margin-top: -20px;
+    }
+    .metrics-col-headers { display: flex; justify-content: flex-end; gap: 12px; }
+    .metrics-col-lbl { width: 100px; font-size: 14px; line-height: 20px; color: var(--text-secondary); text-align: right; }
+    .metrics-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--stroke-divider-default);
+    }
+    .metrics-row-left { display: flex; align-items: center; gap: 8px; }
+    .metrics-row-name { font-size: 14px; line-height: 20px; color: var(--text-primary); }
+    .metrics-row-values { display: flex; gap: 12px; align-items: center; }
+    .metrics-row-val {
+      width: 100px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.2px;
+      text-align: right;
+      color: var(--text-primary);
+    }
+
+    /* --- 5.14 Comment --- */
+    .comment-block { display: flex; flex-direction: column; gap: 16px; max-width: 898px; }
+    .comment-textarea-wrap { position: relative; max-width: 600px; }
+    .comment-textarea {
+      display: block;
+      width: 100%;
+      height: 128px;
+      border: 1px solid var(--stroke-control-default);
+      border-radius: var(--radius-m);
+      padding: 8px 12px 28px;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text-primary);
+      resize: none;
+      outline: none;
+      background: #fff;
+    }
+    .comment-textarea::placeholder { color: #B1BAD2; }
+    .comment-counter {
+      position: absolute;
+      bottom: 6px;
+      right: 12px;
+      font-size: 12px;
+      line-height: 16px;
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+
+
+    /* === OWNER REPORT ACCORDION === */
+    .report-blocks-below {
+      gap: 16px;
+      padding: 24px 24px 0 24px;
+    }
+    .owner-report-accordion {
+      border: 1px solid var(--stroke-divider-default);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+    }
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: #F3F5FA;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      text-align: left;
+    }
+    .accordion-trigger:hover {
+      background: #ECF0F9;
+    }
+    .accordion-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      color: var(--text-secondary);
+    }
+    .accordion-trigger.open .accordion-chevron {
+      transform: rotate(180deg);
+    }
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+    .accordion-body.open {
+      max-height: 5000px;
+    }
+    .accordion-body-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+      padding: 32px 24px 40px 24px;
+      border-top: 1px solid var(--stroke-divider-default);
+    }
+
+    /* === PRICE HISTORY TOOLTIP === */
+    .price-tooltip {
+      position: fixed;
+      z-index: 1000;
+      background: #1C2B47;
+      border-radius: 8px;
+      padding: 12px 16px 14px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      white-space: nowrap;
+    }
+    .price-tooltip.visible {
+      opacity: 1;
+    }
+    .price-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: var(--caret-left, 50%);
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 7px solid #1C2B47;
+    }
+    .price-tooltip-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .price-tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    .price-tooltip-row + .price-tooltip-row {
+      margin-top: 2px;
+    }
+    .price-tooltip-date {
+      color: rgba(255,255,255,0.55);
+      min-width: 80px;
+    }
+    .price-tooltip-price {
+      color: #fff;
+    }
+    .price-tooltip-delta {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .price-tooltip-delta--down { color: #E84260; }
+    .price-tooltip-delta--up   { color: #4BBE00; }
+    .price-tooltip-trigger {
+      cursor: default;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="layout">
+  <div id="sidebar"></div>
+
+  <!-- ===== REPORT AREA ===== -->
+  <div class="report-area">
+  <div class="report-card">
+
+<!-- ===== REPORT SECTION ===== -->
+  <main class="report-section">
+    <!-- Report Header -->
+    <div class="report-header">
+      <div class="label">Отчёт о конкурентах</div>
+      <h1>1-комн. кв., 50 м², 2/12 этаж</h1>
+      <div class="address">Москва, САО, р-н Беговой, Ленинградский проспект 33 А</div>
+    </div>
+
+    <!-- Table A: My Object -->
+    <div class="table-section">
+      <!-- Custom scrollbar — above table, attached to legend -->
+      <div class="custom-scrollbar" id="scrollbarMain">
+        <div class="custom-scrollbar-track" id="scrollbarTrack">
+          <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
+        </div>
+      </div>
+      <div class="table-wrapper" id="tableAWrapper">
+        <div class="table-inner" id="tableA">
+          <table>
+            <colgroup>
+              <col class="col-checkbox">
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="col-header-label" colspan="3">Мой объект</th>
+                <th class="col-start-price">Стартовая цена</th>
+                <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
+                <th class="col-dynamics"></th>
+                <th class="col-duration">Срок размещения<br><span style="font-weight:400">Дата публикации</span></th>
+                <th class="col-metro">Метро</th>
+                <th class="col-repair">Ремонт</th>
+                <th class="col-building">Тип дома</th>
+                <th class="col-views">Просмотры<br><span style="font-weight:400">за 10 дней / за всё время</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-checkbox col-checkbox">
+                  <div class="checkbox checked disabled"></div>
+                </td>
+                <td class="sticky-photo col-photo">
+                  <img class="photo-thumb" id="mainPhoto" src="https://placehold.co/70x70" alt="photo">
+                </td>
+                <td class="col-desc desc-cell">
+                  <div class="desc-title">1-комн. кв., 50 м², 2/12 этаж</div>
+                  <div class="desc-metro"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> Белорусская <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg> 15 мин</div>
+                  <div class="desc-zhk">ЖК &laquo;Bolshevik&raquo;, Москва, САО, р-н Беговой, м.&nbsp;Белорусская, Ленинградский проспект</div>
+                </td>
+                <td class="col-start-price">
+                  <div class="price-main">19 800 000 ₽</div>
+                  <div class="price-per-m">396 000 ₽/м²</div>
+                </td>
+                <td class="col-current-price" data-history='[{"date":"6 янв 2026","price":"19 130 000","delta":"−670 000","isUp":false},{"date":"17 дек 2025","price":"19 800 000"}]'>
+                  <div class="price-main-row">
+                    <div class="price-main">19 130 000 ₽</div>
+                    <span class="price-tooltip-trigger"><img class="dynamics-icon" src="../MO/positive-changes.svg" alt=""></span>
+                  </div>
+                  <div class="price-per-m">365 000 ₽/м²</div>
+                  <div class="price-delta">−670 000 ₽</div>
+                </td>
+                <td class="col-dynamics"></td>
+                <td class="col-duration">
+                  <div class="duration-days">56 дней</div>
+                  <div class="duration-date">17 декабря 2025</div>
+                </td>
+                <td class="col-metro metro-cell">
+                  <div class="metro-station"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> Белорусская</div>
+                  <div class="metro-walk">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg>
+                    15 мин
+                  </div>
+                </td>
+                <td class="col-repair">Косметический</td>
+                <td class="col-building">Кирпичный<div class="building-year">1965</div></td>
+                <td class="col-views">
+                  <div class="views-cell">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 8C0 8 3 2 8 2C13 2 16 8 16 8C16 8 13 14 8 14C3 14 0 8 0 8ZM8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z" fill="#7683A0"/></svg>
+                    400 / 2 900
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tabInReport">В отчёте <span class="tab-counter" id="tabInReportCounter">0</span></div>
+      <div class="tab" id="tabSelection">Конкуренты <span class="tab-counter" id="tabSelectionCounter">0</span></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filters-left">
+        <span class="chip">Радиус 3 км <span class="chevron">▾</span></span>
+        <span class="chip">2 комнаты <span class="chevron">▾</span></span>
+        <span class="chip">До 50 кв. м. <span class="chevron">▾</span></span>
+        <span class="chip">15–25 млн ₽ <span class="chevron">▾</span></span>
+        <span class="chip">Ремонт <span class="chevron">▾</span></span>
+        <span class="chip">Тип дома <span class="chevron">▾</span></span>
+        <span class="chip">Год постройки <span class="chevron">▾</span></span>
+        <a class="reset-filters" href="#">Сбросить фильтры</a>
+      </div>
+      <a class="map-link" href="#">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 4v10l4.5-2.5L10.5 14 15 12V2l-4.5 2.5L6 2 1 4z" stroke="#005EDE" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 2v9.5M10.5 4.5V14" stroke="#005EDE" stroke-width="1.2"/></svg>
+        На карте
+      </a>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="results-counter">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#697797" stroke-width="1.2"/><path d="M11 11l3 3" stroke="#697797" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span id="counterText"></span>
+    </div>
+
+    <!-- Table B: Competitors -->
+    <div class="table-section" id="tableBSection">
+      <div id="emptyBState" class="empty-report-state" style="display:none">
+        <div class="empty-report-illustration">
+          <img src="../MO/Frame 2136137207.jpg" alt="" width="120">
+        </div>
+        <div class="empty-report-text">Выберите подходящих конкурентов в отчёт, чтобы отслеживать по ним изменения</div>
+        <div class="empty-report-actions">
+          <button class="btn-primary-lg" type="button" id="btnSelectCompetitors">Выбрать конкурентов</button>
+        </div>
+      </div>
+      <div class="table-nav-zone" id="tableNavZone">
+      <div class="table-wrapper" id="tableBWrapper">
+        <div class="table-inner" id="tableB">
+          <table>
+            <colgroup>
+              <col class="col-checkbox">
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
+            <tbody id="tableBBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Scroll arrows -->
+      <div class="scroll-arrow scroll-arrow-left" id="scrollArrowLeft">
+        <button class="scroll-arrow-btn" type="button" aria-label="Прокрутить влево" tabindex="0">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="scroll-arrow scroll-arrow-right" id="scrollArrowRight">
+        <button class="scroll-arrow-btn" type="button" aria-label="Прокрутить вправо" tabindex="0">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="btnShowMore" class="btn-secondary-md">Показать больше объектов</button>
+      <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
+    </div>
+
+  </main>
+
+  </div><!-- /report-card -->
+
+  <!-- ===== OWNER REPORT CARD ===== -->
+  <div class="owner-report-card" id="ownerReportCard">
+    <div class="owner-report-header">
+      <h2 class="owner-report-title title-disabled" id="ownerReportTitle">Создать отчёт для собственника</h2>
+      <div class="owner-report-subtitle" id="ownerReportSubtitle">Чтобы создать отчёт, выберите хотя бы одного конкурента</div>
+    </div>
+    <div class="owner-report-content owner-content-locked" id="ownerReportContent">
+      <div class="owner-steps">
+
+        <!-- Шаг 1: Выбраны конкуренты -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">1</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="owner-step-title-row" id="stepCompetitorsTitleRow">
+              <span class="owner-step-title" id="stepCompetitorsTitle">Выбраны 0 конкурентов</span>
+              <svg class="step-list-chevron" id="stepListChevron" viewBox="0 0 16 16" fill="none">
+                <path d="M3 6l5 5 5-5" stroke="#0468FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="owner-step-subtitle">Собственник сможет сравнить их со своим объектом</div>
+            <!-- Список выбранных конкурентов -->
+            <div class="owner-comp-wrap" id="ownerCompWrap">
+              <div class="owner-comp-table-scroll">
+                <table class="owner-comp-table">
+                  <tbody id="ownerCompBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 2: Рекомендация по цене -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">2</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="price-report-block">
+              <div class="price-input-section">
+                <div class="heading3">Дайте рекомендацию по цене</div>
+                <div class="body1">Ваше экспертное мнение о подходящей стоимости для объекта</div>
+                <div class="price-mode-row">
+                  <div class="price-chips">
+                    <button class="price-chip" id="priceChipSingle" type="button">Точная сумма</button>
+                    <button class="price-chip selected" id="priceChipRange" type="button">Диапазон</button>
+                  </div>
+                  <div class="price-fields-row" id="priceFieldsRange">
+                    <div class="price-field">
+                      <span class="price-field-affix">от</span>
+                      <input class="price-field-input" type="text" tabindex="-1" aria-label="Цена от">
+                      <span class="price-field-affix">₽</span>
+                    </div>
+                    <div class="price-field">
+                      <span class="price-field-affix">до</span>
+                      <input class="price-field-input" type="text" tabindex="-1" aria-label="Цена до">
+                      <span class="price-field-affix">₽</span>
+                    </div>
+                  </div>
+                  <div class="price-fields-row" id="priceFieldsSingle" style="display:none">
+                    <div class="price-field">
+                      <input class="price-field-input" type="text" tabindex="-1" aria-label="Цена">
+                      <span class="price-field-affix">₽</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="cian-estimate-block">
+                <div class="cian-estimate-desc">
+                  <div class="body1">Оценка от Циана</div>
+                  <div class="body2 text-secondary">Дополним отчёт инфографикой на основе данных из Росреестра о сделках по похожим объектам</div>
+                </div>
+                <div class="radio-options">
+                  <label class="radio-option">
+                    <input class="radio-input" type="radio" name="cian-estimate" checked>
+                    <span class="radio-label">Показывать в отчёте</span>
+                  </label>
+                  <label class="radio-option">
+                    <input class="radio-input" type="radio" name="cian-estimate">
+                    <span class="radio-label">Не показывать</span>
+                  </label>
+                </div>
+                <div class="price-estimate-visual">
+                  <div class="price-scale-row">
+                    <div class="price-tooltip-wrap">
+                      <div class="price-tooltip-bubble">
+                        <span class="price-tooltip-lbl">Ваше объявление</span>
+                        <span class="price-tooltip-val">19 130 000 ₽</span>
+                      </div>
+                      <div class="price-tooltip-caret"></div>
+                      <div class="price-tooltip-dot"></div>
+                    </div>
+                    <div class="price-scale-bar">
+                      <div class="price-zone price-zone-lower">Ниже рынка</div>
+                      <div class="price-zone price-zone-good">Хорошая цена</div>
+                      <div class="price-zone price-zone-higher">Выше рынка</div>
+                    </div>
+                  </div>
+                  <div class="price-scale-bounds">
+                    <div class="price-scale-bound">
+                      <span class="price-scale-bound-val">14 900 000 ₽</span>
+                      <span class="price-scale-bound-sub">278 000 ₽/м²</span>
+                    </div>
+                    <div class="price-scale-bound">
+                      <span class="price-scale-bound-val">16 200 000 ₽</span>
+                      <span class="price-scale-bound-sub">324 000 ₽/м²</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 3: Статистика -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">3</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="stats-block">
+              <div class="stats-section-header">
+                <div>
+                  <div class="heading3">Статистика по объекту собственника</div>
+                  <div class="body2 text-secondary" style="margin-top:4px">Так клиент сможет сопоставить ситуацию на рынке с активностью по его объявлению</div>
+                </div>
+                <div class="radio-options">
+                  <label class="radio-option">
+                    <input class="radio-input" type="radio" name="stats-include" checked>
+                    <span class="radio-label">Показывать в отчёте</span>
+                  </label>
+                  <label class="radio-option">
+                    <input class="radio-input" type="radio" name="stats-include">
+                    <span class="radio-label">Не показывать</span>
+                  </label>
+                </div>
+              </div>
+              <div class="metrics-wrap" id="statsMetricsWrap">
+                <div class="metrics-col-headers">
+                  <span class="metrics-col-lbl">за 10 дней</span>
+                  <span class="metrics-col-lbl">за всё время</span>
+                </div>
+                <div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Показы</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">573</span><span class="metrics-row-val">28 473</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Просмотры</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">412</span><span class="metrics-row-val">20 180</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">В избранном</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">32</span><span class="metrics-row-val">1 540</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Отклики</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">18</span><span class="metrics-row-val">887</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Звонки</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">9</span><span class="metrics-row-val">454</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Чаты</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">5</span><span class="metrics-row-val">241</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 4: Комментарий -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">4</div>
+          </div>
+          <div class="owner-step-body">
+            <div class="comment-block">
+              <div class="heading3">Общий комментарий для собственника</div>
+              <div class="comment-textarea-wrap">
+                <textarea
+                  class="comment-textarea"
+                  id="commentTextarea"
+                  maxlength="300"
+                  placeholder="Какая ситуация на рынке, как лучше поступить с ценой, сколько конкурентных предложений рядом и т. д."
+                ></textarea>
+                <span class="comment-counter" id="commentCounter">0/300</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /owner-steps -->
+
+      <!-- Кнопки действий -->
+      <div class="owner-report-actions">
+        <a class="btn-primary-lg" href="../pdf-report.pdf" target="_blank" rel="noopener">Создать PDF-отчёт</a>
+        <button class="btn-ghost-lg" id="btnSaveExit">Сохранить и выйти</button>
+      </div>
+
+    </div><!-- /owner-report-content -->
+  </div><!-- /owner-report-card -->
+
+  </div><!-- /report-area -->
+</div>
+
+<!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
+<div class="sticky-tabs-bar" id="stickyTabsBar">
+  <div class="tab active" id="stickyTabInReport">В отчёте <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
+  <div class="tab" id="stickyTabSelection">Конкуренты <span class="tab-counter" id="stickyTabSelectionCounter">0</span></div>
+</div>
+
+<!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
+<div class="sticky-table-header" id="stickyTableHeader">
+  <div class="sticky-header-inner" id="stickyHeaderScroll">
+    <table>
+      <colgroup>
+        <col class="col-checkbox">
+        <col class="col-photo">
+        <col class="col-desc">
+        <col class="col-start-price">
+        <col class="col-current-price">
+        <col class="col-dynamics">
+        <col class="col-duration">
+        <col class="col-metro">
+        <col class="col-repair">
+        <col class="col-building">
+        <col class="col-views">
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="col-header-label" colspan="3">Конкурентный объект</th>
+          <th class="col-start-price">Стартовая цена</th>
+          <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
+          <th class="col-dynamics"></th>
+          <th class="col-duration">Срок размещения<br><span style="font-weight:400">Дата публикации</span></th>
+          <th class="col-metro">Метро</th>
+          <th class="col-repair">Ремонт</th>
+          <th class="col-building">Тип дома</th>
+          <th class="col-views">Просмотры<br><span style="font-weight:400">за 10 дней / за всё время</span></th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <div class="custom-scrollbar sticky-custom-scrollbar" id="stickyScrollbarMain">
+    <div class="custom-scrollbar-track" id="stickyScrollbarTrack">
+      <div class="custom-scrollbar-thumb" id="stickyScrollbarThumb"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SNACKBAR CONTAINER ===== -->
+<div class="snackbar-container" id="snackbarContainer" aria-live="polite"></div>
+
+<div class="price-tooltip" id="priceTooltip">
+  <div class="price-tooltip-title">История цены</div>
+  <div class="price-tooltip-body"></div>
+</div>
+
+<script src="../components/header.js"></script>
+<script src="../components/sidebar.js"></script>
+<script src="../competitors-data.js"></script>
+<script>
+  renderHeader();
+  renderSidebar({ active: '' });
+
+  // =========================================================
+  // === PROTOTYPE CONFIG ====================================
+  // Параметры, специфичные для этого прототипа.
+  // Изменяй здесь — логика подхватит автоматически.
+  // =========================================================
+  var REPORT_CONFIG = {
+    id: 'prototype-3',
+
+    // Активная вкладка при загрузке: 'in-report' | 'selection'
+    initialTab: 'in-report',
+
+    // Текст кнопки генерации PDF в Sticky Footer
+    pdfButtonLabel: 'Создать PDF-отчёт',
+  };
+  // Применяем конфиг к DOM
+  var _btnPdf = document.querySelector('.sticky-footer .btn-primary-lg');
+  if (_btnPdf) _btnPdf.textContent = REPORT_CONFIG.pdfButtonLabel;
+
+  (function() {
+    // === PHOTO POOL ===
+    // Drop any photos named 1.jpg, 2.jpg, 3.jpg... into photos/ folder.
+    // Adjust PHOTO_COUNT to match how many photos you have.
+    var PHOTO_COUNT = 12;
+    var photoPool = [];
+    for (var p = 1; p <= PHOTO_COUNT; p++) photoPool.push('../photos/' + p + '.png');
+    // Shuffle Fisher-Yates
+    for (var i = photoPool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = photoPool[i]; photoPool[i] = photoPool[j]; photoPool[j] = tmp;
+    }
+    var photoIndex = 0;
+    function nextPhoto() {
+      var src = photoPool[photoIndex % photoPool.length];
+      photoIndex++;
+      return src;
+    }
+
+    // ALL_COMPETITORS загружается из competitors-data.js
+
+    // === STATE ===
+    var checkedIds = new Set();
+    var removedIds = new Set();
+    var removedDates = {}; // idx → formatted date string "D.MM.YY"
+    var visitedIds = new Set();
+    var visibleCount = 5;
+    var activeTab = REPORT_CONFIG.initialTab; // 'selection' | 'in-report'
+    var photoCache = {}; // idx → photoSrc
+    var commentTexts = {}; // idx → comment string
+
+    // === DATE HELPERS ===
+    var MONTHS_RU_PARSE = {
+      'января': 0, 'февраля': 1, 'марта': 2, 'апреля': 3, 'мая': 4, 'июня': 5,
+      'июля': 6, 'августа': 7, 'сентября': 8, 'октября': 9, 'ноября': 10, 'декабря': 11
+    };
+    function parseRuDate(str) {
+      var parts = str.trim().split(' ');
+      return new Date(parseInt(parts[2]), MONTHS_RU_PARSE[parts[1]], parseInt(parts[0]));
+    }
+    function formatRemovedDate(d) {
+      return d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getFullYear()).slice(2);
+    }
+    function parseRemovedDate(str) {
+      var parts = str.split('.');
+      return new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    function daysOnMarket(pubDateStr, removedDateStr) {
+      return Math.max(1, Math.round((parseRemovedDate(removedDateStr) - parseRuDate(pubDateStr)) / 86400000));
+    }
+    function pluralDays(n) {
+      var mod10 = n % 10, mod100 = n % 100;
+      if (mod100 >= 11 && mod100 <= 19) return n + ' дней';
+      if (mod10 === 1) return n + ' день';
+      if (mod10 >= 2 && mod10 <= 4) return n + ' дня';
+      return n + ' дней';
+    }
+
+    // Randomly mark ~35% of competitors as removed on each page load
+    (function randomizeRemovedStatus() {
+      var probability = 0.35;
+      var today = new Date(2026, 1, 18); // прототип зафиксирован на 18.02.2026
+      ALL_COMPETITORS.forEach(function(d, i) {
+        if (Math.random() < probability) {
+          removedIds.add(i);
+          // Дата снятия — случайный день между датой публикации и сегодня
+          var pubDate = parseRuDate(d.date);
+          var msRange = today.getTime() - pubDate.getTime();
+          var removedMs = pubDate.getTime() + Math.floor(Math.random() * msRange);
+          removedDates[i] = formatRemovedDate(new Date(removedMs));
+        }
+      });
+    })();
+
+    ALL_COMPETITORS.forEach(function(d, i) {
+      if (d.initialChecked) checkedIds.add(i);
+    });
+
+    // === DOM REFS ===
+    var tableA = document.getElementById('tableA');
+    var tableB = document.getElementById('tableB');
+    var tableBBody = document.getElementById('tableBBody');
+    var tableBWrapper = document.getElementById('tableBWrapper');
+    var emptyBState = document.getElementById('emptyBState');
+    var scrollbarMain = document.getElementById('scrollbarMain');
+    var scrollbarTrack = document.getElementById('scrollbarTrack');
+    var scrollbarThumb = document.getElementById('scrollbarThumb');
+    var stickyScrollbarMain = document.getElementById('stickyScrollbarMain');
+    var stickyScrollbarTrack = document.getElementById('stickyScrollbarTrack');
+    var stickyScrollbarThumb = document.getElementById('stickyScrollbarThumb');
+    var tabInReport = document.getElementById('tabInReport');
+    var tabSelection = document.getElementById('tabSelection');
+    var stickyFooter = null; // removed in v3
+    var stickyTabsBar = document.getElementById('stickyTabsBar');
+    var stickyTabInReport = document.getElementById('stickyTabInReport');
+    var stickyTabSelection = document.getElementById('stickyTabSelection');
+    var filtersEl = document.querySelector('.filters');
+    var resultsCounter = document.querySelector('.results-counter');
+    var counterText = document.getElementById('counterText');
+    var btnShowMore = document.getElementById('btnShowMore');
+    var btnAddLink = document.getElementById('btnAddLink');
+    var stickyTableHeader = document.getElementById('stickyTableHeader');
+    var stickyHeaderScroll = document.getElementById('stickyHeaderScroll');
+    var snackbarContainer = document.getElementById('snackbarContainer');
+
+    // === SVG HELPERS ===
+    var BUS_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg>';
+    var EYE_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 8C0 8 3 2 8 2C13 2 16 8 16 8C16 8 13 14 8 14C3 14 0 8 0 8ZM8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z" fill="#7683A0"/></svg>';
+    var DYN_ICON_POS = '<img class="dynamics-icon" src="../MO/positive-changes.svg" alt="">';
+    var DYN_ICON_NEG = '<img class="dynamics-icon" src="../MO/negative-changes.svg" alt="">';
+    var EDIT_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9727 1.28407C11.594 0.905311 10.9799 0.905311 10.6012 1.28407L9.22956 2.65566L13.3443 6.77044L14.7159 5.39885C15.0947 5.02009 15.0947 4.40601 14.7159 4.02725L11.9727 1.28407Z" fill="#0468FF"/><path d="M11.9727 8.14203L7.85797 4.02725L1 10.8852V15H5.11478L11.9727 8.14203Z" fill="#0468FF"/></svg>';
+    var TRASH_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 2C4 0.89543 4.89543 0 6 0H10C11.1046 0 12 0.89543 12 2V3H15V5H1V3H4V2ZM10 2V3H6V2H10Z" fill="#C2122D"/><path d="M7 7V12H9V7H7Z" fill="#C2122D"/><path d="M3 6V14C3 15.1046 3.89543 16 5 16H11C12.1046 16 13 15.1046 13 14V6H11V14H5V6H3Z" fill="#C2122D"/></svg>';
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // === MAKE ROW HTML ===
+    function makeRow(d, idx, isChecked) {
+      if (!photoCache[idx]) photoCache[idx] = nextPhoto();
+      return '<tr data-idx="' + idx + '">'
+        + '<td class="sticky-checkbox col-checkbox"><div class="checkbox' + (isChecked ? ' checked' : '') + '"></div></td>'
+        + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/70x70\'" alt="photo"></td>'
+        + '<td class="col-desc desc-cell">'
+        +   '<div class="desc-title' + (removedIds.has(idx) ? ' removed' : '') + '">' + d.desc + '</div>'
+        +   (removedIds.has(idx) ? '<div class="badge-removed">Снято с публикации ' + removedDates[idx] + '</div>' : '')
+        +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
+        +   (d.zhk ? '<div class="desc-zhk">ЖК \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
+        + '</td>'
+        + '<td class="col-start-price"><div class="price-main">' + d.startPrice + '\u00a0\u20bd</div><div class="price-per-m">' + d.startPricePerM + '\u00a0\u20bd/м\u00b2</div></td>'
+        + '<td class="col-current-price" data-comp-idx="' + idx + '"><div class="price-main-row"><div class="price-main">' + d.currentPrice + ' \u20bd</div>' + (d.priceDelta ? '<span class="price-tooltip-trigger">' + (d.priceDelta.startsWith('+') ? DYN_ICON_NEG : DYN_ICON_POS) + '</span>' : '') + '</div><div class="price-per-m">' + d.currentPricePerM + ' \u20bd/м\u00b2</div>' + (d.priceDelta ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + ' \u20bd</div>' : '') + '</td>'
+        + '<td class="col-dynamics"></td>'
+        + '<td class="col-duration"><div class="duration-days">' + pluralDays(removedIds.has(idx) ? daysOnMarket(d.date, removedDates[idx]) : d.days) + '</div><div class="duration-date">' + d.date + '</div></td>'
+        + '<td class="col-metro metro-cell"><div class="metro-station"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroStation + '</div><div class="metro-walk">' + BUS_ICON + ' ' + d.walkMin + ' мин</div></td>'
+        + '<td class="col-repair">' + d.repair + '</td>'
+        + '<td class="col-building">' + d.building + '<div class="building-year">' + d.buildYear + '</div></td>'
+        + '<td class="col-views"><div class="views-cell">' + EYE_ICON + ' ' + d.views + '</div></td>'
+        + '</tr>';
+    }
+
+    // === COMMENT ROW HTML ===
+    function makeCommentRow(idx) {
+      return '<tr class="comment-row" data-comment-idx="' + idx + '">'
+        + '<td class="comment-spacer-1"></td>'
+        + '<td class="comment-spacer-2"></td>'
+        + '<td class="comment-row-cell" colspan="9">'
+        + '<div class="comment-sticky-wrap">'
+        + '<span class="row-comment-bubble">' + escHtml(commentTexts[idx]) + '</span>'
+        + '<div class="row-comment-controls">'
+        + '<button class="btn-icon" data-comment-edit title="Редактировать">' + EDIT_ICON + '</button>'
+        + '<button class="btn-icon" data-comment-delete title="Удалить">' + TRASH_ICON + '</button>'
+        + '</div>'
+        + '</div></td></tr>';
+    }
+
+    // === RENDER TABLE B ===
+    function renderTableB() {
+      var savedScrollLeft = tableB.scrollLeft;
+      var items = [];
+
+      if (activeTab === 'in-report') {
+        ALL_COMPETITORS.forEach(function(d, i) {
+          if (checkedIds.has(i)) items.push({ d: d, i: i });
+        });
+      } else {
+        var limit = Math.min(visibleCount, ALL_COMPETITORS.length);
+        for (var j = 0; j < limit; j++) {
+          items.push({ d: ALL_COMPETITORS[j], i: j });
+        }
+      }
+
+      if (items.length === 0) {
+        tableBBody.innerHTML = '';
+        tableBWrapper.style.display = 'none';
+        emptyBState.style.display = 'flex';
+        requestAnimationFrame(updateEmptyStateHeight);
+      } else {
+        tableBWrapper.style.display = '';
+        emptyBState.style.display = 'none';
+        tableBBody.innerHTML = items.map(function(x) {
+          var isChecked = checkedIds.has(x.i);
+          return makeRow(x.d, x.i, isChecked);
+        }).join('');
+      }
+
+      tableB.scrollLeft = savedScrollLeft;
+      syncProxyWidth();
+    }
+
+    // === UI UPDATERS ===
+    function updateTabLabels() {
+      document.getElementById('tabInReportCounter').textContent = checkedIds.size;
+      document.getElementById('stickyTabInReportCounter').textContent = checkedIds.size;
+      document.getElementById('tabSelectionCounter').textContent = visibleCount;
+      document.getElementById('stickyTabSelectionCounter').textContent = visibleCount;
+    }
+
+    // === OWNER REPORT BLOCK ===
+    var ownerListExpanded = false;
+
+    function renderOwnerCompetitorsList() {
+      var tbody = document.getElementById('ownerCompBody');
+      if (!tbody) return;
+      var rows = [];
+      checkedIds.forEach(function(idx) {
+        var d = ALL_COMPETITORS[idx];
+        if (!d) return;
+        if (!photoCache[idx]) photoCache[idx] = nextPhoto();
+        var isRemoved = removedIds.has(idx);
+        var comment = commentTexts[idx];
+        var deltaHtml = d.priceDelta
+          ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + '\u00a0\u20bd</div>'
+          : '';
+        var badgeHtml = isRemoved
+          ? '<div class="badge-removed" style="display:inline-flex;margin-bottom:4px">Снято с публикации ' + (removedDates[idx] || '') + '</div>'
+          : '';
+        var titleClass = isRemoved ? 'desc-title removed' : 'desc-title';
+        var commentHtml = comment
+          ? '<div class="occ-comment-wrap">'
+            + '<span class="row-comment-bubble">' + escHtml(comment) + '</span>'
+            + '<div class="row-comment-controls">'
+            + '<button class="btn-icon" data-occ-edit title="Редактировать">' + EDIT_ICON + '</button>'
+            + '<button class="btn-icon" data-occ-delete title="Удалить">' + TRASH_ICON + '</button>'
+            + '</div></div>'
+          : '<a class="add-comment" href="#" data-occ-add style="margin-top:6px">' + EDIT_ICON + ' Добавить комментарий</a>';
+        rows.push(
+          '<tr data-owner-idx="' + idx + '">'
+          + '<td class="occ-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/70x70\'" alt="photo"></td>'
+          + '<td class="occ-desc desc-cell">'
+          +   '<div class="' + titleClass + '">' + d.desc + '</div>'
+          +   badgeHtml
+          +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + '\u00a0\u043c\u0438\u043d</div>'
+          +   (d.zhk ? '<div class="desc-zhk">\u0416\u041a \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
+          +   commentHtml
+          + '</td>'
+          + '<td class="occ-start-price">'
+          +   '<div class="price-main">' + d.startPrice + '\u00a0\u20bd</div>'
+          +   '<div class="price-per-m">' + d.startPricePerM + '\u00a0\u20bd/\u043c\u00b2</div>'
+          + '</td>'
+          + '<td class="occ-price">'
+          +   '<div class="price-main">' + d.currentPrice + '\u00a0\u20bd</div>'
+          +   '<div class="price-per-m">' + d.currentPricePerM + '\u00a0\u20bd/\u043c\u00b2</div>'
+          +   deltaHtml
+          + '</td>'
+          + '<td class="occ-dur">'
+          +   '<div class="duration-days">' + pluralDays(isRemoved ? daysOnMarket(d.date, removedDates[idx]) : d.days) + '</div>'
+          +   '<div class="duration-date">' + d.date + '</div>'
+          + '</td>'
+          + '<td class="occ-repair">' + d.repair + '</td>'
+          + '<td class="occ-build">' + d.building + '<div class="building-year">' + d.buildYear + '</div></td>'
+          + '</tr>'
+        );
+      });
+      tbody.innerHTML = rows.join('');
+    }
+
+    function updateOwnerReportBlock() {
+      var ownerContent = document.getElementById('ownerReportContent');
+      var ownerTitle = document.getElementById('ownerReportTitle');
+      var ownerSubtitle = document.getElementById('ownerReportSubtitle');
+      var stepTitle = document.getElementById('stepCompetitorsTitle');
+
+      if (checkedIds.size === 0) {
+        ownerTitle.classList.add('title-disabled');
+        ownerSubtitle.textContent = 'Чтобы создать отчёт, выберите хотя бы одного конкурента';
+        ownerContent.classList.add('owner-content-locked');
+      } else {
+        ownerTitle.classList.remove('title-disabled');
+        ownerSubtitle.textContent = '';
+        ownerContent.classList.remove('owner-content-locked');
+        if (stepTitle) {
+          var n = checkedIds.size;
+          stepTitle.textContent = 'Выбраны\u00a0' + n + '\u00a0' + pluralize(n, 'конкурент', 'конкурента', 'конкурентов');
+        }
+        renderOwnerCompetitorsList();
+        // Sync chevron state
+        var chevron = document.getElementById('stepListChevron');
+        var wrap = document.getElementById('ownerCompWrap');
+        if (chevron) chevron.classList.toggle('collapsed', !ownerListExpanded);
+        if (wrap) wrap.classList.toggle('collapsed', !ownerListExpanded);
+      }
+    }
+
+    // === OWNER COMP LIST COMMENT FORM ===
+    function showOwnerCommentForm(idx, prefill) {
+      var existingForm = document.querySelector('.occ-comment-form-row');
+      if (existingForm) existingForm.remove();
+      var dataTr = document.querySelector('#ownerCompBody tr[data-owner-idx="' + idx + '"]');
+      if (!dataTr) return;
+
+      var formTr = document.createElement('tr');
+      formTr.className = 'occ-comment-form-row';
+      formTr.innerHTML = '<td colspan="7" class="occ-comment-form-cell">'
+        + '<div class="comment-form-wrap">'
+        + '<input class="comment-input-inline" type="text" maxlength="120" placeholder="\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u043a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439\u2026">'
+        + '<div class="comment-form-actions">'
+        + '<button class="btn-primary-sm" data-occ-form-save type="button">\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c</button>'
+        + '<button class="btn-ghost-sm" data-occ-form-cancel type="button">\u041e\u0442\u043c\u0435\u043d\u0430</button>'
+        + '</div></div></td>';
+      dataTr.parentNode.insertBefore(formTr, dataTr.nextSibling);
+
+      var input = formTr.querySelector('.comment-input-inline');
+      if (prefill) input.value = prefill;
+      input.focus();
+
+      function saveAndClose() {
+        var text = input.value.trim();
+        if (text) { commentTexts[idx] = text; showSnackbar('\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d'); }
+        else { delete commentTexts[idx]; }
+        formTr.remove();
+        renderOwnerCompetitorsList();
+      }
+      function cancelClose() {
+        formTr.remove();
+        renderOwnerCompetitorsList();
+      }
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); saveAndClose(); }
+        else if (e.key === 'Escape') { cancelClose(); }
+      });
+      formTr.querySelector('[data-occ-form-save]').addEventListener('click', saveAndClose);
+      formTr.querySelector('[data-occ-form-cancel]').addEventListener('click', cancelClose);
+      input.addEventListener('blur', function() {
+        setTimeout(function() { if (input.isConnected) saveAndClose(); }, 150);
+      });
+    }
+
+    // === OWNER COMP LIST EVENT DELEGATION ===
+    document.getElementById('ownerCompWrap').addEventListener('click', function(e) {
+      var tr = e.target.closest ? e.target.closest('tr[data-owner-idx]') : null;
+      if (!tr) return;
+      var idx = parseInt(tr.getAttribute('data-owner-idx'), 10);
+      if (isNaN(idx)) return;
+
+      if (e.target.closest('[data-occ-add]')) {
+        e.preventDefault();
+        showOwnerCommentForm(idx);
+        return;
+      }
+      if (e.target.closest('[data-occ-edit]') || e.target.closest('.row-comment-bubble')) {
+        showOwnerCommentForm(idx, commentTexts[idx]);
+        return;
+      }
+      if (e.target.closest('[data-occ-delete]')) {
+        var savedText = commentTexts[idx];
+        delete commentTexts[idx];
+        renderOwnerCompetitorsList();
+        showSnackbar('\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439 \u0443\u0434\u0430\u043b\u0451\u043d', {
+          label: '\u0412\u043e\u0441\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c',
+          callback: function() { commentTexts[idx] = savedText; renderOwnerCompetitorsList(); }
+        });
+        return;
+      }
+    });
+
+    // Toggle expand/collapse for step 1 list
+    document.getElementById('stepCompetitorsTitleRow').addEventListener('click', function() {
+      ownerListExpanded = !ownerListExpanded;
+      var chevron = document.getElementById('stepListChevron');
+      var wrap = document.getElementById('ownerCompWrap');
+      if (chevron) chevron.classList.toggle('collapsed', !ownerListExpanded);
+      if (wrap) wrap.classList.toggle('collapsed', !ownerListExpanded);
+    });
+
+    function updateResultsCounter() {
+      var total = ALL_COMPETITORS.length;
+      var inReport = checkedIds.size;
+      var totalStr = total + '\u00a0' + pluralize(total, 'конкурент', 'конкурента', 'конкурентов');
+      if (inReport > 0) {
+        counterText.innerHTML = 'Нашли <strong>' + totalStr + ',</strong> ' + inReport + '\u00a0уже в отчёте';
+      } else {
+        counterText.innerHTML = 'Нашли <strong>' + totalStr + '</strong>';
+      }
+    }
+
+    function pluralize(n, one, few, many) {
+      var mod10 = n % 10, mod100 = n % 100;
+      if (mod100 >= 11 && mod100 <= 14) return many;
+      if (mod10 === 1) return one;
+      if (mod10 >= 2 && mod10 <= 4) return few;
+      return many;
+    }
+
+    var SNACKBAR_ICON = '<div class="snackbar-icon"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#0D162E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+
+    function showSnackbar(text, action, noIcon) {
+      var item = document.createElement('div');
+      item.className = 'snackbar-item';
+      var actionHtml = action ? '<button class="snackbar-action">' + action.label + '</button>' : '';
+      var iconHtml = noIcon ? '' : SNACKBAR_ICON;
+      item.innerHTML = iconHtml + '<span class="snackbar-text">' + (text || 'Объект добавлен в отчёт') + '</span>' + actionHtml;
+      snackbarContainer.appendChild(item);
+
+      var dismissed = false;
+      function dismiss() {
+        if (dismissed) return;
+        dismissed = true;
+        item.classList.remove('visible');
+        item.classList.add('hiding');
+        setTimeout(function() {
+          if (item.parentNode) item.parentNode.removeChild(item);
+        }, 250);
+      }
+
+      if (action) {
+        item.querySelector('.snackbar-action').addEventListener('click', function() {
+          action.callback();
+          dismiss();
+        });
+      }
+
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          item.classList.add('visible');
+        });
+      });
+
+      setTimeout(dismiss, 3000);
+    }
+
+    function updateFooter() {
+      // Кнопки находятся внутри блока owner-report-content, управляются через updateOwnerReportBlock
+    }
+
+    function updateShowMoreBtn() {
+      if (activeTab === 'in-report') {
+        btnShowMore.style.display = 'none';
+        btnAddLink.style.display = 'none';
+      } else {
+        btnShowMore.style.display = visibleCount >= ALL_COMPETITORS.length ? 'none' : '';
+        btnAddLink.style.display = '';
+      }
+    }
+
+    // === PLACEHOLDER BUTTON ===
+    document.getElementById('btnSelectCompetitors').addEventListener('click', function() {
+      tabSelection.click();
+    });
+
+    // === FLY-TO-TAB ANIMATION ===
+    function flyPhotoToTab(photoImg, counterEl) {
+      var srcRect = photoImg.getBoundingClientRect();
+      var dstRect = counterEl.getBoundingClientRect();
+
+      var startX = srcRect.left + srcRect.width / 2;
+      var startY = srcRect.top + srcRect.height / 2;
+      var endX = dstRect.left + dstRect.width / 2;
+      var endY = dstRect.top + dstRect.height / 2;
+
+      var dx = endX - startX;
+      var dy = endY - startY;
+
+      var clone = document.createElement('img');
+      clone.src = photoImg.src;
+      clone.style.cssText =
+        'position:fixed;' +
+        'left:' + startX + 'px;' +
+        'top:' + startY + 'px;' +
+        'width:' + srcRect.width + 'px;' +
+        'height:' + srcRect.height + 'px;' +
+        'margin-left:-' + (srcRect.width / 2) + 'px;' +
+        'margin-top:-' + (srcRect.height / 2) + 'px;' +
+        'border-radius:8px;' +
+        'object-fit:cover;' +
+        'pointer-events:none;' +
+        'z-index:9999;' +
+        'transform:translate(0,0) scale(1);' +
+        'opacity:1;' +
+        'transition:none;' +
+        'will-change:transform,opacity;';
+
+      document.body.appendChild(clone);
+      clone.offsetHeight; // force reflow
+
+      clone.style.transition = 'transform 0.85s cubic-bezier(0.4,0,0.2,1), opacity 0.75s ease-in';
+      clone.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.12)';
+      clone.style.opacity = '0';
+
+      function cleanup() {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+      }
+      clone.addEventListener('transitionend', cleanup);
+      setTimeout(cleanup, 1000);
+    }
+
+    // === CHECKBOX CLICK (delegation) ===
+    tableB.addEventListener('click', function(e) {
+      var cb = e.target.closest ? e.target.closest('.checkbox') : null;
+      if (!cb || cb.classList.contains('disabled')) return;
+      var tr = cb.parentElement;
+      while (tr && tr.tagName !== 'TR') tr = tr.parentElement;
+      if (!tr) return;
+      var idx = parseInt(tr.getAttribute('data-idx'), 10);
+      if (isNaN(idx)) return;
+
+      if (checkedIds.has(idx)) {
+        checkedIds.delete(idx);
+        cb.classList.remove('checked');
+        showSnackbar('Объект удалён из отчёта', {
+          label: 'Восстановить',
+          callback: function() {
+            checkedIds.add(idx);
+            cb.classList.add('checked');
+            updateTabLabels();
+            updateResultsCounter();
+            updateFooter();
+            updateOwnerReportBlock();
+            if (activeTab === 'in-report') {
+              renderTableB();
+              updateArrowVisibility();
+            }
+          }
+        });
+      } else {
+        checkedIds.add(idx);
+        cb.classList.add('checked');
+
+        var photoImg = tr.querySelector('.photo-thumb');
+        var stickyBar = document.getElementById('stickyTabsBar');
+        var useSticky = stickyBar && stickyBar.classList.contains('visible');
+        var counterEl = document.getElementById(useSticky ? 'stickyTabInReportCounter' : 'tabInReportCounter');
+        if (photoImg && counterEl) {
+          flyPhotoToTab(photoImg, counterEl);
+        }
+      }
+
+      updateTabLabels();
+      updateResultsCounter();
+      updateFooter();
+      updateOwnerReportBlock();
+
+      if (activeTab === 'in-report') {
+        renderTableB();
+        updateArrowVisibility();
+      }
+    });
+
+    // === COMPETITOR LINK CLICK ===
+    tableB.addEventListener('click', function(e) {
+      var title = e.target.closest ? e.target.closest('.desc-title') : null;
+      if (!title) return;
+      var tr = title.closest('tr[data-idx]');
+      if (!tr) return;
+      var idx = parseInt(tr.getAttribute('data-idx'), 10);
+      if (!isNaN(idx)) {
+        visitedIds.add(idx);
+      }
+      showSnackbar('Переход на страницу объекта', null, true);
+    });
+
+    // === COMMENT HELPERS ===
+
+    // Find comment-row TR for a given idx (must be sibling right after data TR)
+    function findCommentTr(idx) {
+      var dataTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+      if (!dataTr) return null;
+      var next = dataTr.nextElementSibling;
+      if (next && next.classList.contains('comment-row') && next.getAttribute('data-comment-idx') == idx) return next;
+      return null;
+    }
+
+    // Auto-save and close any other open comment form
+    function closeOtherCommentForms(currentIdx) {
+      var openInputs = tableBBody.querySelectorAll('.comment-input-inline');
+      openInputs.forEach(function(input) {
+        var tr = input.closest('tr[data-comment-idx]');
+        if (!tr) return;
+        var otherIdx = parseInt(tr.getAttribute('data-comment-idx'), 10);
+        if (otherIdx === currentIdx) return;
+        var text = input.value.trim();
+        var otherDataTr = tableBBody.querySelector('tr[data-idx="' + otherIdx + '"]');
+        var otherDescCell = otherDataTr ? otherDataTr.querySelector('.col-desc') : null;
+        if (text && otherDescCell) {
+          commentTexts[otherIdx] = text;
+          renderCommentOrLink(otherIdx);
+        } else {
+          tr.remove();
+          if (otherDescCell) {
+            var link = otherDescCell.querySelector('.add-comment');
+            if (link) link.style.display = '';
+          }
+        }
+      });
+    }
+
+    // Show inline edit/add form inside sticky TR
+    function showCommentForm(idx, descCell, prefill) {
+      // Close any other open form first (auto-save if has content)
+      closeOtherCommentForms(idx);
+
+      // Hide add-comment link in desc cell
+      var addLink = descCell.querySelector('.add-comment');
+      if (addLink) addLink.style.display = 'none';
+
+      var dataTr = descCell.closest('tr[data-idx]');
+      if (!dataTr) return;
+
+      // Find or create comment row
+      var commentTr = findCommentTr(idx);
+      if (!commentTr) {
+        commentTr = document.createElement('tr');
+        commentTr.className = 'comment-row';
+        commentTr.setAttribute('data-comment-idx', idx);
+        dataTr.parentNode.insertBefore(commentTr, dataTr.nextSibling);
+      }
+
+      commentTr.innerHTML = '<td class="comment-spacer-1"></td>'
+        + '<td class="comment-spacer-2"></td>'
+        + '<td class="comment-row-cell" colspan="8">'
+        + '<div class="comment-form-wrap">'
+        + '<input class="comment-input-inline" type="text" maxlength="120" placeholder="Добавьте комментарий…">'
+        + '<div class="comment-form-actions">'
+        + '<button class="btn-primary-sm" data-comment-add type="button">Добавить</button>'
+        + '<button class="btn-ghost-sm" data-comment-cancel type="button">Отмена</button>'
+        + '</div>'
+        + '</div></td>';
+
+      var input = commentTr.querySelector('.comment-input-inline');
+      if (prefill) input.value = prefill;
+      input.focus();
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var text = input.value.trim();
+          if (text) {
+            commentTexts[idx] = text;
+            renderCommentOrLink(idx);
+            showSnackbar('Комментарий добавлен');
+          } else {
+            commentTr.remove();
+            var link = descCell.querySelector('.add-comment');
+            if (link) link.style.display = '';
+          }
+        } else if (e.key === 'Escape') {
+          commentTr.remove();
+          var link = descCell.querySelector('.add-comment');
+          if (link) link.style.display = '';
+        }
+      });
+
+      // Auto-save on blur (click outside the form)
+      input.addEventListener('blur', function() {
+        // Delay so button clicks fire before blur handler
+        setTimeout(function() {
+          if (!input.isConnected) return; // already handled by button click
+          var text = input.value.trim();
+          if (text) {
+            commentTexts[idx] = text;
+            renderCommentOrLink(idx);
+          } else {
+            commentTr.remove();
+            var link = descCell.querySelector('.add-comment');
+            if (link) link.style.display = '';
+          }
+        }, 150);
+      });
+    }
+
+    function renderCommentOrLink(idx) {
+      if (checkedIds.has(idx)) renderOwnerCompetitorsList();
+    }
+
+    // === COMMENT INTERACTION (delegation) ===
+    tableB.addEventListener('click', function(e) {
+      // Resolve from data TR or comment TR
+      var anyTr = e.target.closest ? e.target.closest('tr[data-idx], tr[data-comment-idx]') : null;
+      if (!anyTr) return;
+      var idx = parseInt(anyTr.getAttribute('data-idx') || anyTr.getAttribute('data-comment-idx'), 10);
+      if (isNaN(idx)) return;
+
+      // Always resolve desc cell from data TR
+      var dataTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+      var descCell = dataTr ? dataTr.querySelector('.col-desc') : null;
+      if (!descCell) return;
+
+      // "Добавить комментарий" link (in desc cell)
+      if (e.target.closest('.add-comment')) {
+        e.preventDefault();
+        showCommentForm(idx, descCell, null);
+        return;
+      }
+
+      // "Добавить" button in inline form
+      if (e.target.closest('[data-comment-add]')) {
+        var commentTr = findCommentTr(idx);
+        if (!commentTr) return;
+        var input = commentTr.querySelector('.comment-input-inline');
+        var text = input ? input.value.trim() : '';
+        if (text) {
+          commentTexts[idx] = text;
+          renderCommentOrLink(idx);
+          showSnackbar('Комментарий добавлен');
+        } else {
+          commentTr.remove();
+          var link = descCell.querySelector('.add-comment');
+          if (link) link.style.display = '';
+        }
+        return;
+      }
+
+      // "Отмена" button in inline form
+      if (e.target.closest('[data-comment-cancel]')) {
+        var commentTr = findCommentTr(idx);
+        if (commentTr) commentTr.remove();
+        var link = descCell.querySelector('.add-comment');
+        if (link) link.style.display = '';
+        return;
+      }
+
+      // Pencil icon OR click on bubble — edit comment
+      if (e.target.closest('[data-comment-edit]') || e.target.closest('.row-comment-bubble')) {
+        showCommentForm(idx, descCell, commentTexts[idx]);
+        return;
+      }
+
+      // Trash — delete comment
+      if (e.target.closest('[data-comment-delete]')) {
+        var savedText = commentTexts[idx];
+        delete commentTexts[idx];
+        renderCommentOrLink(idx);
+        showSnackbar('Комментарий удалён', {
+          label: 'Восстановить',
+          callback: function() {
+            commentTexts[idx] = savedText;
+            renderCommentOrLink(idx);
+          }
+        });
+        return;
+      }
+    });
+
+    // === TABS ===
+    function scrollToTabs() {
+      var top = tabsRowEl.getBoundingClientRect().top + window.scrollY - 67;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+
+    tabInReport.addEventListener('click', function() {
+      var wasScrolledDown = stickyTabsBar.classList.contains('visible');
+      if (activeTab === 'in-report') {
+        if (wasScrolledDown) scrollToTabs();
+        return;
+      }
+      activeTab = 'in-report';
+      tabInReport.classList.add('active');
+      tabSelection.classList.remove('active');
+      stickyTabInReport.classList.add('active');
+      stickyTabSelection.classList.remove('active');
+      filtersEl.style.display = 'none';
+      resultsCounter.style.display = 'none';
+      stickyTableHeader.classList.remove('visible');
+      renderTableB();
+      updateShowMoreBtn();
+      updateArrowVisibility();
+      if (wasScrolledDown) scrollToTabs();
+    });
+
+    tabSelection.addEventListener('click', function() {
+      if (activeTab === 'selection') return;
+      activeTab = 'selection';
+      tabSelection.classList.add('active');
+      tabInReport.classList.remove('active');
+      stickyTabSelection.classList.add('active');
+      stickyTabInReport.classList.remove('active');
+      filtersEl.style.display = '';
+      resultsCounter.style.display = '';
+      renderTableB();
+      updateShowMoreBtn();
+      updateArrowVisibility();
+    });
+
+    // === STICKY TABS (mirror original tabs) ===
+    stickyTabInReport.addEventListener('click', function() {
+      tabInReport.click();
+    });
+    stickyTabSelection.addEventListener('click', function() {
+      tabSelection.click();
+    });
+
+    // === SHOW MORE ===
+    btnShowMore.addEventListener('click', function() {
+      btnShowMore.classList.add('loading');
+      setTimeout(function() {
+        btnShowMore.classList.remove('loading');
+        visibleCount = Math.min(visibleCount + 5, ALL_COMPETITORS.length);
+        renderTableB();
+        updateShowMoreBtn();
+        updateTabLabels();
+        updateArrowVisibility();
+      }, 1000);
+    });
+
+    // === CUSTOM SCROLLBAR STATE ===
+    var currentScrollLeft = 0;
+
+    function getMaxScroll() {
+      var tableEl = tableA.querySelector('table') || tableB.querySelector('table');
+      if (!tableEl) return 0;
+      return Math.max(0, tableEl.scrollWidth - tableA.clientWidth);
+    }
+
+    function applyScrollLeft(val) {
+      var max = getMaxScroll();
+      currentScrollLeft = Math.max(0, Math.min(val, max));
+      isSyncing = true;
+      tableA.scrollLeft = currentScrollLeft;
+      tableB.scrollLeft = currentScrollLeft;
+      stickyHeaderScroll.scrollLeft = currentScrollLeft;
+      isSyncing = false;
+      updateScrollbarThumb();
+      updateArrowVisibility();
+      updateHeaderLabels();
+    }
+
+    function updateScrollbarThumb() {
+      var tableEl = tableA.querySelector('table') || tableB.querySelector('table');
+      if (!tableEl) return;
+      var scrollWidth = tableEl.scrollWidth;
+      var clientWidth = tableA.clientWidth;
+      var maxScroll = Math.max(0, scrollWidth - clientWidth);
+
+      // Hide both scrollbars when no horizontal overflow
+      var hasOverflow = maxScroll > 1;
+      scrollbarMain.style.display = hasOverflow ? '' : 'none';
+      stickyScrollbarMain.style.display = hasOverflow ? '' : 'none';
+      if (!hasOverflow) return;
+
+      function setThumb(track, thumb) {
+        var trackWidth = track.clientWidth;
+        if (trackWidth <= 0) return;
+        var thumbWidth = Math.max(Math.round(trackWidth * clientWidth / scrollWidth), 32);
+        var maxThumbLeft = trackWidth - thumbWidth;
+        var thumbLeft = Math.round(currentScrollLeft / maxScroll * maxThumbLeft);
+        thumb.style.width = thumbWidth + 'px';
+        thumb.style.transform = 'translateX(' + thumbLeft + 'px)';
+      }
+
+      setThumb(scrollbarTrack, scrollbarThumb);
+      setThumb(stickyScrollbarTrack, stickyScrollbarThumb);
+    }
+
+    function setupThumbDrag(thumb, track) {
+      thumb.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        var dragStartX = e.clientX;
+        var dragStartScrollLeft = currentScrollLeft;
+        thumb.classList.add('dragging');
+
+        function onMouseMove(e) {
+          var dx = e.clientX - dragStartX;
+          var trackWidth = track.clientWidth;
+          var thumbWidth = thumb.offsetWidth || 32;
+          var maxThumbLeft = trackWidth - thumbWidth;
+          if (maxThumbLeft <= 0) return;
+          applyScrollLeft(dragStartScrollLeft + dx * getMaxScroll() / maxThumbLeft);
+        }
+
+        function onMouseUp() {
+          thumb.classList.remove('dragging');
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+
+      // Click on track (not thumb) → jump to position
+      track.addEventListener('mousedown', function(e) {
+        if (e.target === thumb) return;
+        var rect = track.getBoundingClientRect();
+        var clickX = e.clientX - rect.left;
+        var thumbWidth = thumb.offsetWidth || 32;
+        var maxThumbLeft = rect.width - thumbWidth;
+        if (maxThumbLeft <= 0) return;
+        var ratio = (clickX - thumbWidth / 2) / maxThumbLeft;
+        applyScrollLeft(ratio * getMaxScroll());
+      });
+    }
+
+    setupThumbDrag(scrollbarThumb, scrollbarTrack);
+    setupThumbDrag(stickyScrollbarThumb, stickyScrollbarTrack);
+
+    // === SCROLL SYNC ===
+    function syncProxyWidth() {
+      updateScrollbarThumb();
+    }
+
+    function updateEmptyStateHeight() {
+      if (!emptyBState || emptyBState.style.display === 'none') return;
+      emptyBState.style.minHeight = '';
+      var top = emptyBState.getBoundingClientRect().top;
+      emptyBState.style.minHeight = Math.max(window.innerHeight - top, 200) + 'px';
+    }
+
+    syncProxyWidth();
+    requestAnimationFrame(updateScrollbarThumb); // ensure thumb renders after first layout pass
+    window.addEventListener('load', updateScrollbarThumb);
+    window.addEventListener('resize', syncProxyWidth);
+    window.addEventListener('resize', updateEmptyStateHeight);
+    window.addEventListener('load', updateEmptyStateHeight);
+
+    var isSyncing = false;
+
+    tableA.addEventListener('scroll', function() {
+      if (isSyncing) return;
+      currentScrollLeft = tableA.scrollLeft;
+      isSyncing = true;
+      tableB.scrollLeft = currentScrollLeft;
+      stickyHeaderScroll.scrollLeft = currentScrollLeft;
+      isSyncing = false;
+      updateScrollbarThumb();
+      updateArrowVisibility();
+      updateHeaderLabels();
+    });
+
+    tableB.addEventListener('scroll', function() {
+      if (isSyncing) return;
+      currentScrollLeft = tableB.scrollLeft;
+      isSyncing = true;
+      tableA.scrollLeft = currentScrollLeft;
+      stickyHeaderScroll.scrollLeft = currentScrollLeft;
+      isSyncing = false;
+      updateScrollbarThumb();
+      updateArrowVisibility();
+      updateHeaderLabels();
+    });
+
+    function handleWheel(e) {
+      if (Math.abs(e.deltaX) > 0) {
+        e.preventDefault();
+        applyScrollLeft(currentScrollLeft + e.deltaX);
+      }
+    }
+    tableA.addEventListener('wheel', handleWheel, { passive: false });
+    tableB.addEventListener('wheel', handleWheel, { passive: false });
+
+    // === SCROLL ARROWS ===
+    var scrollArrowLeft = document.getElementById('scrollArrowLeft');
+    var scrollArrowRight = document.getElementById('scrollArrowRight');
+    var STICKY_WIDTH = 126;
+
+    function updateArrowVisibility() {
+      var isEmpty = activeTab === 'in-report' && checkedIds.size === 0;
+      if (isEmpty) {
+        scrollArrowLeft.classList.remove('visible');
+        scrollArrowRight.classList.remove('visible');
+        return;
+      }
+      var maxScroll = getMaxScroll();
+      scrollArrowLeft.classList.toggle('visible', currentScrollLeft >= 13);
+      scrollArrowRight.classList.toggle('visible', maxScroll > 1 && currentScrollLeft < maxScroll - 1);
+    }
+
+    function animateRows() {
+      var rows = tableBBody.querySelectorAll('tr');
+      rows.forEach(function(row, i) {
+        row.style.animationDelay = (i * 60) + 'ms';
+        row.classList.add('row-animated');
+      });
+    }
+
+    var animationId = null;
+
+    function smoothScrollTo(target) {
+      if (animationId) cancelAnimationFrame(animationId);
+      var start = currentScrollLeft;
+      var distance = target - start;
+      if (Math.abs(distance) < 1) return;
+      var duration = 400;
+      var startTime = null;
+      function animate(time) {
+        if (!startTime) startTime = time;
+        var progress = Math.min((time - startTime) / duration, 1);
+        var eased = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        applyScrollLeft(Math.round(start + distance * eased));
+        if (progress < 1) {
+          animationId = requestAnimationFrame(animate);
+        } else {
+          animationId = null;
+        }
+      }
+      animationId = requestAnimationFrame(animate);
+    }
+
+    function getScrollStep() { return tableB.clientWidth - STICKY_WIDTH; }
+
+    scrollArrowRight.querySelector('.scroll-arrow-btn').addEventListener('click', function() {
+      smoothScrollTo(Math.min(currentScrollLeft + getScrollStep(), getMaxScroll()));
+    });
+
+    scrollArrowLeft.querySelector('.scroll-arrow-btn').addEventListener('click', function() {
+      smoothScrollTo(Math.max(currentScrollLeft - getScrollStep(), 0));
+    });
+
+    window.addEventListener('resize', function() { syncProxyWidth(); updateArrowVisibility(); });
+
+    // === ARROW POSITION (viewport-aware centering) ===
+    var tableNavZone = document.getElementById('tableNavZone');
+    var leftBtnEl = scrollArrowLeft.querySelector('.scroll-arrow-btn');
+    var rightBtnEl = scrollArrowRight.querySelector('.scroll-arrow-btn');
+
+    function updateArrowPosition() {
+      var zone = tableNavZone.getBoundingClientRect();
+      var vpTop = 67;
+      var vpBottom = window.innerHeight - 68;
+      var stickyH = (stickyTableHeader && stickyTableHeader.classList.contains('visible'))
+        ? stickyTableHeader.offsetHeight : 0;
+      var effectiveTop = vpTop + stickyH;
+      var visTop = Math.max(zone.top, effectiveTop);
+      var visBottom = Math.min(zone.bottom, vpBottom);
+      if (visBottom <= visTop) return;
+      var pct = ((visTop + visBottom) / 2 - zone.top) / zone.height * 100;
+      leftBtnEl.style.top = pct + '%';
+      rightBtnEl.style.top = pct + '%';
+    }
+
+    window.addEventListener('scroll', updateArrowPosition, { passive: true });
+    window.addEventListener('resize', updateArrowPosition);
+
+    // === STICKY BARS: shared state + visibility logic ===
+    var tabsRowEl = document.querySelector('.tabs');
+    var tableBSectionEl = document.getElementById('tableBSection');
+    var tabsOutOfView = false;
+    var filtersOutOfView = false;
+    var stickyBarsActivated = false;
+
+    function updateStickyBars() {
+      var bodyRect = tableBBody.getBoundingClientRect();  // низ последней строки tbody
+      var tableExtendsBelow = bodyRect.bottom > window.innerHeight; // таблица заполняет экран
+      var tableInViewport   = bodyRect.bottom > 0;                  // хоть одна строка видна
+
+      // Активируем когда прокрутили мимо вкладок И таблица заполняла экран
+      if (tabsOutOfView && tableExtendsBelow) stickyBarsActivated = true;
+      // Деактивируем когда вкладки вернулись ИЛИ последняя строка ушла из вьюпорта
+      if (!tabsOutOfView || !tableInViewport) stickyBarsActivated = false;
+
+      stickyTabsBar.classList.toggle('visible', stickyBarsActivated);
+      if (!stickyBarsActivated || activeTab === 'in-report') {
+        stickyTableHeader.classList.remove('visible');
+      } else {
+        stickyTableHeader.classList.toggle('visible', filtersOutOfView);
+      }
+    }
+
+    var tabsObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        tabsOutOfView = !entry.isIntersecting;
+        updateStickyBars();
+      });
+    }, { rootMargin: '-67px 0px 0px 0px' });
+    tabsObserver.observe(tabsRowEl);
+
+    var headerObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        filtersOutOfView = !entry.isIntersecting;
+        updateStickyBars();
+      });
+    }, { rootMargin: '-111px 0px 0px 0px' });
+    headerObserver.observe(filtersEl);
+
+    window.addEventListener('scroll', updateStickyBars, { passive: true });
+    window.addEventListener('resize', updateStickyBars);
+
+    function syncStickyHeader() {
+      stickyHeaderScroll.scrollLeft = currentScrollLeft;
+    }
+
+    // === HIDE HEADER LABEL ON HORIZONTAL SCROLL ===
+    var headerLabels = document.querySelectorAll('.col-header-label');
+    var LABEL_FADE_START = 180; // price text starts approaching first cell text
+    var LABEL_FADE_END   = 260; // price text reaches first cell text start
+    function updateHeaderLabels() {
+      var ratio = Math.max(0, Math.min(1,
+        (LABEL_FADE_END - currentScrollLeft) / (LABEL_FADE_END - LABEL_FADE_START)
+      ));
+      headerLabels.forEach(function(label) {
+        label.style.opacity = ratio;
+      });
+    }
+
+    // === PRICE MODE TOGGLE ===
+    var priceChipSingle = document.getElementById('priceChipSingle');
+    var priceChipRange = document.getElementById('priceChipRange');
+    var priceFieldsRange = document.getElementById('priceFieldsRange');
+    var priceFieldsSingle = document.getElementById('priceFieldsSingle');
+
+    priceChipRange.addEventListener('click', function() {
+      priceChipRange.classList.add('selected');
+      priceChipSingle.classList.remove('selected');
+      priceFieldsRange.style.display = '';
+      priceFieldsSingle.style.display = 'none';
+    });
+
+    priceChipSingle.addEventListener('click', function() {
+      priceChipSingle.classList.add('selected');
+      priceChipRange.classList.remove('selected');
+      priceFieldsSingle.style.display = '';
+      priceFieldsRange.style.display = 'none';
+    });
+
+    // === METRICS CHECKBOXES ===
+    document.getElementById('statsMetricsWrap').addEventListener('click', function(e) {
+      var cb = e.target.closest ? e.target.closest('.checkbox:not(.disabled)') : null;
+      if (!cb) return;
+      var row = cb.closest('.metrics-row');
+      if (!row) return;
+      cb.classList.toggle('checked');
+      row.classList.toggle('unchecked', !cb.classList.contains('checked'));
+    });
+
+    // === STATS VISIBILITY ===
+    var statsMetricsWrap = document.getElementById('statsMetricsWrap');
+    document.querySelectorAll('input[name="stats-include"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (this.nextElementSibling.textContent.trim() === 'Не показывать') {
+          statsMetricsWrap.classList.add('hidden');
+        } else {
+          statsMetricsWrap.classList.remove('hidden');
+        }
+      });
+    });
+
+    // === CIAN ESTIMATE VISIBILITY ===
+    var cianEstimateVisual = document.querySelector('.price-estimate-visual');
+    document.querySelectorAll('input[name="cian-estimate"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (this.value === 'hide' || this.nextElementSibling.textContent.trim() === 'Не показывать') {
+          cianEstimateVisual.classList.add('hidden');
+        } else {
+          cianEstimateVisual.classList.remove('hidden');
+        }
+      });
+    });
+
+    // === ONBOARDING TOOLTIP (first competitor add) ===
+    // NOTE: element is after this script tag — look up lazily on first call
+    var onboardingShown = false;
+    var onboardingCloseListener = null;
+
+    function updateOnboardingTooltipPosition() {
+      var el = document.getElementById('onboardingTooltip');
+      if (!el || el.style.display === 'none') return;
+      var stickyBar = document.getElementById('stickyTabsBar');
+      var useSticky = stickyBar && stickyBar.classList.contains('visible');
+      var tab = document.getElementById(useSticky ? 'stickyTabInReport' : 'tabInReport');
+      if (!tab) return;
+      var rect = tab.getBoundingClientRect();
+      el.style.left = (rect.left + rect.width / 2) + 'px';
+      el.style.top = (rect.bottom + 10) + 'px';
+    }
+
+    function showOnboardingTooltip() {
+      if (onboardingShown) return;
+      var el = document.getElementById('onboardingTooltip');
+      if (!el) return;
+      onboardingShown = true;
+
+      // Register close button now that element is in DOM
+      var closeBtn = el.querySelector('.onboarding-tooltip-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          closeOnboardingTooltip();
+        });
+      }
+
+      el.style.transform = 'translateX(-50%)';
+      el.style.display = 'block';
+      updateOnboardingTooltipPosition();
+      el.style.opacity = '0';
+      el.offsetHeight; // force reflow
+      el.style.transition = 'opacity 0.2s';
+      el.style.opacity = '1';
+
+      window.addEventListener('scroll', updateOnboardingTooltipPosition, { passive: true });
+
+      setTimeout(function() {
+        onboardingCloseListener = function() { closeOnboardingTooltip(); };
+        document.addEventListener('click', onboardingCloseListener, { capture: true, once: true });
+      }, 80);
+    }
+
+    function closeOnboardingTooltip() {
+      var el = document.getElementById('onboardingTooltip');
+      window.removeEventListener('scroll', updateOnboardingTooltipPosition);
+      if (onboardingCloseListener) {
+        document.removeEventListener('click', onboardingCloseListener, true);
+        onboardingCloseListener = null;
+      }
+      if (!el) return;
+      el.style.transition = 'opacity 0.15s';
+      el.style.opacity = '0';
+      setTimeout(function() {
+        var e2 = document.getElementById('onboardingTooltip');
+        if (e2) e2.style.display = 'none';
+      }, 160);
+    }
+
+    // === CHECKBOX ONBOARDING TOOLTIP ===
+    var checkboxTooltipShown = false;
+    var checkboxTooltipCloseListener = null;
+
+    function updateCheckboxTooltipPosition() {
+      var el = document.getElementById('checkboxOnboardingTooltip');
+      if (!el || el.style.display === 'none') return;
+      var firstCb = tableBBody.querySelector('tr[data-idx] .checkbox');
+      if (!firstCb) return;
+      var rect = firstCb.getBoundingClientRect();
+      var tooltipWidth = 230;
+      var caretX = rect.left + rect.width / 2;
+      var tooltipLeft = Math.max(8, caretX - 20);
+      if (tooltipLeft + tooltipWidth > window.innerWidth - 8) {
+        tooltipLeft = window.innerWidth - tooltipWidth - 8;
+      }
+      el.style.left = tooltipLeft + 'px';
+      el.style.top = (rect.bottom + 10) + 'px';
+      el.style.setProperty('--caret-x', (caretX - tooltipLeft) + 'px');
+    }
+
+    function showCheckboxOnboardingTooltip() {
+      if (checkboxTooltipShown) return;
+      var el = document.getElementById('checkboxOnboardingTooltip');
+      if (!el) return;
+      var firstCb = tableBBody.querySelector('tr[data-idx] .checkbox');
+      if (!firstCb) return;
+      checkboxTooltipShown = true;
+
+      updateCheckboxTooltipPosition();
+
+      var closeBtn = el.querySelector('.onboarding-tooltip-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          closeCheckboxTooltip();
+        });
+      }
+      el.style.display = 'block';
+      el.style.opacity = '0';
+      el.offsetHeight;
+      el.style.transition = 'opacity 0.2s';
+      el.style.opacity = '1';
+
+      window.addEventListener('scroll', updateCheckboxTooltipPosition, { passive: true });
+
+      setTimeout(function() {
+        checkboxTooltipCloseListener = function() { closeCheckboxTooltip(); };
+        document.addEventListener('click', checkboxTooltipCloseListener, { capture: true, once: true });
+      }, 80);
+    }
+
+    function closeCheckboxTooltip() {
+      window.removeEventListener('scroll', updateCheckboxTooltipPosition);
+      if (checkboxTooltipCloseListener) {
+        document.removeEventListener('click', checkboxTooltipCloseListener, true);
+        checkboxTooltipCloseListener = null;
+      }
+      var el = document.getElementById('checkboxOnboardingTooltip');
+      if (!el) return;
+      el.style.transition = 'opacity 0.15s';
+      el.style.opacity = '0';
+      setTimeout(function() {
+        var e2 = document.getElementById('checkboxOnboardingTooltip');
+        if (e2) e2.style.display = 'none';
+      }, 160);
+    }
+
+    // === INIT ===
+    var mainPhotoEl = document.getElementById('mainPhoto');
+    if (mainPhotoEl) {
+      var src = nextPhoto();
+      mainPhotoEl.src = src;
+      mainPhotoEl.onerror = function() { this.src = 'https://placehold.co/70x70'; };
+    }
+    // initialTab is 'in-report' — hide filters and counter on load
+    if (activeTab === 'in-report') {
+      filtersEl.style.display = 'none';
+      resultsCounter.style.display = 'none';
+    }
+    renderTableB();
+    updateTabLabels();
+    updateResultsCounter();
+    updateFooter();
+    updateOwnerReportBlock();
+    updateShowMoreBtn();
+    updateArrowVisibility();
+    syncProxyWidth();
+    updateArrowPosition();
+    syncStickyHeader();
+    updateHeaderLabels();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(updateEmptyStateHeight);
+    }
+
+    // === COMMENT TEXTAREA COUNTER ===
+    var commentTextarea = document.getElementById('commentTextarea');
+    var commentCounter  = document.getElementById('commentCounter');
+    if (commentTextarea && commentCounter) {
+      commentTextarea.addEventListener('input', function() {
+        commentCounter.textContent = commentTextarea.value.length + '/300';
+      });
+    }
+  })();
+
+  // === SAVE & EXIT BUTTON ===
+  document.getElementById('btnSaveExit').addEventListener('click', function() {
+    window.location.href = 'index.html?saved=1';
+  });
+
+  // === PRICE HISTORY TOOLTIP ===
+  (function() {
+    var tooltipEl   = document.getElementById('priceTooltip');
+    var tooltipBody = tooltipEl.querySelector('.price-tooltip-body');
+    var hideTimer;
+
+    var MONTHS_PARSE = {
+      'января':0,'февраля':1,'марта':2,'апреля':3,'мая':4,'июня':5,
+      'июля':6,'августа':7,'сентября':8,'октября':9,'ноября':10,'декабря':11
+    };
+    var MONTHS_SHORT = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+    function parseRuDate(str) {
+      var p = str.trim().split(' ');
+      return new Date(+p[2], MONTHS_PARSE[p[1]], +p[0]);
+    }
+
+    function fmtDate(d) {
+      return d.getDate() + ' ' + MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function buildContent(d) {
+      var listingDate = parseRuDate(d.date);
+      var changeDate  = new Date(listingDate);
+      changeDate.setDate(changeDate.getDate() + Math.max(1, Math.floor(d.days * 0.35)));
+
+      var isUp   = d.priceDelta.startsWith('+');
+      var cls    = isUp ? 'price-tooltip-delta--down' : 'price-tooltip-delta--up';
+      var arrow  = isUp ? '▲' : '▼';
+      var amount = d.priceDelta.replace('−','').replace('+','').trim();
+
+      return '<div class="price-tooltip-row">'
+        + '<span class="price-tooltip-date">' + fmtDate(changeDate) + '</span>'
+        + '<span class="price-tooltip-price">' + d.currentPrice + '\u00a0\u20bd</span>'
+        + '<span class="price-tooltip-delta ' + cls + '">' + arrow + '\u00a0' + amount + '\u00a0\u20bd</span>'
+        + '</div>'
+        + '<div class="price-tooltip-row">'
+        + '<span class="price-tooltip-date">' + fmtDate(listingDate) + '</span>'
+        + '<span class="price-tooltip-price">' + d.startPrice + '\u00a0\u20bd</span>'
+        + '</div>';
+    }
+
+    function buildContentFromHistory(rows) {
+      return rows.map(function(row) {
+        var html = '<div class="price-tooltip-row">'
+          + '<span class="price-tooltip-date">' + row.date + '</span>'
+          + '<span class="price-tooltip-price">' + row.price + '\u00a0\u20bd</span>';
+        if (row.delta) {
+          var cls   = row.isUp ? 'price-tooltip-delta--down' : 'price-tooltip-delta--up';
+          var arrow = row.isUp ? '▲' : '▼';
+          var amt   = row.delta.replace('−','').replace('+','').trim();
+          html += '<span class="price-tooltip-delta ' + cls + '">' + arrow + '\u00a0' + amt + '\u00a0\u20bd</span>';
+        }
+        return html + '</div>';
+      }).join('');
+    }
+
+    function positionAndShow(trigger) {
+      var trigRect = trigger.getBoundingClientRect();
+      var ttW = tooltipEl.offsetWidth;
+      var ttH = tooltipEl.offsetHeight;
+
+      var idealLeft = trigRect.left + trigRect.width / 2 - ttW / 2;
+      var left = Math.max(8, Math.min(idealLeft, window.innerWidth - ttW - 8));
+      var top  = trigRect.top - ttH - 10;
+      if (top < 8) top = trigRect.bottom + 10;
+
+      var caretLeft = Math.max(14, Math.min(trigRect.left + trigRect.width / 2 - left, ttW - 14));
+
+      tooltipEl.style.left = left + 'px';
+      tooltipEl.style.top  = top  + 'px';
+      tooltipEl.style.setProperty('--caret-left', caretLeft + 'px');
+      tooltipEl.classList.add('visible');
+    }
+
+    function showTooltip(trigger) {
+      var td = trigger.closest('td[data-history]');
+      if (td) {
+        tooltipBody.innerHTML = buildContentFromHistory(JSON.parse(td.getAttribute('data-history')));
+        positionAndShow(trigger);
+        return;
+      }
+      td = trigger.closest('td[data-comp-idx]');
+      if (!td) return;
+      var d = ALL_COMPETITORS[+td.getAttribute('data-comp-idx')];
+      if (!d || !d.priceDelta) return;
+      tooltipBody.innerHTML = d.priceHistory
+        ? buildContentFromHistory(d.priceHistory)
+        : buildContent(d);
+      positionAndShow(trigger);
+    }
+
+    function hideTooltip() {
+      tooltipEl.classList.remove('visible');
+    }
+
+    function attachTooltipListeners(el) {
+      el.addEventListener('mouseover', function(e) {
+        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
+        if (!trigger) return;
+        clearTimeout(hideTimer);
+        showTooltip(trigger);
+      });
+      el.addEventListener('mouseout', function(e) {
+        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
+        if (!trigger) return;
+        hideTimer = setTimeout(hideTooltip, 80);
+      });
+    }
+
+    attachTooltipListeners(document.getElementById('tableA'));
+    attachTooltipListeners(document.getElementById('tableB'));
+  })();
+</script>
+
+<!-- ===== ONBOARDING TOOLTIP ===== -->
+<style>
+  .onboarding-tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: #1C2B47;
+    border-radius: 8px;
+    padding: 12px 40px 12px 16px;
+    width: 270px;
+    white-space: normal;
+    display: none;
+    pointer-events: auto;
+    box-shadow: 0 4px 16px rgba(13,22,46,0.24);
+  }
+  .onboarding-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #1C2B47;
+  }
+  .onboarding-tooltip-title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .onboarding-tooltip-body {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(255,255,255,0.7);
+  }
+  .onboarding-tooltip-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-m);
+    padding: 0;
+    transition: color 0.12s;
+  }
+  .onboarding-tooltip-close:hover { color: #fff; }
+  /* Caret override for checkbox tooltip (positioned dynamically) */
+  .checkbox-tooltip::before {
+    left: var(--caret-x, 20px);
+    transform: translateX(-50%);
+  }
+</style>
+
+<div class="onboarding-tooltip checkbox-tooltip" id="checkboxOnboardingTooltip" style="width:230px;padding-right:40px;">
+  <div class="onboarding-tooltip-body" style="color:#fff;">Кликните, чтобы добавить объект конкурента в отчёт</div>
+  <button class="onboarding-tooltip-close" type="button" aria-label="Закрыть">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+<div class="onboarding-tooltip" id="onboardingTooltip">
+  <div class="onboarding-tooltip-title">Добавили объект в отчёт.</div>
+  <div class="onboarding-tooltip-body">Все выбранные объекты конкурентов можно увидеть в этой вкладке.</div>
+  <button class="onboarding-tooltip-close" type="button" aria-label="Закрыть">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+</body>
+</html>
