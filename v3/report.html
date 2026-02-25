@@ -834,7 +834,7 @@
       z-index: 10;
       background: var(--background-primary);
       border-bottom: 1px solid var(--stroke-divider-default);
-      padding: 0 24px;
+      padding: 0 16px 0 0;
       opacity: 0;
       transform: translateY(-100%);
       transition: opacity 0.35s ease, transform 0.35s ease;
@@ -1882,7 +1882,7 @@
     var removedIds = new Set();
     var removedDates = {}; // idx → formatted date string "D.MM.YY"
     var visitedIds = new Set();
-    var visibleCount = 5;
+    var visibleCount = 10;
     var activeTab = REPORT_CONFIG.initialTab; // 'selection' | 'in-report'
     var photoCache = {}; // idx → photoSrc
     var commentTexts = {}; // idx → comment string
@@ -2679,7 +2679,7 @@
       btnShowMore.classList.add('loading');
       setTimeout(function() {
         btnShowMore.classList.remove('loading');
-        visibleCount = Math.min(visibleCount + 5, ALL_COMPETITORS.length);
+        visibleCount = Math.min(visibleCount + 10, ALL_COMPETITORS.length);
         renderTableB();
         updateShowMoreBtn();
         updateTabLabels();
