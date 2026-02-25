@@ -709,11 +709,7 @@
     }
     .results-counter strong { font-weight: 700; }
 
-    /* === CUSTOM SCROLLBAR (temporarily disabled) === */
-    #scrollbarMain,
-    #stickyScrollbarMain {
-      display: none !important;
-    }
+    /* === CUSTOM SCROLLBAR === */
     .custom-scrollbar {
       padding: 5px 24px;
       box-sizing: border-box;
@@ -751,11 +747,12 @@
       padding-right: 0;
     }
 
-    /* === SCROLL ARROWS === */
+    /* === SCROLL ARROWS (removed — replaced by custom scrollbar) === */
     .table-nav-zone {
       position: relative;
     }
     .scroll-arrow {
+      display: none !important;
       position: absolute;
       top: 0;
       bottom: 0;
@@ -1341,12 +1338,6 @@
 
     <!-- Table A: My Object -->
     <div class="table-section">
-      <!-- Custom scrollbar — above table, attached to legend -->
-      <div class="custom-scrollbar" id="scrollbarMain">
-        <div class="custom-scrollbar-track" id="scrollbarTrack">
-          <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
-        </div>
-      </div>
       <div class="table-wrapper" id="tableAWrapper">
         <div class="table-inner" id="tableA">
           <table>
@@ -1467,6 +1458,12 @@
         <div class="empty-report-text">Выберите подходящих конкурентов в отчёт, чтобы отслеживать по ним изменения</div>
         <div class="empty-report-actions">
           <button class="btn-primary-lg" type="button" id="btnSelectCompetitors">Выбрать конкурентов</button>
+        </div>
+      </div>
+      <!-- Custom scrollbar — under legend, above competitors -->
+      <div class="custom-scrollbar" id="scrollbarMain">
+        <div class="custom-scrollbar-track" id="scrollbarTrack">
+          <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
         </div>
       </div>
       <div class="table-nav-zone" id="tableNavZone">
@@ -2834,14 +2831,11 @@
     var stickyBarsActivated = false;
 
     function updateStickyBars() {
-      var bodyRect = tableBBody.getBoundingClientRect();  // низ последней строки tbody
-      var tableExtendsBelow = bodyRect.bottom > window.innerHeight; // таблица заполняет экран
-      var tableInViewport   = bodyRect.bottom > 0;                  // хоть одна строка видна
+      var bodyRect = tableBBody.getBoundingClientRect();
+      var tableInViewport = bodyRect.bottom > 0;
 
-      // Активируем когда прокрутили мимо вкладок И таблица заполняла экран
-      if (tabsOutOfView && tableExtendsBelow) stickyBarsActivated = true;
-      // Деактивируем когда вкладки вернулись ИЛИ последняя строка ушла из вьюпорта
-      if (!tabsOutOfView || !tableInViewport) stickyBarsActivated = false;
+      // Вкладки прилипают как только уходят за верхний край — без ожидания tableExtendsBelow
+      stickyBarsActivated = tabsOutOfView && tableInViewport;
 
       stickyTabsBar.classList.toggle('visible', stickyBarsActivated);
       if (!stickyBarsActivated || activeTab === 'in-report') {
