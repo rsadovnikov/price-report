@@ -813,7 +813,7 @@
       padding: 0 24px;
       opacity: 0;
       transform: translateY(-100%);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition: opacity 0.35s ease, transform 0.35s ease;
       pointer-events: none;
     }
     .sticky-tabs-bar.visible {
@@ -833,7 +833,7 @@
       padding: 0 24px;
       opacity: 0;
       transform: translateY(-100%);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition: opacity 0.35s ease, transform 0.35s ease;
       pointer-events: none;
     }
     .sticky-table-header.visible {
@@ -1250,6 +1250,46 @@
       gap: 56px;
       padding: 32px 24px 40px 24px;
       border-top: 1px solid var(--stroke-divider-default);
+    }
+
+    /* === OWNER REPORT BUBBLE === */
+    .owner-bubble {
+      position: fixed;
+      bottom: 24px;
+      left: 244px;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      z-index: 150;
+      pointer-events: none;
+    }
+    .owner-bubble-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      background: #006CFD;
+      border-radius: 32px;
+      padding: 12px 24px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      pointer-events: auto;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0, 108, 253, 0.4);
+      transform: translateY(72px);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.25s ease;
+      user-select: none;
+    }
+    .owner-bubble-inner:hover {
+      background: #0060E0;
+    }
+    .owner-bubble-inner.visible {
+      transform: translateY(0);
+      opacity: 1;
     }
 
     /* === PRICE HISTORY TOOLTIP === */
@@ -1772,6 +1812,16 @@
 <!-- ===== SNACKBAR CONTAINER ===== -->
 <div class="snackbar-container" id="snackbarContainer" aria-live="polite"></div>
 
+<!-- ===== OWNER REPORT BUBBLE ===== -->
+<div class="owner-bubble" id="ownerBubble">
+  <div class="owner-bubble-inner" id="ownerBubbleInner">
+    Создайте отчёт для собственника на основе этих данных
+    <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M7 1v11M7 12l-5-5M7 12l5-5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+
 <div class="price-tooltip" id="priceTooltip">
   <div class="price-tooltip-title">История цены</div>
   <div class="price-tooltip-body"></div>
@@ -2080,7 +2130,49 @@
         if (chevron) chevron.classList.toggle('collapsed', !ownerListExpanded);
         if (wrap) wrap.classList.toggle('collapsed', !ownerListExpanded);
       }
+      updateOwnerBubble();
     }
+
+    // === OWNER REPORT BUBBLE LOGIC ===
+    var ownerBubbleDismissed = false;
+    var ownerCardVisible = false;
+    var ownerBubbleTimer = null;
+
+    var ownerCardObserver = new IntersectionObserver(function(entries) {
+      ownerCardVisible = entries[0].isIntersecting;
+      updateOwnerBubble();
+    }, { threshold: 0.1 });
+    ownerCardObserver.observe(document.getElementById('ownerReportCard'));
+
+    function updateOwnerBubble() {
+      var inner = document.getElementById('ownerBubbleInner');
+      if (!inner) return;
+      var shouldShow = checkedIds.size > 0 && !ownerCardVisible && !ownerBubbleDismissed;
+      if (shouldShow) {
+        if (!ownerBubbleTimer && !inner.classList.contains('visible')) {
+          ownerBubbleTimer = setTimeout(function() {
+            ownerBubbleTimer = null;
+            if (checkedIds.size > 0 && !ownerCardVisible && !ownerBubbleDismissed) {
+              inner.classList.add('visible');
+            }
+          }, 5000);
+        }
+      } else {
+        clearTimeout(ownerBubbleTimer);
+        ownerBubbleTimer = null;
+        inner.classList.remove('visible');
+      }
+    }
+
+    document.getElementById('ownerBubbleInner').addEventListener('click', function() {
+      ownerBubbleDismissed = true;
+      updateOwnerBubble();
+      var card = document.getElementById('ownerReportCard');
+      var headerH = 67; // высота фиксированного хедера
+      var gap = 80;     // сколько предыдущего раздела показать сверху
+      var targetY = card.getBoundingClientRect().top + window.scrollY - headerH - gap;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    });
 
     // === OWNER COMP LIST COMMENT FORM ===
     function showOwnerCommentForm(idx, prefill) {
@@ -2832,7 +2924,9 @@
 
     function updateStickyBars() {
       var bodyRect = tableBBody.getBoundingClientRect();
-      var tableInViewport = bodyRect.bottom > 0;
+      // Прячем стики когда последняя строка почти ушла за верхний край —
+      // порог = высота зоны стики-элементов (хедер + вкладки + шапка таблицы ≈ 160px)
+      var tableInViewport = bodyRect.bottom > 160;
 
       // Вкладки прилипают как только уходят за верхний край — без ожидания tableExtendsBelow
       stickyBarsActivated = tabsOutOfView && tableInViewport;
