@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Отчёт о конкурентах — ЦИАН</title>
+  <title>Обзор конкурентов для объекта — ЦИАН</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
@@ -44,6 +44,10 @@
     }
     .owner-report-header {
       padding: 36px 24px 20px 24px;
+      transition: padding-bottom 0.45s ease;
+    }
+    .owner-report-card:has(.owner-content-locked) .owner-report-header {
+      padding-bottom: 36px;
     }
     .owner-report-title {
       font-size: 22px;
@@ -1371,7 +1375,7 @@
   <main class="report-section">
     <!-- Report Header -->
     <div class="report-header">
-      <div class="label">Отчёт о конкурентах</div>
+      <div class="label">Обзор конкурентов для объекта</div>
       <h1>1-комн. кв., 50 м², 2/12 этаж</h1>
       <div class="address">Москва, САО, р-н Беговой, Ленинградский проспект 33 А</div>
     </div>
@@ -1461,8 +1465,8 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" id="tabInReport">В отчёте <span class="tab-counter" id="tabInReportCounter">0</span></div>
-      <div class="tab" id="tabSelection">Конкуренты <span class="tab-counter" id="tabSelectionCounter">0</span></div>
+      <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
+      <div class="tab" id="tabSelection">Подборка конкурентов</div>
     </div>
 
     <!-- Filters -->
@@ -1495,7 +1499,7 @@
         <div class="empty-report-illustration">
           <img src="../MO/Frame 2136137207.jpg" alt="" width="120">
         </div>
-        <div class="empty-report-text">Выберите подходящих конкурентов в отчёт, чтобы отслеживать по ним изменения</div>
+        <div class="empty-report-text">Выберите подходящих конкурентов, чтобы отслеживать по ним изменения</div>
         <div class="empty-report-actions">
           <button class="btn-primary-lg" type="button" id="btnSelectCompetitors">Выбрать конкурентов</button>
         </div>
@@ -1544,7 +1548,7 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button id="btnShowMore" class="btn-secondary-md">Показать больше объектов</button>
+      <button id="btnShowMore" class="btn-secondary-lg">Показать больше объектов</button>
       <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
     </div>
 
@@ -1766,8 +1770,8 @@
 
 <!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
 <div class="sticky-tabs-bar" id="stickyTabsBar">
-  <div class="tab active" id="stickyTabInReport">В отчёте <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
-  <div class="tab" id="stickyTabSelection">Конкуренты <span class="tab-counter" id="stickyTabSelectionCounter">0</span></div>
+  <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
+  <div class="tab" id="stickyTabSelection">Подборка конкурентов</div>
 </div>
 
 <!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
@@ -2042,8 +2046,6 @@
     function updateTabLabels() {
       document.getElementById('tabInReportCounter').textContent = checkedIds.size;
       document.getElementById('stickyTabInReportCounter').textContent = checkedIds.size;
-      document.getElementById('tabSelectionCounter').textContent = visibleCount;
-      document.getElementById('stickyTabSelectionCounter').textContent = visibleCount;
     }
 
     // === OWNER REPORT BLOCK ===
@@ -2257,13 +2259,13 @@
     });
 
     function updateResultsCounter() {
-      var total = ALL_COMPETITORS.length;
+      var shown = Math.min(visibleCount, ALL_COMPETITORS.length);
       var inReport = checkedIds.size;
-      var totalStr = total + '\u00a0' + pluralize(total, 'конкурент', 'конкурента', 'конкурентов');
+      var shownStr = shown + '\u00a0' + pluralize(shown, 'конкурент', 'конкурента', 'конкурентов');
       if (inReport > 0) {
-        counterText.innerHTML = 'Нашли <strong>' + totalStr + ',</strong> ' + inReport + '\u00a0уже в отчёте';
+        counterText.innerHTML = 'Нашли <strong>' + shownStr + ',</strong> <span style="color:var(--text-secondary)">' + inReport + '\u00a0уже в отчёте</span>';
       } else {
-        counterText.innerHTML = 'Нашли <strong>' + totalStr + '</strong>';
+        counterText.innerHTML = 'Нашли <strong>' + shownStr + '</strong>';
       }
     }
 
