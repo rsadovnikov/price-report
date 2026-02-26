@@ -1,0 +1,72 @@
+/* === MAGENTUM CHIPS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="chips.css"> */
+/* Фильтр-чипы — не кнопки. Используются в строке фильтров как toggle-элементы */
+
+/* --- Базовый чип --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--stroke-divider-default);
+  border-radius: var(--radius-l);
+  font-family: var(--font-base);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--text-primary);
+  background: var(--background-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Hover */
+.chip:hover {
+  background: var(--stroke-divider-neutral);
+}
+
+/* Active / Selected (вариант выбран) */
+.chip.active {
+  background: var(--background-primary);
+  border-color: var(--control-primary);
+  color: var(--text-primary);
+}
+.chip.active:hover {
+  background: var(--stroke-divider-neutral);
+}
+
+/* Disabled */
+.chip:disabled,
+.chip[aria-disabled="true"] {
+  border-color: #D0D8E9;
+  color: #B1BAD2;
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* --- Иконка — см. shared.css .icon --- */
+.chip .icon {
+  color: #2777F0;
+}
+.chip:disabled .icon,
+.chip[aria-disabled="true"] .icon {
+  color: #B1BAD2;
+}
+
+/* --- Иконка сброса (крестик) --- */
+.chip-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  color: #2777F0;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.chip-clear:hover {
+  background: rgba(39, 119, 240, 0.12);
+}

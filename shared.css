@@ -93,6 +93,22 @@ body {
 }
 .sidebar-bottom { padding: 0 12px 12px; }
 
+/* === ICON CONTAINER (shared) === */
+/* Контейнер для любой иконки внутри кнопок, чипов, инпутов и т.д. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+[aria-expanded="true"] .icon,
+.open .icon {
+  transform: rotate(180deg);
+}
+
 /* === METRO ICON (shared) === */
 .metro-icon {
   display: inline-flex; align-items: center; justify-content: center;

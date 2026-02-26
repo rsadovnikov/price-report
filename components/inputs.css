@@ -1,0 +1,61 @@
+/* === MAGENTUM INPUTS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="inputs.css"> */
+/* Инпуты — форм-элементы и фильтр-селекты (не кнопки, не чипы) */
+
+/* ==========================================
+   FILTER SELECT — фильтр с дропдауном
+   Применяется: строка фильтров в report.html
+   ========================================== */
+
+.filter-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  font-family: var(--font-base);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--text-primary);
+  background: var(--background-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Hover */
+.filter-select:hover {
+  border-color: var(--control-primary);
+}
+
+/* Open / Active (дропдаун открыт) */
+.filter-select.open,
+.filter-select[aria-expanded="true"] {
+  border-color: var(--control-primary);
+  outline: 2px solid rgba(4, 104, 255, 0.2);
+  outline-offset: 0;
+}
+
+/* Filled (значение выбрано, фильтр применён) */
+.filter-select.filled {
+  border-color: var(--control-primary);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* Disabled */
+.filter-select:disabled,
+.filter-select[aria-disabled="true"] {
+  border-color: var(--stroke-divider-default);
+  color: #B1BAD2;
+  background: var(--stroke-divider-neutral);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Иконка — см. shared.css .icon */
+.filter-select .icon {
+  color: var(--text-secondary);
+}

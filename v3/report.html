@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../components/buttons.css">
   <link rel="stylesheet" href="../components/links.css">
   <link rel="stylesheet" href="../components/tabs.css">
+  <link rel="stylesheet" href="../components/inputs.css">
   <link rel="stylesheet" href="../shared.css">
   <style>
 
@@ -660,25 +661,7 @@
       gap: 8px;
       flex: 1;
     }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 12px;
-      border: 1px solid var(--stroke-control-default);
-      border-radius: var(--radius-l);
-      font-size: 14px;
-      line-height: 20px;
-      color: var(--text-primary);
-      background: #fff;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .chip .chevron {
-      font-size: 10px;
-      color: var(--text-secondary);
-      margin-left: 2px;
-    }
+    /* .filter-select — см. components/inputs.css */
     .reset-filters {
       font-size: 14px;
       line-height: 20px;
@@ -1472,13 +1455,13 @@
     <!-- Filters -->
     <div class="filters">
       <div class="filters-left">
-        <span class="chip">Радиус 3 км <span class="chevron">▾</span></span>
-        <span class="chip">2 комнаты <span class="chevron">▾</span></span>
-        <span class="chip">До 50 кв. м. <span class="chevron">▾</span></span>
-        <span class="chip">15–25 млн ₽ <span class="chevron">▾</span></span>
-        <span class="chip">Ремонт <span class="chevron">▾</span></span>
-        <span class="chip">Тип дома <span class="chevron">▾</span></span>
-        <span class="chip">Год постройки <span class="chevron">▾</span></span>
+        <button class="btn-outline-sm style-secondary">Радиус 3 км <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">2 комнаты <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">До 50 кв. м. <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">15–25 млн ₽ <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Ремонт <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Тип дома <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Год постройки <span class="icon">▾</span></button>
         <a class="reset-filters" href="#">Сбросить фильтры</a>
       </div>
       <a class="map-link" href="#">

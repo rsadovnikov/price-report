@@ -53,7 +53,9 @@
   font-size: 14px;
   line-height: 20px;
   border-radius: var(--radius-m);
+  gap: 4px;
 }
+
 
 /* ==========================================
    PRIMARY — синяя заливка, белый текст
@@ -107,15 +109,32 @@
 }
 
 /* ==========================================
-   OUTLINE — белый фон, обводка
+   OUTLINE — прозрачный фон, обводка
+   style=primary (по умолчанию): синяя обводка, синий текст
+   style=secondary: серая обводка, тёмный текст
    ========================================== */
 
+.btn-outline-lg,
+.btn-outline-md,
 .btn-outline-sm {
-  background: var(--background-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--stroke-divider-default);
+  background: transparent;
+  color: #005EDE;
+  border: 1px solid #2777F0;
 }
-.btn-outline-sm:hover { background: var(--stroke-divider-neutral); }
+.btn-outline-lg:hover,
+.btn-outline-md:hover,
+.btn-outline-sm:hover { background: rgba(39, 119, 240, 0.06); }
+
+/* Outline secondary */
+.btn-outline-lg.style-secondary,
+.btn-outline-md.style-secondary,
+.btn-outline-sm.style-secondary {
+  color: var(--text-primary);
+  border-color: var(--stroke-control-default);
+}
+.btn-outline-lg.style-secondary:hover,
+.btn-outline-md.style-secondary:hover,
+.btn-outline-sm.style-secondary:hover { background: var(--stroke-divider-neutral); }
 
 /* ==========================================
    GHOST — без фона, синий текст
