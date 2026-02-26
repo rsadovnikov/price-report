@@ -37,3 +37,10 @@
   /* Типографика */
   --font-base: 'Lato', sans-serif;
 }
+
+/* Fallback для знака рубля ₽ (U+20BD) — Lato его не содержит */
+@font-face {
+  font-family: 'Lato';
+  src: local('Segoe UI'), local('Roboto'), local('Arial Unicode MS'), local('Arial');
+  unicode-range: U+20BD;
+}
