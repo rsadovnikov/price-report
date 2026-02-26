@@ -2398,7 +2398,7 @@
       document.body.appendChild(clone);
       clone.offsetHeight; // force reflow
 
-      clone.style.transition = 'transform 1.4s cubic-bezier(0.4,0,0.2,1), opacity 1.2s ease-in';
+      clone.style.transition = 'transform 1.0s cubic-bezier(0.4,0,0.2,1), opacity 0.9s ease-in';
       clone.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.12)';
       clone.style.opacity = '0.4';
 
@@ -2406,7 +2406,7 @@
         if (clone.parentNode) clone.parentNode.removeChild(clone);
       }
       clone.addEventListener('transitionend', cleanup);
-      setTimeout(cleanup, 1600);
+      setTimeout(cleanup, 1100);
     }
 
     // === CHECKBOX CLICK (delegation) ===
