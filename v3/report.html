@@ -815,8 +815,8 @@
       display: flex;
       padding: 0 24px;
       opacity: 0;
-      transform: translateY(-100%);
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      transform: translateY(-6px);
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
       pointer-events: none;
     }
     .sticky-tabs-bar.visible {
@@ -2993,9 +2993,10 @@
 
       stickyTabsBar.classList.toggle('visible', stickyBarsActivated);
 
-      // Sticky-шапка таблицы: показывается как только thead таблицы A уходит за хедер.
-      // Смещается вниз при появлении sticky таб-бара.
-      stickyTableHeader.classList.toggle('visible', tableAHeadOutOfView);
+      // Sticky-шапка таблицы: появляется когда thead ушёл за хедер,
+      // скрывается вместе со sticky вкладками (когда конец таблицы B или вкладки вернулись).
+      var showStickyHeader = tableAHeadOutOfView && (!tabsOutOfView || stickyBarsActivated);
+      stickyTableHeader.classList.toggle('visible', showStickyHeader);
       stickyTableHeader.classList.toggle('tabs-visible', stickyBarsActivated);
     }
 
