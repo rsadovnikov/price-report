@@ -799,7 +799,7 @@
     /* === STICKY TABS BAR === */
     .sticky-tabs-bar {
       position: fixed;
-      top: 67px;
+      top: var(--header-h, 67px);
       left: 244px;
       right: 0;
       z-index: 11;
@@ -820,7 +820,7 @@
     /* === STICKY TABLE HEADER === */
     .sticky-table-header {
       position: fixed;
-      top: 111px;
+      top: calc(var(--header-h, 67px) + var(--tabs-bar-h, 44px));
       left: 244px;
       right: 0;
       z-index: 10;
@@ -1573,7 +1573,7 @@
                 </svg>
               </span>
             </div>
-            <div class="owner-step-subtitle">Собственник сможет сравнить их со своим объектом</div>
+            <div class="owner-step-subtitle">Можете добавить комментарий для собственника по каждому из них</div>
             <!-- Список выбранных конкурентов -->
             <div class="owner-comp-wrap" id="ownerCompWrap">
               <div class="owner-comp-table-scroll">
@@ -2199,7 +2199,7 @@
       ownerBubbleDismissed = true;
       updateOwnerBubble();
       var card = document.getElementById('ownerReportCard');
-      var headerH = 67; // высота фиксированного хедера
+      var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 67;
       var gap = 80;     // сколько предыдущего раздела показать сверху
       var targetY = card.getBoundingClientRect().top + window.scrollY - headerH - gap;
       window.scrollTo({ top: targetY, behavior: 'smooth' });
@@ -2398,15 +2398,15 @@
       document.body.appendChild(clone);
       clone.offsetHeight; // force reflow
 
-      clone.style.transition = 'transform 0.85s cubic-bezier(0.4,0,0.2,1), opacity 0.75s ease-in';
+      clone.style.transition = 'transform 1.4s cubic-bezier(0.4,0,0.2,1), opacity 1.2s ease-in';
       clone.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.12)';
-      clone.style.opacity = '0';
+      clone.style.opacity = '0.4';
 
       function cleanup() {
         if (clone.parentNode) clone.parentNode.removeChild(clone);
       }
       clone.addEventListener('transitionend', cleanup);
-      setTimeout(cleanup, 1000);
+      setTimeout(cleanup, 1600);
     }
 
     // === CHECKBOX CLICK (delegation) ===
@@ -2658,7 +2658,8 @@
 
     // === TABS ===
     function scrollToTabs() {
-      var top = tabsRowEl.getBoundingClientRect().top + window.scrollY - 67;
+      var hH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 67;
+      var top = tabsRowEl.getBoundingClientRect().top + window.scrollY - hH;
       window.scrollTo({ top: top, behavior: 'smooth' });
     }
 
@@ -2954,11 +2955,21 @@
     var filtersOutOfView = false;
     var stickyBarsActivated = false;
 
+    // Измеряем реальные высоты хедера и таб-бара и прокидываем в CSS-переменные
+    function measureStickyHeights() {
+      var headerEl = document.querySelector('.header');
+      var HEADER_H = headerEl ? headerEl.offsetHeight : 67;
+      var TABS_BAR_H = tabsRowEl ? tabsRowEl.offsetHeight : 44;
+      document.documentElement.style.setProperty('--header-h', HEADER_H + 'px');
+      document.documentElement.style.setProperty('--tabs-bar-h', TABS_BAR_H + 'px');
+      return { HEADER_H: HEADER_H, TABS_BAR_H: TABS_BAR_H };
+    }
+    var stickyH = measureStickyHeights();
+
     function updateStickyBars() {
       var bodyRect = tableBBody.getBoundingClientRect();
-      // Прячем стики когда последняя строка почти ушла за верхний край —
-      // порог = высота зоны стики-элементов (хедер + вкладки + шапка таблицы ≈ 160px)
-      var tableInViewport = bodyRect.bottom > 160;
+      // Порог = хедер + таб-бар + шапка таблицы (~49px)
+      var tableInViewport = bodyRect.bottom > stickyH.HEADER_H + stickyH.TABS_BAR_H + 49;
 
       // Вкладки прилипают как только уходят за верхний край — без ожидания tableExtendsBelow
       stickyBarsActivated = tabsOutOfView && tableInViewport;
@@ -2976,7 +2987,7 @@
         tabsOutOfView = !entry.isIntersecting;
         updateStickyBars();
       });
-    }, { rootMargin: '-67px 0px 0px 0px' });
+    }, { rootMargin: '-' + stickyH.HEADER_H + 'px 0px 0px 0px' });
     tabsObserver.observe(tabsRowEl);
 
     var headerObserver = new IntersectionObserver(function(entries) {
@@ -2984,11 +2995,14 @@
         filtersOutOfView = !entry.isIntersecting;
         updateStickyBars();
       });
-    }, { rootMargin: '-111px 0px 0px 0px' });
+    }, { rootMargin: '-' + (stickyH.HEADER_H + stickyH.TABS_BAR_H) + 'px 0px 0px 0px' });
     headerObserver.observe(filtersEl);
 
     window.addEventListener('scroll', updateStickyBars, { passive: true });
-    window.addEventListener('resize', updateStickyBars);
+    window.addEventListener('resize', function() {
+      stickyH = measureStickyHeights();
+      updateStickyBars();
+    });
 
     function syncStickyHeader() {
       stickyHeaderScroll.scrollLeft = currentScrollLeft;
