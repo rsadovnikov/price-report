@@ -955,6 +955,25 @@
     .table-section {
       padding: 0;
     }
+    /* Легенда таблицы A: шапка + скроллбар, вне overflow-контейнера */
+    .table-legend {
+      overflow: hidden;
+      background: var(--background-primary);
+      padding: 0 16px 0 0;
+      border-bottom: 1px solid var(--stroke-divider-default);
+    }
+    .table-legend table th {
+      border-bottom: none;
+    }
+    .table-legend-inner {
+      overflow: hidden;
+    }
+    .table-legend-inner table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: max-content;
+      min-width: 100%;
+    }
 
     /* SVG icon helpers */
     .icon-sm { width: 16px; height: 16px; }
@@ -1381,8 +1400,9 @@
 
     <!-- Table A: My Object -->
     <div class="table-section">
-      <div class="table-wrapper" id="tableAWrapper">
-        <div class="table-inner" id="tableA">
+      <!-- Легенда: шапка + скроллбар вне overflow-контейнера (аналогично sticky шапке) -->
+      <div class="table-legend">
+        <div class="table-legend-inner" id="tableALegendScroll">
           <table>
             <colgroup>
               <col class="col-checkbox">
@@ -1410,6 +1430,31 @@
                 <th class="col-views">Просмотры<br><span style="font-weight:400">за 10 дней / за всё время</span></th>
               </tr>
             </thead>
+          </table>
+        </div>
+        <div class="custom-scrollbar sticky-custom-scrollbar" id="scrollbarMain">
+          <div class="custom-scrollbar-track" id="scrollbarTrack">
+            <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Тело таблицы (только tbody, без thead) -->
+      <div class="table-wrapper" id="tableAWrapper">
+        <div class="table-inner" id="tableA">
+          <table>
+            <colgroup>
+              <col class="col-checkbox">
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
             <tbody>
               <tr>
                 <td class="sticky-checkbox col-checkbox">
@@ -1501,12 +1546,6 @@
         <div class="empty-report-text">Выберите подходящих конкурентов, чтобы отслеживать по ним изменения</div>
         <div class="empty-report-actions">
           <button class="btn-primary-lg" type="button" id="btnSelectCompetitors">Выбрать конкурентов</button>
-        </div>
-      </div>
-      <!-- Custom scrollbar — under legend, above competitors -->
-      <div class="custom-scrollbar" id="scrollbarMain">
-        <div class="custom-scrollbar-track" id="scrollbarTrack">
-          <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
         </div>
       </div>
       <div class="table-nav-zone" id="tableNavZone">
@@ -1937,6 +1976,7 @@
     });
 
     // === DOM REFS ===
+    var tableALegendScroll = document.getElementById('tableALegendScroll');
     var tableA = document.getElementById('tableA');
     var tableB = document.getElementById('tableB');
     var tableBBody = document.getElementById('tableBBody');
@@ -2748,6 +2788,7 @@
       var max = getMaxScroll();
       currentScrollLeft = Math.max(0, Math.min(val, max));
       isSyncing = true;
+      tableALegendScroll.scrollLeft = currentScrollLeft;
       tableA.scrollLeft = currentScrollLeft;
       tableB.scrollLeft = currentScrollLeft;
       stickyHeaderScroll.scrollLeft = currentScrollLeft;
@@ -2850,6 +2891,7 @@
       if (isSyncing) return;
       currentScrollLeft = tableA.scrollLeft;
       isSyncing = true;
+      tableALegendScroll.scrollLeft = currentScrollLeft;
       tableB.scrollLeft = currentScrollLeft;
       stickyHeaderScroll.scrollLeft = currentScrollLeft;
       isSyncing = false;
@@ -3018,7 +3060,7 @@
 
     // Прямая проверка при каждом скролле: как только нижний край thead таблицы A
     // уходит выше хедера — показываем sticky-шапку (без задержки observer'а)
-    var tableAHeadRow = document.querySelector('#tableA thead tr');
+    var tableAHeadRow = document.querySelector('#tableALegendScroll thead tr');
     function checkTableAHead() {
       if (!tableAHeadRow) return;
       var rect = tableAHeadRow.getBoundingClientRect();
