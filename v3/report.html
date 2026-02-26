@@ -827,21 +827,21 @@
     /* === STICKY TABLE HEADER === */
     .sticky-table-header {
       position: fixed;
-      top: calc(var(--header-h, 67px) + var(--tabs-bar-h, 44px));
+      top: var(--header-h, 67px);
       left: 244px;
       right: 0;
       z-index: 10;
       background: var(--background-primary);
       border-bottom: 1px solid var(--stroke-divider-default);
       padding: 0 16px 0 0;
-      opacity: 0;
-      transform: translateY(-100%);
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      visibility: hidden;
       pointer-events: none;
     }
+    .sticky-table-header.tabs-visible {
+      top: calc(var(--header-h, 67px) + var(--tabs-bar-h, 44px));
+    }
     .sticky-table-header.visible {
-      opacity: 1;
-      transform: translateY(0);
+      visibility: visible;
       pointer-events: auto;
     }
     .sticky-header-inner {
@@ -1399,7 +1399,7 @@
             </colgroup>
             <thead>
               <tr>
-                <th class="col-header-label" colspan="3">Мой объект</th>
+                <th class="col-header-label" colspan="3">Объект</th>
                 <th class="col-start-price">Стартовая цена</th>
                 <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
                 <th class="col-dynamics"></th>
@@ -1795,7 +1795,7 @@
       </colgroup>
       <thead>
         <tr>
-          <th class="col-header-label" colspan="3">Конкурентный объект</th>
+          <th class="col-header-label" colspan="3">Объект</th>
           <th class="col-start-price">Стартовая цена</th>
           <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
           <th class="col-dynamics"></th>
@@ -2694,7 +2694,6 @@
       stickyTabSelection.classList.remove('active');
       filtersEl.style.display = 'none';
       resultsCounter.style.display = 'none';
-      stickyTableHeader.classList.remove('visible');
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -2971,6 +2970,7 @@
     var tabsOutOfView = false;
     var filtersOutOfView = false;
     var stickyBarsActivated = false;
+    var tableAHeadOutOfView = false;
 
     // Измеряем реальные высоты хедера и таб-бара и прокидываем в CSS-переменные
     function measureStickyHeights() {
@@ -2992,11 +2992,11 @@
       stickyBarsActivated = tabsOutOfView && tableInViewport;
 
       stickyTabsBar.classList.toggle('visible', stickyBarsActivated);
-      if (!stickyBarsActivated || activeTab === 'in-report') {
-        stickyTableHeader.classList.remove('visible');
-      } else {
-        stickyTableHeader.classList.toggle('visible', filtersOutOfView);
-      }
+
+      // Sticky-шапка таблицы: показывается как только thead таблицы A уходит за хедер.
+      // Смещается вниз при появлении sticky таб-бара.
+      stickyTableHeader.classList.toggle('visible', tableAHeadOutOfView);
+      stickyTableHeader.classList.toggle('tabs-visible', stickyBarsActivated);
     }
 
     var tabsObserver = new IntersectionObserver(function(entries) {
@@ -3015,7 +3015,22 @@
     }, { rootMargin: '-' + (stickyH.HEADER_H + stickyH.TABS_BAR_H) + 'px 0px 0px 0px' });
     headerObserver.observe(filtersEl);
 
-    window.addEventListener('scroll', updateStickyBars, { passive: true });
+    // Прямая проверка при каждом скролле: как только нижний край thead таблицы A
+    // уходит выше хедера — показываем sticky-шапку (без задержки observer'а)
+    var tableAHeadRow = document.querySelector('#tableA thead tr');
+    function checkTableAHead() {
+      if (!tableAHeadRow) return;
+      var rect = tableAHeadRow.getBoundingClientRect();
+      // Показываем fixed шапку как только верхний край thead касается хедера —
+      // она перекрывает реальную шапку и выглядит как одна прилипающая сущность.
+      tableAHeadOutOfView = rect.top <= stickyH.HEADER_H;
+    }
+
+    checkTableAHead(); // инициализация при загрузке
+    window.addEventListener('scroll', function() {
+      checkTableAHead();
+      updateStickyBars();
+    }, { passive: true });
     window.addEventListener('resize', function() {
       stickyH = measureStickyHeights();
       updateStickyBars();
