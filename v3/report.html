@@ -2987,7 +2987,7 @@
         tabsOutOfView = !entry.isIntersecting;
         updateStickyBars();
       });
-    }, { rootMargin: '-' + stickyH.HEADER_H + 'px 0px 0px 0px' });
+    }, { rootMargin: '-' + stickyH.HEADER_H + 'px 0px 0px 0px', threshold: 1 });
     tabsObserver.observe(tabsRowEl);
 
     var headerObserver = new IntersectionObserver(function(entries) {
