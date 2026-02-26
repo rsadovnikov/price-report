@@ -211,7 +211,7 @@
       white-space: nowrap;
     }
     .occ-photo       { width: 86px;  min-width: 86px; }
-    .occ-desc        { width: 260px; min-width: 260px; white-space: normal !important; }
+    .occ-desc        { width: 260px; min-width: 260px; white-space: normal !important; position: relative; }
     .occ-start-price { width: 150px; min-width: 150px; }
     .occ-price       { width: 170px; min-width: 170px; }
     .occ-dur    { width: 150px; min-width: 150px; }
@@ -628,6 +628,13 @@
       gap: 8px;
       max-width: 560px;
       padding: 2px 0;
+    }
+    .occ-inline-form {
+      position: absolute;
+      left: 0;
+      min-width: 420px;
+      z-index: 10;
+      background: white;
     }
     .comment-form-actions {
       display: flex;
@@ -2207,24 +2214,37 @@
 
     // === OWNER COMP LIST COMMENT FORM ===
     function showOwnerCommentForm(idx, prefill) {
-      var existingForm = document.querySelector('.occ-comment-form-row');
-      if (existingForm) existingForm.remove();
       var dataTr = document.querySelector('#ownerCompBody tr[data-owner-idx="' + idx + '"]');
       if (!dataTr) return;
 
-      var formTr = document.createElement('tr');
-      formTr.className = 'occ-comment-form-row';
-      formTr.innerHTML = '<td class="occ-photo" style="border-top:none;padding:0"></td>'
-        + '<td colspan="6" class="occ-comment-form-cell">'
-        + '<div class="comment-form-wrap">'
-        + '<input class="comment-input-inline" type="text" maxlength="120" placeholder="\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u043a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439, \u0435\u0433\u043e \u0443\u0432\u0438\u0434\u0438\u0442 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u043d\u0438\u043a \u0432 \u043f\u0434\u0444-\u043e\u0442\u0447\u0451\u0442\u0435">'
+      // Hide the add-link or existing comment wrap (keep in flow for height), overlay form absolutely
+      var target = dataTr.querySelector('[data-occ-add]') || dataTr.querySelector('.occ-comment-wrap');
+      if (!target) return;
+
+      target.style.visibility = 'hidden';
+      var td = target.closest('td');
+
+      var formWrap = document.createElement('div');
+      formWrap.className = 'comment-form-wrap occ-inline-form';
+      formWrap.style.top = target.offsetTop + 'px';
+      formWrap.innerHTML =
+        '<input class="comment-input-inline" type="text" maxlength="120" placeholder="\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u043a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439, \u0435\u0433\u043e \u0443\u0432\u0438\u0434\u0438\u0442 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u043d\u0438\u043a \u0432 \u043f\u0434\u0444-\u043e\u0442\u0447\u0451\u0442\u0435">'
         + '<div class="comment-form-actions">'
         + '<button class="btn-primary-sm" data-occ-form-save type="button">\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c</button>'
         + '<button class="btn-ghost-sm" data-occ-form-cancel type="button">\u041e\u0442\u043c\u0435\u043d\u0430</button>'
-        + '</div></div></td>';
-      dataTr.parentNode.insertBefore(formTr, dataTr.nextSibling);
+        + '</div>';
+      td.appendChild(formWrap);
 
-      var input = formTr.querySelector('.comment-input-inline');
+      // Expand row height so form doesn't overlap next row
+      requestAnimationFrame(function() {
+        var excess = (formWrap.offsetTop + formWrap.offsetHeight) - td.offsetHeight;
+        if (excess > 0) {
+          var curPB = parseInt(getComputedStyle(td).paddingBottom) || 0;
+          td.style.paddingBottom = (curPB + excess) + 'px';
+        }
+      });
+
+      var input = formWrap.querySelector('.comment-input-inline');
       if (prefill) input.value = prefill;
       input.focus();
 
@@ -2232,11 +2252,9 @@
         var text = input.value.trim();
         if (text) { commentTexts[idx] = text; showSnackbar('\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d'); }
         else { delete commentTexts[idx]; }
-        formTr.remove();
         renderOwnerCompetitorsList();
       }
       function cancelClose() {
-        formTr.remove();
         renderOwnerCompetitorsList();
       }
 
@@ -2244,8 +2262,8 @@
         if (e.key === 'Enter') { e.preventDefault(); saveAndClose(); }
         else if (e.key === 'Escape') { cancelClose(); }
       });
-      formTr.querySelector('[data-occ-form-save]').addEventListener('click', saveAndClose);
-      formTr.querySelector('[data-occ-form-cancel]').addEventListener('click', cancelClose);
+      formWrap.querySelector('[data-occ-form-save]').addEventListener('click', saveAndClose);
+      formWrap.querySelector('[data-occ-form-cancel]').addEventListener('click', cancelClose);
       input.addEventListener('blur', function() {
         setTimeout(function() { if (input.isConnected) saveAndClose(); }, 150);
       });
