@@ -1489,7 +1489,7 @@
     <div class="table-section" id="tableBSection">
       <div id="emptyBState" class="empty-report-state" style="display:none">
         <div class="empty-report-illustration">
-          <img src="../MO/Frame 2136137207.jpg" alt="" width="120">
+          <img src="../MO/Frame 2136137207.jpg" alt="" width="280">
         </div>
         <div class="empty-report-text">Выберите подходящих конкурентов, чтобы отслеживать по ним изменения</div>
         <div class="empty-report-actions">
@@ -2817,8 +2817,7 @@
     function updateEmptyStateHeight() {
       if (!emptyBState || emptyBState.style.display === 'none') return;
       emptyBState.style.minHeight = '';
-      var top = emptyBState.getBoundingClientRect().top;
-      emptyBState.style.minHeight = Math.max(window.innerHeight - top, 200) + 'px';
+      emptyBState.style.height = '400px';
     }
 
     syncProxyWidth();
