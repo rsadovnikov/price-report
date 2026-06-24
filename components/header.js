@@ -2,7 +2,7 @@
  * Shared Header component.
  * Usage: <div id="header"></div> + renderHeader()
  */
-function renderHeader() {
+function renderHeader(basePath = '') {
   const el = document.getElementById('header');
   if (!el) return;
   el.outerHTML = `
@@ -37,7 +37,10 @@ function renderHeader() {
         <path d="M81.0332 11.332C81.0086 11.5635 80.9959 11.7986 80.9959 12.0367C80.9959 15.6441 83.8943 18.5685 87.4695 18.5685C89.1326 18.5685 90.6492 17.9358 91.7957 16.8958L94.6689 19.5L96 18.0049L93.057 15.3374C93.6202 14.3688 93.9431 13.2408 93.9431 12.0367C93.9431 8.90787 91.7628 6.29285 88.8515 5.65407C88.9257 5.96564 88.9634 6.27874 88.9634 6.58221C88.9634 6.98619 88.9005 7.36578 88.7982 7.71672C90.6246 8.28798 91.9512 10.006 91.9512 12.0367C91.9512 14.5342 89.9447 16.5587 87.4695 16.5587C85.1429 16.5587 83.2304 14.7699 83.0092 12.481L82.989 12.4758L82.987 12.4753C82.9091 12.4551 82.8481 12.4341 82.8152 12.4224C82.7478 12.3983 82.695 12.3753 82.6702 12.3644C82.6156 12.3402 82.5687 12.3168 82.5402 12.3024C82.4777 12.2706 82.4109 12.2342 82.3457 12.1974C82.212 12.1219 82.0418 12.0203 81.8484 11.8967C81.6143 11.7469 81.3335 11.5567 81.0332 11.332Z" fill="#0468FF"/>
       </svg>
     </div>
-    <button class="btn-primary-md">+ Разместить объявление</button>
+    <button class="btn-primary-sm">
+      <span class="icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      Разместить объявление
+    </button>
     <div class="header-avatar">
       <img src="https://placehold.co/40x40" alt="avatar">
     </div>

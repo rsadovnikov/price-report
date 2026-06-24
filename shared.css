@@ -1,3 +1,16 @@
+/*
+  shared.css — базовые стили дизайн-системы ЦИАН (ProApp)
+
+  Подключается в каждом прототипе после tokens.css.
+  Содержит: reset, типографику, хедер, сайдбар, иконки, метро-цвета.
+  Не редактировать в рамках конкретного прототипа — только через дизайн-систему.
+
+  Порядок подключения:
+    1. tokens.css       — CSS-переменные (цвета, отступы, радиусы)
+    2. shared.css       — этот файл
+    3. components/*.css — кнопки, инпуты, чипы и т.д.
+*/
+
 /* === RESET === */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 input, button, textarea, select { font-family: inherit; font-size: inherit; }
@@ -10,15 +23,26 @@ body {
 }
 
 /* === TYPOGRAPHY (Magentum Desktop/Typography) === */
-.heading1 { font-size: 36px; font-weight: 700; line-height: 40px; letter-spacing: -0.5px; }
-.heading2 { font-size: 28px; font-weight: 700; line-height: 36px; letter-spacing: -0.5px; }
-.heading3 { font-size: 22px; font-weight: 700; line-height: 28px; letter-spacing: -0.5px; }
+/* Пиним Lato на raw-теги заголовков — они не наследуют шрифт надёжно (на проде падали в системный bold) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-feature-settings: 'liga' off, 'clig' off;
+}
+.heading1, .heading2, .heading3, .heading4, .heading5, .heading6,
+.body1, .body2, .caption, .overline {
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-feature-settings: 'liga' off, 'clig' off;
+}
+.heading1 { font-size: 28px; font-weight: 700; line-height: 36px; letter-spacing: -0.5px; }
+.heading2 { font-size: 22px; font-weight: 700; line-height: 28px; letter-spacing: -0.5px; }
+.heading3 { font-size: 18px; font-weight: 700; line-height: 24px; letter-spacing: -0.5px; }
 .heading4 { font-size: 16px; font-weight: 700; line-height: 24px; letter-spacing: -0.2px; }
 .heading5 { font-size: 14px; font-weight: 700; line-height: 20px; letter-spacing: -0.2px; }
+.heading6 { font-size: 12px; font-weight: 700; line-height: 16px; letter-spacing: -0.2px; }
 .body1 { font-size: 16px; font-weight: 400; line-height: 24px; letter-spacing: 0px; }
 .body2 { font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0px; }
 .caption { font-size: 12px; font-weight: 400; line-height: 16px; letter-spacing: 0px; }
-.overline { font-size: 10px; font-weight: 700; line-height: 16px; letter-spacing: 0.7px; text-transform: uppercase; }
+.overline { font-size: 10px; font-weight: 700; line-height: 16px; letter-spacing: 1px; text-transform: uppercase; }
 .text-secondary { color: var(--text-secondary); }
 .text-link { color: var(--text-main); text-decoration: none; cursor: pointer; }
 .text-link:hover { text-decoration: underline; }

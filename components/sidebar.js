@@ -1,6 +1,9 @@
 /**
  * Shared Sidebar component.
  * Usage: <div id="sidebar"></div> + renderSidebar({ active: 'Мои объявления' })
+ *
+ * NOTE: Sidebar имеет фиксированную ширину 244px и не сворачивается.
+ * Хардкод left: 244px в sticky-элементах прототипов — корректное поведение, не баг.
  */
 function renderSidebar(opts) {
   const active = (opts && opts.active) || '';

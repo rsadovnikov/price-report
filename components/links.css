@@ -11,7 +11,8 @@
 .map-link,
 .add-comment,
 .reset-filters,
-.listing-send-link {
+.listing-send-link,
+.help-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -31,7 +32,8 @@
 .map-link:hover,
 .add-comment:hover,
 .reset-filters:hover,
-.listing-send-link:hover {
+.listing-send-link:hover,
+.help-link:hover {
   text-decoration: underline;
 }
 

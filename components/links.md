@@ -1,7 +1,5 @@
 # Ссылки прототипа — Action Link
 
-Источник: [Figma — Action Link](https://www.figma.com/design/whWaY1l1DYcVDJqHJiXJk2/%D0%9E%D1%82%D1%87%D1%91%D1%82-%D0%BE-%D1%86%D0%B5%D0%BD%D0%B5-%D0%B8-%D0%BA%D0%BE%D0%BD%D0%BA%D1%83%D1%80%D0%B5%D0%BD%D1%82%D0%B0%D1%85?node-id=3018-72073)
-
 ---
 
 ## Компоненты DS
@@ -25,7 +23,6 @@
 
 | Size | Типографика | Размер |
 |---|---|---|
-| **Large** | Heading4: 16px / 24px, −0.2px | — |
 | **Small** | Heading5: 14px / 20px, −0.2px | — |
 | **Icon only** | — | 28×28 px, иконка 16×16 |
 
@@ -45,13 +42,13 @@
 
 ## Файлы
 
-- Документация: `prototype/links.md`
-- Стили: `src/links.css`
+- Документация: `prototype/components/links.md`
+- Стили: `components/links.css`
 
 Порядок подключения в HTML:
 ```html
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="buttons.css">
-<link rel="stylesheet" href="links.css">
-<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components/buttons.css">
+<link rel="stylesheet" href="../components/links.css">
+<link rel="stylesheet" href="../shared.css">
 ```

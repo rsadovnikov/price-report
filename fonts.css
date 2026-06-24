@@ -1,0 +1,18 @@
+/* Полный Lato с КИРИЛЛИЦЕЙ (self-hosted).
+   Google Fonts / cdnfonts / Fontsource отдают Lato БЕЗ кириллических глифов
+   (только latin/latin-ext) — кириллица падала в системный шрифт.
+   Источник: npm-пакет lato-font@3 (Lato Regular/Bold, 255 кириллических глифов). */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Lato-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Lato-Bold.woff2') format('woff2');
+}
