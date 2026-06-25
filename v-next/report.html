@@ -3895,15 +3895,8 @@
     }
     link.addEventListener('click', openHelp);
 
-    // Автопоказ при первом заходе в отчёт (один раз за сессию вкладки).
-    try {
-      if (!sessionStorage.getItem('reportOnboardingShown')) {
-        sessionStorage.setItem('reportOnboardingShown', '1');
-        openHelp();
-      }
-    } catch (e) {
-      // sessionStorage недоступен — просто не автопоказываем
-    }
+    // Автопоказ при каждом заходе в отчёт.
+    openHelp();
   })();
 
   // === Справка под заголовком «Отчёт для собственника» («Чем он помогает и как выглядит») ===
