@@ -365,12 +365,22 @@
       border-top: none;
     }
 
-    /* Row hover for competitor table (exclude placeholder row and comment rows) */
-    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td {
+    /* Row hover for competitor table (exclude placeholder row and comment rows).
+       .row-hovered — JS-дублёр :hover: держит подсветку строки, пока курсор на
+       плавающей кнопке (она вне строки, и нативный :hover там теряется). */
+    /* .row-added — строка зафиксирована заливкой после клика «Добавить» (Подборка):
+       видно, что объект добавлен, до перезагрузки/ухода с вкладки. Та же заливка, что hover. */
+    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td,
+    #tableB tbody tr.row-hovered:not(.no-hover):not(.comment-row) td,
+    #tableB tbody tr.row-added:not(.no-hover):not(.comment-row) td {
       background: #F3F5FA;
     }
     #tableB tbody tr:not(.no-hover):not(.comment-row):hover td.sticky-checkbox,
-    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td.sticky-photo {
+    #tableB tbody tr:not(.no-hover):not(.comment-row):hover td.sticky-photo,
+    #tableB tbody tr.row-hovered:not(.no-hover):not(.comment-row) td.sticky-checkbox,
+    #tableB tbody tr.row-hovered:not(.no-hover):not(.comment-row) td.sticky-photo,
+    #tableB tbody tr.row-added:not(.no-hover):not(.comment-row) td.sticky-checkbox,
+    #tableB tbody tr.row-added:not(.no-hover):not(.comment-row) td.sticky-photo {
       background: #F3F5FA;
     }
 
@@ -459,6 +469,16 @@
       box-shadow: 0 2px 8px rgba(13, 22, 46, 0.12);
     }
     #rowHoverBtn.visible { display: inline-flex; }
+    /* Схлопывание кнопки при «Перестать отслеживать» драйвится inline-стилями в
+       collapseBtn() (transform scaleY + opacity, с форс-reflow) — синхронно со строкой. */
+    /* Персистентные кнопки «Отслеживается» на добавленных строках (Подборка) —
+       плавают у правого края секции, как #rowHoverBtn, но по одной на каждую добавленную строку. */
+    .persistent-track-btn {
+      position: absolute;
+      right: 24px;
+      z-index: 29;
+      box-shadow: 0 2px 8px rgba(13, 22, 46, 0.12);
+    }
     .metrics-row.unchecked .metrics-row-val {
       color: var(--text-secondary);
       font-weight: 400;
@@ -578,6 +598,20 @@
       color: var(--text-primary);
       margin-bottom: 4px;
     }
+    /* Бейдж апдейта — негативная палитра (как негативная кнопка): «Цена изменилась»,
+       «Снято с публикации», «Новый конкурент». */
+    .badge-update {
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+      line-height: 20px;
+      padding: 2px 8px;
+      border: none;
+      border-radius: 99px;
+      background: var(--surface-negative-default);
+      color: var(--text-negative-default);
+      margin-bottom: 4px;
+    }
     .desc-title.removed {
       color: var(--text-primary);
       cursor: default;
@@ -686,6 +720,27 @@
       /* доскролл к вкладкам учитывает фикс-хедер + небольшой зазор сверху */
       scroll-margin-top: calc(var(--header-h, 67px) + 8px);
     }
+    /* Красный каунтер новых конкурентов на табе «Подборка» (Overline, белый на красном). */
+    .tab-update-counter {
+      display: inline-flex;
+      width: 16px;
+      height: 16px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      border-radius: 99px;
+      background: var(--control-negative-primary-default);
+      color: var(--text-inverted-default);
+      text-align: center;
+      font-feature-settings: 'liga' off, 'clig' off;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
 
     /* === FILTERS === */
     .filters {
@@ -775,6 +830,37 @@
     }
     .results-counter strong { font-weight: 700; }
 
+    /* === TRACKING BANNER (микро-онбординг «Отслеживаются») === */
+    .tracking-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 24px 12px 24px;
+      padding: 8px;
+      background: var(--surface-neutral-default);
+      border-radius: var(--radius-xl);
+    }
+    .tracking-banner__text {
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0;
+      color: var(--text-primary-default);
+      font-feature-settings: 'liga' off, 'clig' off;
+    }
+    .tracking-banner__radar {
+      flex: none;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      transform-origin: center;
+      animation: radar-spin 2.4s linear infinite;
+    }
+    .tracking-banner__radar svg { display: block; }
+    @keyframes radar-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .tracking-banner__radar { animation: none; }
+    }
+
     /* === CUSTOM SCROLLBAR === */
     .custom-scrollbar {
       padding: 5px 24px;
@@ -849,7 +935,7 @@
       z-index: 10;
       background: var(--background-primary);
       border-bottom: 1px solid var(--stroke-divider-default);
-      padding: 0 16px 0 0;
+      padding: 0 16px 0 12px; /* left 12px — тот же инсет, что и .table-section (выравнивание на 268px) */
       visibility: hidden;
       pointer-events: none;
     }
@@ -969,7 +1055,10 @@
     }
     /* Table container padding */
     .table-section {
-      padding: 0;
+      /* +12px слева: контент таблиц (244+12+12 td) выравнивается на 268px — по краю
+         заголовка/табов/баннера. Сдвиг на внешнем НЕ-скроллящемся контейнере, чтобы
+         не тронуть ширины колонок и сохранить горизонтальный скролл-синхрон таблиц. */
+      padding: 0 0 0 12px;
     }
     /* Легенда таблицы A: шапка + скроллбар, вне overflow-контейнера */
     .table-legend {
@@ -1527,7 +1616,7 @@
     <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
-      <div class="tab" id="tabSelection">Подборка конкурентов</div>
+      <div class="tab" id="tabSelection">Подборка конкурентов <span class="tab-update-counter" id="tabSelectionCounter" style="display:none">0</span></div>
     </div>
 
     <!-- Filters -->
@@ -1567,6 +1656,18 @@
     <div class="results-counter">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#697797" stroke-width="1.2"/><path d="M11 11l3 3" stroke="#697797" stroke-width="1.2" stroke-linecap="round"/></svg>
       <span id="counterText"></span>
+    </div>
+
+    <!-- Микро-онбординг отслеживания (вкладка «Отслеживаются», ≥1 объект) -->
+    <div class="tracking-banner" id="trackingBanner" style="display:none">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#paint0_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<g clip-path="url(#paint1_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
+<defs>
+<clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
+</svg></span>
+      <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
     </div>
 
     <!-- Table B: Competitors -->
@@ -1838,7 +1939,7 @@
 <!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
 <div class="sticky-tabs-bar" id="stickyTabsBar">
   <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
-  <div class="tab" id="stickyTabSelection">Подборка конкурентов</div>
+  <div class="tab" id="stickyTabSelection">Подборка конкурентов <span class="tab-update-counter" id="stickyTabSelectionCounter" style="display:none">0</span></div>
 </div>
 
 <!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
@@ -1947,6 +2048,8 @@
     // === STATE ===
     var checkedIds = new Set();
     var removedIds = new Set();
+    var priceUpdatedIds = new Set(); // апдейт «Цена изменилась» (курируемое подмножество отслеживаемых)
+    var newIds = new Set();          // апдейт «Новый конкурент» (активные не отслеживаемые из «Подборки»)
     // Добавленные в подборку в текущий заход на вкладку: остаются видимыми со статусом
     // «Отслеживается», пока не уйдёшь с вкладки. Сбрасывается при входе на «Подборку».
     var justAddedInSelection = new Set();
@@ -2018,6 +2121,69 @@
       picked.forEach(function(i) { checkedIds.add(i); });
     })();
 
+    // === АПДЕЙТЫ КОНКУРЕНТОВ ===
+    // Всего апдейтов прокидывается из «Мои объявления» (?u=…, как и ?n=…) — каунтер на
+    // кнопке «N конкурентов» = ровно столько апдейтов внутри отчёта. Без параметра — дефолт 3.
+    // Раскладка ровно U бейджей: до 2 по отслеживаемым (1 «Цена изменилась» + 1 «Снято с
+    // публикации»), остаток — «Новые конкуренты» из подборки. Каунтер таба «Подборка» = остаток.
+    // Кол-во апдейтов берём из ?u (синхрон с каунтером на кнопке). Без параметра (прямое
+    // открытие) — случайное 1..6. Какие именно объекты получают апдейт — рандомизируем,
+    // чтобы на каждой загрузке расклад был разный.
+    var _u = parseInt(REPORT_PARAMS.get('u'), 10);
+    var TOTAL_UPDATES = (_u >= 0) ? _u : (Math.floor(Math.random() * 6) + 1);
+    function shuffleArr(a) {
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+    (function markUpdates() {
+      var U = TOTAL_UPDATES;
+      if (U <= 0) return;
+      var used = 0;
+      var tracked = [];
+      checkedIds.forEach(function(i) { tracked.push(i); });
+      shuffleArr(tracked); // случайные отслеживаемые под апдейты
+
+      // 1) «Цена изменилась» — случайный отслеживаемый с непустым priceDelta.
+      for (var t = 0; t < tracked.length && used < U; t++) {
+        if (ALL_COMPETITORS[tracked[t]].priceDelta) { priceUpdatedIds.add(tracked[t]); used++; break; }
+      }
+      // 2) «Снято с публикации» — ещё один случайный отслеживаемый, помечаем removed.
+      if (used < U) {
+        var today = new Date(2026, 1, 18);
+        for (var r = 0; r < tracked.length; r++) {
+          var idx = tracked[r];
+          if (priceUpdatedIds.has(idx) || removedIds.has(idx)) continue;
+          removedIds.add(idx);
+          if (!removedDates[idx]) {
+            var pubDate = parseRuDate(ALL_COMPETITORS[idx].date);
+            var removedMs = pubDate.getTime() + Math.floor((today.getTime() - pubDate.getTime()) * 0.8);
+            removedDates[idx] = formatRemovedDate(new Date(removedMs));
+          }
+          used++;
+          break;
+        }
+      }
+      // 3) Остаток — «Новые конкуренты»: случайные активные НЕ отслеживаемые из подборки.
+      var pool = [];
+      for (var n = 0; n < ALL_COMPETITORS.length; n++) {
+        if (!checkedIds.has(n) && !removedIds.has(n)) pool.push(n);
+      }
+      shuffleArr(pool);
+      for (var p = 0; p < pool.length && used < U; p++) { newIds.add(pool[p]); used++; }
+    })();
+
+    // Есть ли у отслеживаемого объекта апдейт (для сортировки/бейджа).
+    function trackedHasUpdate(idx) { return removedIds.has(idx) || priceUpdatedIds.has(idx); }
+    // Сколько новых конкурентов ещё в «Подборке» (не ушли в отслеживаемые) — каунтер таба.
+    function newCount() {
+      var c = 0;
+      newIds.forEach(function(i) { if (!checkedIds.has(i)) c++; });
+      return c;
+    }
+
     // === Проброс базового объекта из сниппета «Мои объявления» ===
     // Шапка и Table A показывают тот объект, по которому кликнули. Дизайн не меняется — только содержимое.
     (function propBaseObject() {
@@ -2077,6 +2243,7 @@
     var tableBBody = document.getElementById('tableBBody');
     var tableBWrapper = document.getElementById('tableBWrapper');
     var emptyBState = document.getElementById('emptyBState');
+    var trackingBanner = document.getElementById('trackingBanner');
     var scrollbarMain = document.getElementById('scrollbarMain');
     var scrollbarTrack = document.getElementById('scrollbarTrack');
     var scrollbarThumb = document.getElementById('scrollbarThumb');
@@ -2110,11 +2277,24 @@
     // === MAKE ROW HTML ===
     function makeRow(d, idx, isChecked) {
       if (!photoCache[idx]) photoCache[idx] = nextPhoto();
-      return '<tr data-idx="' + idx + '">'
+      // В «Подборке» добавленные строки остаются залитыми (как hover) — маркер «уже добавлен».
+      var rowCls = (activeTab === 'selection' && checkedIds.has(idx)) ? ' class="row-added"' : '';
+      // Бейдж апдейта по контексту вкладки (негативная палитра .badge-update):
+      // «Отслеживаются» → Снято с публикации / Цена изменилась; «Подборка» → Новый конкурент
+      // (или Снято с публикации для архивных под фильтром).
+      var updateBadge = '';
+      if (activeTab === 'in-report') {
+        if (removedIds.has(idx)) updateBadge = '<div class="badge-update">Снято с публикации ' + removedDates[idx] + '</div>';
+        else if (priceUpdatedIds.has(idx)) updateBadge = '<div class="badge-update">Цена изменилась</div>';
+      } else {
+        if (newIds.has(idx)) updateBadge = '<div class="badge-update">Новый конкурент</div>';
+        else if (removedIds.has(idx)) updateBadge = '<div class="badge-update">Снято с публикации ' + removedDates[idx] + '</div>';
+      }
+      return '<tr data-idx="' + idx + '"' + rowCls + '>'
         + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/70x70\'" alt="photo"></td>'
         + '<td class="col-desc desc-cell">'
         +   '<div class="desc-title' + (removedIds.has(idx) ? ' removed' : '') + '">' + d.desc + '</div>'
-        +   (removedIds.has(idx) ? '<div class="badge-removed">Снято с публикации ' + removedDates[idx] + '</div>' : '')
+        +   updateBadge
         +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
         +   (d.zhk ? '<div class="desc-zhk">ЖК \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
         + '</td>'
@@ -2154,16 +2334,27 @@
         });
       } else {
         // Подборка: не показываем уже отслеживаемые (ушли в whitelist), кроме добавленных
-        // в этот заход (justAddedInSelection) — они остаются со статусом «Отслеживается».
-        var shown = 0;
-        for (var j = 0; j < ALL_COMPETITORS.length && shown < visibleCount; j++) {
+        // в этот заход (justAddedInSelection). Собираем ВСЕ подходящие без лимита — окно
+        // visibleCount применяем ПОСЛЕ сортировки, чтобы новые конкуренты (идут наверх)
+        // всегда попадали в показ, а не отрезались по индексу (иначе каунтер ≠ числу бейджей).
+        for (var j = 0; j < ALL_COMPETITORS.length; j++) {
           if (checkedIds.has(j) && !justAddedInSelection.has(j)) continue;
           // Фильтр «или/или»: режим «Активные» показывает только не-архивные, «Архивные» — только архивные.
           if (showArchivedOnly ? !removedIds.has(j) : removedIds.has(j)) continue;
           items.push({ d: ALL_COMPETITORS[j], i: j });
-          shown++;
         }
       }
+
+      // Апдейты — наверх списка (стабильно: с апдейтом сверху, остальные — в прежнем порядке).
+      var hasUpd = (activeTab === 'in-report')
+        ? trackedHasUpdate
+        : function(i) { return newIds.has(i); };
+      items = items.filter(function(x) { return hasUpd(x.i); })
+        .concat(items.filter(function(x) { return !hasUpd(x.i); }));
+
+      // Подборка: окно показа применяем ПОСЛЕ сортировки — новые конкуренты уже наверху,
+      // поэтому все они попадают в показ (каунтер таба = числу бейджей «Новый конкурент»).
+      if (activeTab === 'selection') items = items.slice(0, visibleCount);
 
       if (items.length === 0) {
         tableBBody.innerHTML = '';
@@ -2179,14 +2370,31 @@
         }).join('');
       }
 
+      // Баннер «Следим за изменениями» — только на вкладке «Отслеживаются» при ≥1 объекте
+      if (trackingBanner) {
+        trackingBanner.style.display =
+          (activeTab === 'in-report' && checkedIds.size > 0) ? 'flex' : 'none';
+      }
+
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
+      refreshSelectionBtns(); // персистентные кнопки «Отслеживается» на добавленных строках (Подборка)
     }
+    // Хук на персистентные кнопки добавленных строк (реальная реализация — в rowHoverButton).
+    var refreshSelectionBtns = function() {};
 
     // === UI UPDATERS ===
     function updateTabLabels() {
       document.getElementById('tabInReportCounter').textContent = checkedIds.size;
       document.getElementById('stickyTabInReportCounter').textContent = checkedIds.size;
+      // Каунтер новых конкурентов на табе «Подборка» (скрыт при 0)
+      var nc = newCount();
+      ['tabSelectionCounter', 'stickyTabSelectionCounter'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = nc;
+        el.style.display = nc > 0 ? 'inline-flex' : 'none';
+      });
     }
 
     // === OWNER REPORT BLOCK ===
@@ -2278,23 +2486,42 @@
 
     // === OWNER REPORT FAB (кнопка «Отчёт для собственника») ===
     // Задача кнопки — довести до секции «Создать отчёт для собственника».
-    // Показана, пока секция ещё НИЖЕ меня (не дошёл). Как только её верх поднялся
-    // в видимую зону ИЛИ я проскроллил мимо вниз — прячется и снизу не возвращается.
-    // При скролле вверх обратно (секция снова ушла вниз) — появляется опять.
+    // По умолчанию (вверху страницы) НЕ показана, чтобы не перетягивать внимание.
+    // Появляется, только когда пользователь осмысленно проскроллил вниз — порог
+    // 50% высоты экрана (не «чувствительно» с первого пикселя). При этом если секция
+    // отчёта уже в кадре — не показываем (вести уже некуда). Скролл вверх до самого
+    // верха снова прячет кнопку.
     var ownerPanelAnchor = document.querySelector('.owner-report-header')
       || document.getElementById('ownerReportCard');
 
-    // true, если верх секции уже дошёл до видимой зоны (или выше) — т.е. вести больше некуда.
+    // true, если верх секции отчёта вошёл в кадр (коснулся нижнего края вьюпорта) — вести
+    // больше некуда, прячем + защёлка. Прячем максимально поздно: при opt-out-лейауте отчёт
+    // всего ~один экран от верха, поэтому окно показа узкое, и ранний порог его «съедал».
     function ownerPanelReached() {
       if (!ownerPanelAnchor) return false;
       var top = ownerPanelAnchor.getBoundingClientRect().top;
-      return top <= window.innerHeight * 0.8;
+      return top <= window.innerHeight;
     }
+
+    // true, если проскроллил вниз на половину экрана (порог показа — по просьбе Романа).
+    // Скрытие держим максимально поздно (top <= innerHeight), чтобы при этом пороге окно
+    // показа всё же оставалось.
+    function scrolledEnough() {
+      return window.scrollY >= window.innerHeight * 0.5;
+    }
+
+    // Защёлка: «один раз за заход». Латчим seen только когда кнопку реально показали и
+    // потом дошли до отчёта — иначе на высоком окне (отчёт виден сразу при загрузке) seen
+    // выставился бы мгновенно и кнопка не появилась бы вообще.
+    var ownerPanelSeen = false;
+    var ownerFabShown = false;
 
     function updateOwnerBubble() {
       var inner = document.getElementById('ownerBubbleInner');
       if (!inner) return;
-      var show = !ownerPanelReached() && checkedIds.size > 0;
+      if (ownerPanelReached() && ownerFabShown) ownerPanelSeen = true;
+      var show = !ownerPanelSeen && scrolledEnough() && !ownerPanelReached() && checkedIds.size > 0;
+      if (show) ownerFabShown = true;
       inner.classList.toggle('visible', show);
     }
 
@@ -2912,7 +3139,15 @@
       if (!section || !btn) return;
       var hoverIdx = null;
 
-      function hide() { btn.className = btn.className.replace(/\bvisible\b/, '').trim(); hoverIdx = null; }
+      function clearRowHighlight() {
+        var hl = tableBBody.querySelectorAll('tr.row-hovered');
+        Array.prototype.forEach.call(hl, function(r) { r.classList.remove('row-hovered'); });
+      }
+      function hide() {
+        btn.className = btn.className.replace(/\bvisible\b/, '').trim();
+        clearRowHighlight();
+        hoverIdx = null;
+      }
 
       function applyBtn(idx) {
         if (activeTab === 'in-report') {
@@ -2930,7 +3165,14 @@
       function positionFor(tr) {
         var idx = parseInt(tr.getAttribute('data-idx'), 10);
         if (isNaN(idx)) return;
+        // Добавленная строка в «Подборке» — плавающую кнопку не показываем: на ней уже
+        // висит персистентная «Отслеживается». Заливка строки держится классом .row-added.
+        if (activeTab === 'selection' && checkedIds.has(idx)) { hide(); return; }
         hoverIdx = idx;
+        // Подсветка строки держится классом, а не только :hover — чтобы не гасла,
+        // когда курсор переходит на плавающую кнопку (она вне строки).
+        clearRowHighlight();
+        tr.classList.add('row-hovered');
         applyBtn(idx); // сначала размер/текст — чтобы offsetHeight был верным
         var sr = section.getBoundingClientRect();
         var rr = tr.getBoundingClientRect();
@@ -2980,6 +3222,70 @@
         setTimeout(done, 300);
       }
 
+      // Кнопка схлопывается вместе со строкой: сжимается по вертикали (как «задвигается»
+      // строка) + гаснет. Тот же приём, что и в collapseRow: задаём старт, форсим reflow,
+      // затем конечные значения — иначе переход не стартует. После анимации прячем/сбрасываем.
+      function collapseBtn() {
+        if (!btn.classList.contains('visible')) return;
+        btn.style.transition = 'transform 0.28s ease, opacity 0.2s ease';
+        btn.style.transformOrigin = 'top center';
+        btn.style.transform = 'scaleY(1)';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'none';
+        void btn.offsetHeight; // reflow — фиксируем стартовое состояние
+        btn.style.transform = 'scaleY(0)';
+        btn.style.opacity = '0';
+        setTimeout(function() {
+          hide();
+          btn.style.transition = '';
+          btn.style.transform = '';
+          btn.style.opacity = '';
+          btn.style.transformOrigin = '';
+          btn.style.pointerEvents = '';
+        }, 300);
+      }
+
+      // Персистентные кнопки «Отслеживается» — по одной на каждую добавленную строку в
+      // «Подборке». Плавают у правого края секции (как #rowHoverBtn), но остаются. Чисто
+      // визуальный маркер «уже добавлен»; клик снимает объект из отслеживаемых.
+      function renderPersistentBtns() {
+        var old = section.querySelectorAll('.persistent-track-btn');
+        Array.prototype.forEach.call(old, function(b) { if (b.parentNode) b.parentNode.removeChild(b); });
+        if (activeTab !== 'selection') return;
+        var sr = section.getBoundingClientRect();
+        var rows = tableBBody.querySelectorAll('tr[data-idx]');
+        Array.prototype.forEach.call(rows, function(tr) {
+          var idx = parseInt(tr.getAttribute('data-idx'), 10);
+          if (isNaN(idx) || !checkedIds.has(idx)) return;
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'btn-secondary-sm persistent-track-btn';
+          b.textContent = 'Отслеживается';
+          b.setAttribute('data-idx', String(idx));
+          section.appendChild(b);
+          var rr = tr.getBoundingClientRect();
+          b.style.top = (rr.top - sr.top + rr.height - 12 - b.offsetHeight) + 'px';
+        });
+      }
+      refreshSelectionBtns = renderPersistentBtns; // отдать хук в renderTableB
+
+      // Клик по персистентной кнопке = снять объект из отслеживаемых (делегирование).
+      section.addEventListener('click', function(e) {
+        var pb = e.target.closest ? e.target.closest('.persistent-track-btn') : null;
+        if (!pb) return;
+        var idx = parseInt(pb.getAttribute('data-idx'), 10);
+        if (isNaN(idx)) return;
+        checkedIds.delete(idx);
+        justAddedInSelection.delete(idx);
+        var tr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+        if (tr) tr.classList.remove('row-added');
+        showSnackbar('Объект удалён из отслеживаемых');
+        syncMeta();
+        renderPersistentBtns();
+      });
+
+      window.addEventListener('resize', renderPersistentBtns); // перепозиционирование
+
       tableB.addEventListener('mouseover', function(e) {
         var tr = e.target.closest ? e.target.closest('tr[data-idx]') : null;
         if (!tr || tr.classList.contains('comment-row')) return;
@@ -2996,25 +3302,23 @@
           showSnackbar('Объект удалён из отслеживаемых', { label: 'Восстановить', callback: function() {
             checkedIds.add(idx); refreshTracking();
           } });
-          hide();
+          collapseBtn(); // кнопка схлопывается вместе со строкой (а не исчезает мгновенно)
           syncMeta(); // счётчики/футер/блок отчёта — сразу
           // Восстановление в момент анимации безопасно: refreshTracking вернёт строку,
           // а отложенный renderTableB её уже не уберёт (idx снова в checkedIds).
           collapseRow(idx, function() { renderTableB(); updateArrowVisibility(); });
         } else {
-          // Подборка: тоггл на месте — кнопка остаётся, меняется формулировка + снекбар.
-          // Объект не исчезает в моменте (justAddedInSelection держит его в списке до ухода с вкладки).
-          if (checkedIds.has(idx)) {
-            checkedIds.delete(idx);
-            justAddedInSelection.delete(idx);
-            showSnackbar('Объект удалён из отслеживаемых');
-          } else {
-            checkedIds.add(idx);
-            justAddedInSelection.add(idx);
-            showSnackbar('Объект добавлен в отслеживаемые');
-          }
-          applyBtn(idx);
+          // Подборка: клик по плавающей кнопке = «Добавить» (она показывается только на
+          // не-добавленных строках). После добавления строка фризится заливкой, плавающую
+          // прячем — её место занимает персистентная «Отслеживается» (см. renderPersistentBtns).
+          checkedIds.add(idx);
+          justAddedInSelection.add(idx);
+          showSnackbar('Объект добавлен в отслеживаемые');
+          var addedTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+          if (addedTr) addedTr.classList.add('row-added');
+          hide();
           syncMeta();
+          renderPersistentBtns();
         }
       });
     })();
@@ -3556,6 +3860,7 @@
     if (!link || typeof openPromoModal !== 'function') return;
     link.addEventListener('click', function () {
       openPromoModal({
+        originEl: link, // «Готово» → модалка схлопывается в сторону этой ссылки
         slides: [
           { image: '', title: 'Все конкуренты по объекту', text: 'Смотрите всех подобранных конкурентов в одной таблице и сравнивайте по любому параметру — цена, срок экспозиции, ремонт, тип дома, расстояние до метро.' },
           { image: '', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },

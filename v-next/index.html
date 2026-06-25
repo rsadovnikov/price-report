@@ -246,6 +246,31 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px;
     }
+    /* Красный каунтер апдейтов на кнопке «N конкурентов» (угловой бейдж, Overline). */
+    .comp-btn { position: relative; overflow: visible; }
+    .comp-update-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      box-sizing: border-box;
+      border-radius: 99px;
+      background: var(--control-negative-primary-default);
+      color: var(--text-inverted-default);
+      text-align: center;
+      font-feature-settings: 'liga' off, 'clig' off;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
 
     /* Date column */
     .listing-date {
@@ -512,9 +537,13 @@ function renderListings() {
   container.innerHTML = LISTINGS.map((item, i) => {
     const zhkLine = item.zhk ? `ЖК &laquo;${item.zhk}&raquo;, ${item.address}` : item.address;
 
-    // Прокидываем в отчёт число конкурентов и сам базовый объект
+    // Случайное число апдейтов на каждую загрузку (0..8). Это же значение уходит в отчёт
+    // через ?u= — каунтер на кнопке = число апдейтов внутри отчёта.
+    const updates = Math.floor(Math.random() * 9);
+
+    // Прокидываем в отчёт число конкурентов, число апдейтов и сам базовый объект
     const q = new URLSearchParams({
-      n: item.competitors, desc: item.desc, photo: item.photo,
+      n: item.competitors, u: updates, desc: item.desc, photo: item.photo,
       metro: item.metro, metroColor: item.metroColor, walk: item.walkMin,
       zhk: item.zhk, addr: item.address, price: item.price, perM: item.pricePerM
     }).toString();
@@ -536,7 +565,7 @@ function renderListings() {
         <div class="listing-price-col">
           <div class="listing-price">${item.price} ₽</div>
           <div class="listing-price-per-m">${item.pricePerM} ₽/м²</div>
-          <a class="btn-secondary-sm" href="report.html?${q}">${item.competitors} конкурентов</a>
+          <a class="btn-secondary-sm comp-btn" href="report.html?${q}">${item.competitors} конкурентов${updates > 0 ? `<span class="comp-update-badge">${updates}</span>` : ''}</a>
         </div>
         <div class="listing-stats">
           <div class="stat-row">

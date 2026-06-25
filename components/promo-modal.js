@@ -39,6 +39,7 @@ function openPromoModal(config) {
       + '<button class="promo-modal__close" type="button" data-action="close" aria-label="Закрыть">' + CLOSE_SVG + '</button>'
     + '</div>';
 
+  var modalEl = overlay.querySelector('.promo-modal');
   var track = overlay.querySelector('.promo-modal__track');
   var dotsEl = overlay.querySelector('.promo-modal__dots');
   var prevBtn = overlay.querySelector('[data-action="prev"]');
@@ -100,6 +101,28 @@ function openPromoModal(config) {
     if (config.onClose) config.onClose();
   }
 
+  // Закрытие «в источник»: карточка уменьшается и улетает к элементу, который её
+  // вызывает (config.originEl — напр. ссылка «Что полезного умеет этот сервис»),
+  // затем удаляется. Показывает пользователю, куда можно вернуться. Если источника
+  // нет или он вне DOM — обычное закрытие.
+  function closeToOrigin() {
+    var origin = config.originEl;
+    if (!origin || !origin.getBoundingClientRect || !origin.isConnected) { close(); return; }
+    document.removeEventListener('keydown', onKey);
+    var m = modalEl.getBoundingClientRect();
+    var o = origin.getBoundingClientRect();
+    var dx = (o.left + o.width / 2) - (m.left + m.width / 2);
+    var dy = (o.top + o.height / 2) - (m.top + m.height / 2);
+    modalEl.style.transformOrigin = 'center center';
+    modalEl.style.transition = 'transform 0.42s cubic-bezier(0.4, 0, 0.9, 1), opacity 0.42s ease';
+    modalEl.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(0.06)';
+    modalEl.style.opacity = '0';
+    overlay.classList.remove('is-open'); // затемнение гаснет параллельно
+    document.body.style.overflow = bodyOverflow;
+    setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 440);
+    if (config.onClose) config.onClose();
+  }
+
   function onKey(e) { if (e.key === 'Escape') close(); }
 
   overlay.addEventListener('click', function (e) {
@@ -110,7 +133,7 @@ function openPromoModal(config) {
     if (action === 'prev') {
       if (index > 0) { index--; update(); }
     } else if (action === 'next') {
-      if (index === slides.length - 1) { if (config.onFinish) config.onFinish(); close(); }
+      if (index === slides.length - 1) { if (config.onFinish) config.onFinish(); closeToOrigin(); }
       else { index++; update(); }
     } else if (action === 'close') {
       close();
