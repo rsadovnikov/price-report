@@ -541,9 +541,13 @@ function renderListings() {
     // через ?u= — каунтер на кнопке = число апдейтов внутри отчёта.
     const updates = Math.floor(Math.random() * 9);
 
+    // Случайное число конкурентов 7..20 на каждую загрузку — шире базовый спред авто-выбранных.
+    // Уходит в отчёт через ?n= (= AUTO_TRACK_COUNT): столько объектов авто-отслеживается.
+    const competitors = 7 + Math.floor(Math.random() * 14);
+
     // Прокидываем в отчёт число конкурентов, число апдейтов и сам базовый объект
     const q = new URLSearchParams({
-      n: item.competitors, u: updates, desc: item.desc, photo: item.photo,
+      n: competitors, u: updates, desc: item.desc, photo: item.photo,
       metro: item.metro, metroColor: item.metroColor, walk: item.walkMin,
       zhk: item.zhk, addr: item.address, price: item.price, perM: item.pricePerM
     }).toString();
@@ -565,7 +569,7 @@ function renderListings() {
         <div class="listing-price-col">
           <div class="listing-price">${item.price} ₽</div>
           <div class="listing-price-per-m">${item.pricePerM} ₽/м²</div>
-          <a class="btn-secondary-sm comp-btn" href="report.html?${q}">${item.competitors} конкурентов${updates > 0 ? `<span class="comp-update-badge">${updates}</span>` : ''}</a>
+          <a class="btn-secondary-sm comp-btn" href="report.html?${q}">${competitors} конкурентов${updates > 0 ? `<span class="comp-update-badge">${updates}</span>` : ''}</a>
         </div>
         <div class="listing-stats">
           <div class="stat-row">

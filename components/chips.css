@@ -46,6 +46,30 @@
   pointer-events: none;
 }
 
+/* --- Группа чипов (Figma: «использовать только в группе от 2х») --- */
+.chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Размер S (компактный фильтр-чип) — Figma «Chip» S, node 61:23398 ---
+   Отличия от базового: radius 4px, padding 8/12, выбранный — ЗАЛИВКА (не аутлайн). */
+.chip-s {
+  padding: 8px 12px;
+  min-width: 28px;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-m); /* 4px */
+  border-color: var(--stroke-control-default); /* #d0d8e9 */
+}
+.chip-s.active {
+  background: var(--surface-main-default); /* #e6f0ff */
+  border-color: #3686ff; /* stroke/control/selected — точного токена в системе нет */
+  color: var(--text-primary);
+}
+.chip-s.active:hover { background: var(--surface-main-default); }
+
 /* --- Иконка — см. shared.css .icon --- */
 .chip .icon {
   color: #2777F0;

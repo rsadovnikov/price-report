@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../components/links.css">
   <link rel="stylesheet" href="../components/tabs.css">
   <link rel="stylesheet" href="../components/inputs.css">
+  <link rel="stylesheet" href="../components/chips.css">
   <link rel="stylesheet" href="../shared.css">
   <link rel="stylesheet" href="../components/promo-modal.css">
   <style>
@@ -139,6 +140,21 @@
       line-height: 24px;
       letter-spacing: -0.5px;
       color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    /* Точка входа в список — отдельной синей строкой под заголовком «Выбраны N конкурентов» */
+    .owner-step-list-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: -0.2px;
+      color: var(--control-primary);
+      cursor: pointer;
+      width: fit-content;
+      margin-bottom: 16px;
     }
     .owner-step-subtitle {
       font-size: 14px;
@@ -147,26 +163,7 @@
       margin-bottom: 16px;
     }
 
-    /* === STEP 1 TOGGLE TITLE === */
-    .owner-step-title-row {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      cursor: pointer;
-      width: fit-content;
-      margin-bottom: 4px;
-    }
-    .owner-step-count-interactive {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 24px;
-      letter-spacing: -0.5px;
-      color: var(--control-primary);
-      cursor: pointer;
-    }
+    /* === STEP 1 LIST TOGGLE === */
     .step-list-chevron {
       width: 16px;
       height: 10px;
@@ -486,9 +483,9 @@
 
     /* Photo cell */
     .photo-thumb {
-      width: 70px;
-      height: 70px;
-      border-radius: var(--radius-m);
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-l);
       object-fit: cover;
       background: #eee;
     }
@@ -510,7 +507,7 @@
       gap: 4px;
       font-size: 14px;
       line-height: 20px;
-      color: var(--text-primary);
+      color: var(--text-secondary);
       margin-bottom: 2px;
     }
     /* metro-icon: see shared.css */
@@ -596,7 +593,7 @@
       border-radius: 99px;
       background: #e1e6f4;
       color: var(--text-primary);
-      margin-bottom: 4px;
+      margin-top: 4px;
     }
     /* Бейдж апдейта — негативная палитра (как негативная кнопка): «Цена изменилась»,
        «Снято с публикации», «Новый конкурент». */
@@ -610,7 +607,7 @@
       border-radius: 99px;
       background: var(--surface-negative-default);
       color: var(--text-negative-default);
-      margin-bottom: 4px;
+      margin-top: 4px;
     }
     .desc-title.removed {
       color: var(--text-primary);
@@ -751,48 +748,22 @@
       flex-wrap: wrap;
     }
 
-    /* Дропдаун фильтра (Активные/архивные). Локальный компонент прототипа. */
-    .filter-dd { position: relative; display: inline-flex; }
-    .filter-dd-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      min-width: 220px;
-      background: var(--background-primary);
-      border: 1px solid var(--stroke-divider-default);
-      border-radius: var(--radius-l);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-      padding: 4px;
-      z-index: 50;
-      display: none;
-    }
-    .filter-dd.open .filter-dd-menu { display: block; }
-    .filter-dd-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      padding: 8px 12px;
-      border: none;
-      background: none;
-      font-family: var(--font-base);
-      font-size: 14px;
-      line-height: 20px;
-      color: var(--text-primary);
-      text-align: left;
-      cursor: pointer;
-      border-radius: var(--radius-m);
-      white-space: nowrap;
-    }
-    .filter-dd-option:hover { background: var(--surface-neutral-default); }
-    .filter-dd-option.is-selected { color: var(--text-main); font-weight: 700; }
-    .filter-dd-check { width: 16px; height: 16px; flex-shrink: 0; color: var(--icon-main-default); visibility: hidden; }
-    .filter-dd-option.is-selected .filter-dd-check { visibility: visible; }
+    /* Фильтр «Активные/архивные» — чипы size S из DS (components/chips.css). */
     .filters-left {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       flex: 1;
+    }
+    /* Хвост фильтров: сегмент + «Сбросить фильтры» как один неразрывный flex-элемент.
+       Один широкий блок → чаще не влезает и переносится целиком на следующую строку
+       (не форс-перенос, а нехватка места). Делит общий wrap-поток с чипами `.filters-left`,
+       поэтому не уезжает на отдельную строку, а дополняет ту, где встал. */
+    .filters-tail {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex: none;
     }
     /* .filter-select — см. components/inputs.css */
     .reset-filters {
@@ -1500,12 +1471,11 @@
     <div class="report-header">
       <h1>Обзор конкурентов для объекта</h1>
       <button class="help-link" type="button" data-action="open-help">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M8 7.25v3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="8" cy="5" r="0.9" fill="currentColor"/>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="8" cy="8" r="8" fill="#0468FF" fill-opacity="0.1"/>
+          <path d="M9 12H7V7H9V12ZM8 4C8.55228 4 9 4.44772 9 5C9 5.55228 8.55228 6 8 6C7.44772 6 7 5.55228 7 5C7 4.44772 7.44772 4 8 4Z" fill="#0468FF"/>
         </svg>
-        Что полезного умеет этот сервис
+        Чем полезен сервис
       </button>
     </div>
 
@@ -1529,7 +1499,7 @@
             </colgroup>
             <thead>
               <tr>
-                <th class="col-header-label" colspan="2">Объект</th>
+                <th class="col-header-label" colspan="2">Мой объект</th>
                 <th class="col-start-price">Стартовая цена</th>
                 <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
                 <th class="col-dynamics"></th>
@@ -1629,22 +1599,16 @@
         <button class="btn-outline-sm style-secondary">Ремонт <span class="icon">▾</span></button>
         <button class="btn-outline-sm style-secondary">Тип дома <span class="icon">▾</span></button>
         <button class="btn-outline-sm style-secondary">Год постройки <span class="icon">▾</span></button>
-        <div class="filter-dd" id="archiveFilter">
-          <button class="btn-outline-sm style-secondary" type="button" id="archiveFilterBtn" aria-expanded="false" aria-haspopup="menu">
-            <span id="archiveFilterLabel">Активные</span> <span class="icon">▾</span>
-          </button>
-          <div class="filter-dd-menu" id="archiveFilterMenu" role="menu">
-            <button class="filter-dd-option is-selected" type="button" data-archived="0" role="menuitemradio" aria-checked="true">
-              <svg class="filter-dd-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Активные
-            </button>
-            <button class="filter-dd-option" type="button" data-archived="1" role="menuitemradio" aria-checked="false">
-              <svg class="filter-dd-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Архивные
-            </button>
+        <!-- Сегмент + «Сбросить фильтры» склеены в один неразрывный блок: переносится
+             как целое (склеено «неразрывным пробелом»), делит общий wrap-поток с чипами —
+             не уезжает на отдельную строку. -->
+        <div class="filters-tail">
+          <div class="chip-group" id="archiveFilter" role="group" aria-label="Активные или архивные">
+            <button class="chip chip-s active" type="button" data-archived="0" aria-pressed="true">Активные</button>
+            <button class="chip chip-s" type="button" data-archived="1" aria-pressed="false">Архивные</button>
           </div>
+          <a class="reset-filters" href="#">Сбросить фильтры</a>
         </div>
-        <a class="reset-filters" href="#">Сбросить фильтры</a>
       </div>
       <a class="map-link" href="#">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 4v10l4.5-2.5L10.5 14 15 12V2l-4.5 2.5L6 2 1 4z" stroke="#005EDE" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 2v9.5M10.5 4.5V14" stroke="#005EDE" stroke-width="1.2"/></svg>
@@ -1667,7 +1631,7 @@
 <defs>
 <clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
 </svg></span>
-      <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
+      <span class="tracking-banner__text">Следим в реальном времени: меняется ли у конкурента цена, не сняли ли объявление, появились ли новые</span>
     </div>
 
     <!-- Table B: Competitors -->
@@ -1707,7 +1671,7 @@
     </div>
 
     <!-- Добавить больше объектов (вкладка «Отслеживаются») -->
-    <div id="addMoreWrap" style="display:none;justify-content:center;padding:8px 0 0">
+    <div id="addMoreWrap" style="display:none;justify-content:flex-start;padding:8px 0 0 24px">
       <button class="btn-secondary-lg" id="btnAddMore" type="button">Добавить больше объектов</button>
     </div>
 
@@ -1726,6 +1690,13 @@
     <div class="owner-report-header">
       <h2 class="owner-report-title title-disabled" id="ownerReportTitle">Создать отчёт для собственника</h2>
       <div class="owner-report-subtitle" id="ownerReportSubtitle">Чтобы создать отчёт, выберите хотя бы одного конкурента</div>
+      <button class="help-link" type="button" data-action="open-owner-help" style="margin-top:12px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="8" cy="8" r="8" fill="#0468FF" fill-opacity="0.1"/>
+          <path d="M9 12H7V7H9V12ZM8 4C8.55228 4 9 4.44772 9 5C9 5.55228 8.55228 6 8 6C7.44772 6 7 5.55228 7 5C7 4.44772 7.44772 4 8 4Z" fill="#0468FF"/>
+        </svg>
+        Чем он помогает и как выглядит
+      </button>
     </div>
     <div class="owner-report-content owner-content-locked" id="ownerReportContent">
       <div class="owner-steps">
@@ -1737,16 +1708,13 @@
             <div class="owner-step-line"></div>
           </div>
           <div class="owner-step-body">
-            <div class="owner-step-title-row" id="stepCompetitorsTitleRow">
-              <span class="owner-step-title">Выбраны</span>
-              <span class="owner-step-count-interactive">
-                <span id="stepCompetitorsTitle">0 конкурентов</span>
-                <svg class="step-list-chevron" id="stepListChevron" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.70711 9.12109L15.4142 1.41399L14 -0.000225067L7.70711 6.29267L1.41421 -0.000225067L0 1.41399L7.70711 9.12109Z" fill="#006CFD"/>
-                </svg>
-              </span>
+            <div class="owner-step-title">Выбраны <span id="stepCompetitorsTitle">0 конкурентов</span></div>
+            <div class="owner-step-list-toggle" id="ownerListToggle">
+              Добавить комментарии к объектам
+              <svg class="step-list-chevron" id="stepListChevron" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.70711 9.12109L15.4142 1.41399L14 -0.000225067L7.70711 6.29267L1.41421 -0.000225067L0 1.41399L7.70711 9.12109Z" fill="#006CFD"/>
+              </svg>
             </div>
-            <div class="owner-step-subtitle">Можете добавить комментарий для собственника по каждому из них</div>
             <!-- Список выбранных конкурентов -->
             <div class="owner-comp-wrap" id="ownerCompWrap">
               <div class="owner-comp-table-scroll">
@@ -1960,7 +1928,7 @@
       </colgroup>
       <thead>
         <tr>
-          <th class="col-header-label" colspan="2">Объект</th>
+          <th class="col-header-label" colspan="2">Мой объект</th>
           <th class="col-start-price">Стартовая цена</th>
           <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
           <th class="col-dynamics"></th>
@@ -2110,7 +2078,7 @@
     // Сколько указано в сниппете — столько ровно и в отчёте (активные в приоритете, добор при нехватке).
     var REPORT_PARAMS = new URLSearchParams(location.search);
     var _np = parseInt(REPORT_PARAMS.get('n'), 10);
-    var AUTO_TRACK_COUNT = (_np >= 0 && _np <= ALL_COMPETITORS.length) ? _np : 7;
+    var AUTO_TRACK_COUNT = (_np >= 0 && _np <= ALL_COMPETITORS.length) ? _np : (7 + Math.floor(Math.random() * 14));
     (function autoTrack() {
       var picked = [];
       function add(i) { if (picked.length < AUTO_TRACK_COUNT && picked.indexOf(i) < 0) picked.push(i); }
@@ -2291,12 +2259,12 @@
         else if (removedIds.has(idx)) updateBadge = '<div class="badge-update">Снято с публикации ' + removedDates[idx] + '</div>';
       }
       return '<tr data-idx="' + idx + '"' + rowCls + '>'
-        + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/70x70\'" alt="photo"></td>'
+        + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo"></td>'
         + '<td class="col-desc desc-cell">'
         +   '<div class="desc-title' + (removedIds.has(idx) ? ' removed' : '') + '">' + d.desc + '</div>'
-        +   updateBadge
         +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
         +   (d.zhk ? '<div class="desc-zhk">ЖК \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
+        +   updateBadge
         + '</td>'
         + '<td class="col-start-price"><div class="price-main">' + d.startPrice + '\u00a0\u20bd</div><div class="price-per-m">' + d.startPricePerM + '\u00a0\u20bd/м\u00b2</div></td>'
         + '<td class="col-current-price" data-comp-idx="' + idx + '"><div class="price-main-row"><div class="price-main">' + d.currentPrice + ' \u20bd</div>' + (d.priceDelta ? '<span class="price-tooltip-trigger">' + (d.priceDelta.startsWith('+') ? DYN_ICON_NEG : DYN_ICON_POS) + '</span>' : '') + '</div><div class="price-per-m">' + d.currentPricePerM + ' \u20bd/м\u00b2</div>' + (d.priceDelta ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + ' \u20bd</div>' : '') + '</td>'
@@ -2414,7 +2382,7 @@
           ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + '\u00a0\u20bd</div>'
           : '';
         var badgeHtml = isRemoved
-          ? '<div class="badge-removed" style="display:inline-flex;margin-bottom:4px">Снято с публикации ' + (removedDates[idx] || '') + '</div>'
+          ? '<div class="badge-removed" style="display:inline-flex;margin-top:4px">Снято с публикации ' + (removedDates[idx] || '') + '</div>'
           : '';
         var titleClass = isRemoved ? 'desc-title removed' : 'desc-title';
         var commentHtml = comment
@@ -2427,12 +2395,12 @@
           : '<a class="add-comment" href="#" data-occ-add style="margin-top:6px">' + EDIT_ICON + ' Добавить комментарий</a>';
         rows.push(
           '<tr data-owner-idx="' + idx + '">'
-          + '<td class="occ-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/70x70\'" alt="photo"></td>'
+          + '<td class="occ-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo"></td>'
           + '<td class="occ-desc desc-cell">'
           +   '<div class="' + titleClass + '">' + d.desc + '</div>'
-          +   badgeHtml
           +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + '\u00a0\u043c\u0438\u043d</div>'
           +   (d.zhk ? '<div class="desc-zhk">\u0416\u041a \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
+          +   badgeHtml
           +   commentHtml
           + '</td>'
           + '<td class="occ-start-price">'
@@ -2503,11 +2471,11 @@
       return top <= window.innerHeight;
     }
 
-    // true, если проскроллил вниз на половину экрана (порог показа — по просьбе Романа).
+    // true, если проскроллил вниз на 40% экрана (порог показа — по просьбе Романа).
     // Скрытие держим максимально поздно (top <= innerHeight), чтобы при этом пороге окно
     // показа всё же оставалось.
     function scrolledEnough() {
-      return window.scrollY >= window.innerHeight * 0.5;
+      return window.scrollY >= window.innerHeight * 0.4;
     }
 
     // Защёлка: «один раз за заход». Латчим seen только когда кнопку реально показали и
@@ -2628,7 +2596,7 @@
     });
 
     // Toggle expand/collapse for step 1 list
-    document.getElementById('stepCompetitorsTitleRow').addEventListener('click', function() {
+    document.getElementById('ownerListToggle').addEventListener('click', function() {
       ownerListExpanded = !ownerListExpanded;
       var chevron = document.getElementById('stepListChevron');
       var wrap = document.getElementById('ownerCompWrap');
@@ -3069,43 +3037,24 @@
     });
 
     // === Фильтр «Активные / архивные» (вкладка «Подборка») ===
-    // Режим «или/или»: по умолчанию «Активные» (архивные скрыты), «Архивные» — только снятые
-    // с публикации, откуда их можно добавить в отслеживаемые.
+    // Чипы size S (DS-компонент chips). Режим «или/или»: по умолчанию «Активные»
+    // (архивные скрыты), «Архивные» — только снятые с публикации.
     (function archiveFilter() {
-      var dd = document.getElementById('archiveFilter');
-      var btn = document.getElementById('archiveFilterBtn');
-      var menu = document.getElementById('archiveFilterMenu');
-      var label = document.getElementById('archiveFilterLabel');
-      if (!dd || !btn || !menu) return;
-
-      function close() { dd.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-      function open() { dd.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
-
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (dd.classList.contains('open')) close(); else open();
-      });
-
-      menu.addEventListener('click', function(e) {
-        var opt = e.target.closest ? e.target.closest('.filter-dd-option') : null;
-        if (!opt) return;
-        showArchivedOnly = opt.getAttribute('data-archived') === '1';
-        menu.querySelectorAll('.filter-dd-option').forEach(function(o) {
-          var sel = (o === opt);
-          o.classList.toggle('is-selected', sel);
-          o.setAttribute('aria-checked', sel ? 'true' : 'false');
+      var seg = document.getElementById('archiveFilter');
+      if (!seg) return;
+      seg.addEventListener('click', function(e) {
+        var item = e.target.closest ? e.target.closest('.chip') : null;
+        if (!item) return;
+        showArchivedOnly = item.getAttribute('data-archived') === '1';
+        seg.querySelectorAll('.chip').forEach(function(o) {
+          var sel = (o === item);
+          o.classList.toggle('active', sel);
+          o.setAttribute('aria-pressed', sel ? 'true' : 'false');
         });
-        label.textContent = opt.textContent.trim();
-        close();
         renderTableB();
         updateResultsCounter();
         updateShowMoreBtn();
         updateArrowVisibility();
-      });
-
-      // Клик вне дропдауна — закрыть
-      document.addEventListener('click', function(e) {
-        if (dd.classList.contains('open') && !dd.contains(e.target)) close();
       });
     })();
 
@@ -3222,6 +3171,57 @@
         setTimeout(done, 300);
       }
 
+      // Обратная анимация collapseRow: после «Вернуть» строка раскрывается тем же приёмом,
+      // но в другую сторону — max-height 0 → полная, паддинги ячеек 0 → норма. Строка к этому
+      // моменту уже отрисована renderTableB на полную высоту; мгновенно сворачиваем (transition
+      // none), форсим reflow, затем анимируем разворот. По завершении — разворачиваем контент
+      // ячеек обратно и чистим инлайн-стили.
+      function expandRow(idx) {
+        var dataTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+        if (!dataTr) return;
+        var trs = [dataTr];
+        var nxt = dataTr.nextElementSibling;
+        if (nxt && nxt.classList.contains('comment-row') && nxt.getAttribute('data-comment-idx') == idx) trs.push(nxt);
+
+        var inners = [];
+        trs.forEach(function(tr) {
+          Array.prototype.forEach.call(tr.children, function(td) {
+            var inner = document.createElement('div');
+            inner.className = 'row-collapse-inner';
+            while (td.firstChild) inner.appendChild(td.firstChild);
+            td.appendChild(inner);
+            inner._fullH = inner.scrollHeight;        // целевая высота до сворачивания
+            inner.style.transition = 'none';          // ставим свёрнутое мгновенно, без вспышки
+            inner.style.maxHeight = '0px';
+            inner.style.opacity = '0';
+            td.style.transition = 'none';
+            td.style.paddingTop = '0';
+            td.style.paddingBottom = '0';
+            inners.push(inner);
+          });
+        });
+        void tableBBody.offsetHeight;                 // reflow — фиксируем свёрнутый старт
+        inners.forEach(function(inner) {
+          var td = inner.parentNode;
+          inner.style.transition = '';                // вернуть транзишены .row-collapse-inner
+          td.style.transition = 'padding 0.28s ease';
+          inner.style.maxHeight = inner._fullH + 'px';
+          inner.style.opacity = '1';
+          td.style.paddingTop = '';                   // → анимируется к норме (12px)
+          td.style.paddingBottom = '';
+        });
+        setTimeout(function() {
+          trs.forEach(function(tr) {
+            Array.prototype.forEach.call(tr.querySelectorAll('.row-collapse-inner'), function(inner) {
+              var td = inner.parentNode;
+              td.style.transition = '';
+              while (inner.firstChild) td.appendChild(inner.firstChild);
+              td.removeChild(inner);
+            });
+          });
+        }, 320);
+      }
+
       // Кнопка схлопывается вместе со строкой: сжимается по вертикали (как «задвигается»
       // строка) + гаснет. Тот же приём, что и в collapseRow: задаём старт, форсим reflow,
       // затем конечные значения — иначе переход не стартует. После анимации прячем/сбрасываем.
@@ -3279,7 +3279,14 @@
         justAddedInSelection.delete(idx);
         var tr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
         if (tr) tr.classList.remove('row-added');
-        showSnackbar('Объект удалён из отслеживаемых');
+        showSnackbar('Перестали отслеживать', { label: 'Вернуть', callback: function() {
+          checkedIds.add(idx);
+          justAddedInSelection.add(idx);
+          var undoTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
+          if (undoTr) undoTr.classList.add('row-added');
+          syncMeta();
+          renderPersistentBtns();
+        } });
         syncMeta();
         renderPersistentBtns();
       });
@@ -3299,8 +3306,10 @@
         if (activeTab === 'in-report') {
           // Удаление: строка плавно схлопывается, затем уходит из списка; снекбар с восстановлением
           checkedIds.delete(idx);
-          showSnackbar('Объект удалён из отслеживаемых', { label: 'Восстановить', callback: function() {
-            checkedIds.add(idx); refreshTracking();
+          showSnackbar('Перестали отслеживать', { label: 'Вернуть', callback: function() {
+            checkedIds.add(idx);
+            refreshTracking();   // строка снова в списке (на полную высоту)
+            expandRow(idx);      // …и раскрывается обратной анимацией
           } });
           collapseBtn(); // кнопка схлопывается вместе со строкой (а не исчезает мгновенно)
           syncMeta(); // счётчики/футер/блок отчёта — сразу
@@ -3313,7 +3322,7 @@
           // прячем — её место занимает персистентная «Отслеживается» (см. renderPersistentBtns).
           checkedIds.add(idx);
           justAddedInSelection.add(idx);
-          showSnackbar('Объект добавлен в отслеживаемые');
+          showSnackbar('Начали отслеживать');
           var addedTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
           if (addedTr) addedTr.classList.add('row-added');
           hide();
@@ -3703,7 +3712,7 @@
     // === INIT ===
     var mainPhotoEl = document.getElementById('mainPhoto');
     if (mainPhotoEl) {
-      mainPhotoEl.onerror = function() { this.src = 'https://placehold.co/70x70'; };
+      mainPhotoEl.onerror = function() { this.src = 'https://placehold.co/80x80'; };
     }
     // initialTab is 'in-report' — hide filters and counter on load
     if (activeTab === 'in-report') {
@@ -3834,15 +3843,16 @@
       tooltipEl.classList.remove('visible');
     }
 
+    // Триггер — вся ячейка текущей цены (col-current-price), не только иконка динамики.
     function attachTooltipListeners(el) {
       el.addEventListener('mouseover', function(e) {
-        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
+        var trigger = e.target.closest ? e.target.closest('td.col-current-price') : null;
         if (!trigger) return;
         clearTimeout(hideTimer);
         showTooltip(trigger);
       });
       el.addEventListener('mouseout', function(e) {
-        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
+        var trigger = e.target.closest ? e.target.closest('td.col-current-price') : null;
         if (!trigger) return;
         hideTimer = setTimeout(hideTooltip, 80);
       });
@@ -3858,13 +3868,42 @@
   (function helpTrigger() {
     var link = document.querySelector('[data-action="open-help"]');
     if (!link || typeof openPromoModal !== 'function') return;
-    link.addEventListener('click', function () {
+    var slides = [
+      { image: '', title: 'Все конкуренты по объекту', text: 'Смотрите всех подобранных конкурентов в одной таблице и сравнивайте по любому параметру — цена, срок экспозиции, ремонт, тип дома, расстояние до метро.' },
+      { image: '', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },
+      { image: '', title: 'Отчёт для собственника', text: 'Соберите наглядный отчёт по выбранным конкурентам. 77% агентов отмечают, что он помогает в разговоре с собственником о цене.' },
+    ];
+    function openHelp() {
       openPromoModal({
         originEl: link, // «Готово» → модалка схлопывается в сторону этой ссылки
+        slides: slides,
+      });
+    }
+    link.addEventListener('click', openHelp);
+
+    // Автопоказ при первом заходе в отчёт (один раз за сессию вкладки).
+    try {
+      if (!sessionStorage.getItem('reportOnboardingShown')) {
+        sessionStorage.setItem('reportOnboardingShown', '1');
+        openHelp();
+      }
+    } catch (e) {
+      // sessionStorage недоступен — просто не автопоказываем
+    }
+  })();
+
+  // === Справка под заголовком «Отчёт для собственника» («Чем он помогает и как выглядит») ===
+  // Открывает модалку (PromoModal). КОНТЕНТ — ПЛЕЙСХОЛДЕР: финальные слайды/картинки
+  // (как выглядит отчёт + чем помогает в разговоре с собственником) подставим позже.
+  (function ownerHelpTrigger() {
+    var link = document.querySelector('[data-action="open-owner-help"]');
+    if (!link || typeof openPromoModal !== 'function') return;
+    link.addEventListener('click', function () {
+      openPromoModal({
+        originEl: link,
         slides: [
-          { image: '', title: 'Все конкуренты по объекту', text: 'Смотрите всех подобранных конкурентов в одной таблице и сравнивайте по любому параметру — цена, срок экспозиции, ремонт, тип дома, расстояние до метро.' },
-          { image: '', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },
-          { image: '', title: 'Отчёт для собственника', text: 'Соберите наглядный отчёт по выбранным конкурентам. 77% агентов отмечают, что он помогает в разговоре с собственником о цене.' },
+          { image: '', title: 'Чем он помогает', text: 'Наглядный отчёт по выбранным конкурентам помогает обосновать цену в разговоре с собственником. 77% агентов отмечают, что он упрощает этот разговор. (Контент — черновик, уточним.)' },
+          { image: '', title: 'Как выглядит', text: 'Здесь будет превью готового отчёта: подборка конкурентов, динамика цен и вывод по позиционированию объекта. (Картинку добавим позже.)' },
         ],
       });
     });
