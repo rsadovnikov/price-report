@@ -2015,7 +2015,8 @@
 
     // === STATE ===
     var checkedIds = new Set();
-    var removedIds = new Set();
+    var removedIds = new Set();      // ВСЕ снятые с публикации (изначально архивные + снятые как апдейт)
+    var removedUpdateIds = new Set(); // снятые с публикации именно как АПДЕЙТ отслеживаемого (красный бейдж)
     var priceUpdatedIds = new Set(); // апдейт «Цена изменилась» (курируемое подмножество отслеживаемых)
     var newIds = new Set();          // апдейт «Новый конкурент» (активные не отслеживаемые из «Подборки»)
     // Добавленные в подборку в текущий заход на вкладку: остаются видимыми со статусом
@@ -2125,6 +2126,7 @@
           var idx = tracked[r];
           if (priceUpdatedIds.has(idx) || removedIds.has(idx)) continue;
           removedIds.add(idx);
+          removedUpdateIds.add(idx); // снятие отслеживаемого = апдейт → красный бейдж
           if (!removedDates[idx]) {
             var pubDate = parseRuDate(ALL_COMPETITORS[idx].date);
             var removedMs = pubDate.getTime() + Math.floor((today.getTime() - pubDate.getTime()) * 0.8);
@@ -2144,7 +2146,7 @@
     })();
 
     // Есть ли у отслеживаемого объекта апдейт (для сортировки/бейджа).
-    function trackedHasUpdate(idx) { return removedIds.has(idx) || priceUpdatedIds.has(idx); }
+    function trackedHasUpdate(idx) { return removedUpdateIds.has(idx) || priceUpdatedIds.has(idx); }
     // Сколько новых конкурентов ещё в «Подборке» (не ушли в отслеживаемые) — каунтер таба.
     function newCount() {
       var c = 0;
@@ -2247,16 +2249,20 @@
       if (!photoCache[idx]) photoCache[idx] = nextPhoto();
       // В «Подборке» добавленные строки остаются залитыми (как hover) — маркер «уже добавлен».
       var rowCls = (activeTab === 'selection' && checkedIds.has(idx)) ? ' class="row-added"' : '';
-      // Бейдж апдейта по контексту вкладки (негативная палитра .badge-update):
-      // «Отслеживаются» → Снято с публикации / Цена изменилась; «Подборка» → Новый конкурент
-      // (или Снято с публикации для архивных под фильтром).
+      // Бейдж по контексту вкладки. Красный (.badge-update) = АПДЕЙТ по объекту:
+      //   «Отслеживаются» → снятие с публикации / изменение цены отслеживаемого;
+      //   «Подборка» → «Новый конкурент».
+      // Серый (.badge-removed) = просто статус архивного объявления (фильтр «Архивные»
+      //   в «Подборке») — это не апдейт, а признак самого объекта.
       var updateBadge = '';
       if (activeTab === 'in-report') {
-        if (removedIds.has(idx)) updateBadge = '<div class="badge-update">Снято с публикации ' + removedDates[idx] + '</div>';
+        // Красный — только если снятие произошло как апдейт; изначально архивный (добавленный
+        // из подборки) сохраняет серый статус.
+        if (removedIds.has(idx)) updateBadge = '<div class="' + (removedUpdateIds.has(idx) ? 'badge-update' : 'badge-removed') + '">Снято с публикации ' + removedDates[idx] + '</div>';
         else if (priceUpdatedIds.has(idx)) updateBadge = '<div class="badge-update">Цена изменилась</div>';
       } else {
         if (newIds.has(idx)) updateBadge = '<div class="badge-update">Новый конкурент</div>';
-        else if (removedIds.has(idx)) updateBadge = '<div class="badge-update">Снято с публикации ' + removedDates[idx] + '</div>';
+        else if (removedIds.has(idx)) updateBadge = '<div class="badge-removed">Снято с публикации ' + removedDates[idx] + '</div>';
       }
       return '<tr data-idx="' + idx + '"' + rowCls + '>'
         + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo"></td>'
@@ -3857,16 +3863,16 @@
       tooltipEl.classList.remove('visible');
     }
 
-    // Триггер — вся ячейка текущей цены (col-current-price), не только иконка динамики.
+    // Триггер — иконка динамики (.price-tooltip-trigger), не вся ячейка.
     function attachTooltipListeners(el) {
       el.addEventListener('mouseover', function(e) {
-        var trigger = e.target.closest ? e.target.closest('td.col-current-price') : null;
+        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
         if (!trigger) return;
         clearTimeout(hideTimer);
         showTooltip(trigger);
       });
       el.addEventListener('mouseout', function(e) {
-        var trigger = e.target.closest ? e.target.closest('td.col-current-price') : null;
+        var trigger = e.target.closest ? e.target.closest('.price-tooltip-trigger') : null;
         if (!trigger) return;
         hideTimer = setTimeout(hideTooltip, 80);
       });
