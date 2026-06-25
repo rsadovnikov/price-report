@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../components/buttons.css">
   <link rel="stylesheet" href="../components/links.css">
   <link rel="stylesheet" href="../components/chips.css">
+  <link rel="stylesheet" href="../components/tabs.css">
   <link rel="stylesheet" href="../shared.css">
   <style>
     /* === MAIN CONTENT === */
@@ -17,8 +18,10 @@
       flex: 1;
       min-width: 0;
       max-width: 1100px;
+      margin: var(--unit4);                /* 16px отступ от шапки/сайдбара/края — карточка «плавает» */
       padding: 32px 32px 60px;
       background: var(--background-primary);
+      border-radius: var(--radius-xxl);     /* 16px */
     }
 
     /* Page header */
@@ -36,35 +39,16 @@
       border-radius: var(--radius-m);
       padding: 0 12px 0 36px;
       font-size: 14px; color: var(--text-primary);
-      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Ccircle cx='7' cy='7' r='5.5' stroke='%23697797' stroke-width='1.2'/%3E%3Cpath d='M11 11l3.5 3.5' stroke='%23697797' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 12px center no-repeat;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M7.14648 0.646484C3.55663 0.646484 0.646484 3.55663 0.646484 7.14648C0.646484 10.7363 3.55663 13.6465 7.14648 13.6465C8.58059 13.6465 9.90622 13.1821 10.9812 12.3954L13.9394 15.3536L15.3536 13.9394L12.3954 10.9812C13.1821 9.90622 13.6465 8.58059 13.6465 7.14648C13.6465 3.55663 10.7363 0.646484 7.14648 0.646484ZM2.64648 7.14648C2.64648 4.6612 4.6612 2.64648 7.14648 2.64648C9.63177 2.64648 11.6465 4.6612 11.6465 7.14648C11.6465 9.63177 9.63177 11.6465 7.14648 11.6465C4.6612 11.6465 2.64648 9.63177 2.64648 7.14648Z' fill='%237683A0'/%3E%3C/svg%3E") 12px center no-repeat;
       outline: none;
     }
     .search-input::placeholder { color: var(--text-secondary); }
     .search-input:focus { border-color: var(--control-primary); }
 
-    /* Tabs */
-    .status-tabs {
-      display: flex; gap: 0; border-bottom: 2px solid var(--stroke-divider-neutral);
-      margin-bottom: 16px;
-    }
-    .status-tab {
-      padding: 12px 16px;
-      font-size: 16px; font-weight: 400; line-height: 24px;
-      color: var(--text-secondary);
-      cursor: pointer; border-bottom: 2px solid transparent;
-      margin-bottom: -2px; text-decoration: none;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .status-tab:hover { color: var(--text-primary); }
-    .status-tab.active {
-      color: var(--text-main); font-weight: 700;
-      border-bottom-color: var(--text-main);
-    }
-    .status-tab .tab-count {
-      font-size: 14px; font-weight: 400;
-      color: var(--text-main); opacity: 0.7;
-    }
-    .status-tab:not(.active) .tab-count { color: var(--text-secondary); }
+    /* Tabs (DS-компонент tabs.css). Внутренний паддинг компонента (0 24px) убираем —
+       выравниваем по левому краю контента страницы; разделитель — на всю ширину. */
+    .status-tabs { padding: 0; margin-bottom: 16px; }
+    .status-tabs::after { left: 0; right: 0; }
 
     /* Category chips */
     .category-row {
@@ -366,12 +350,12 @@
     </div>
 
     <!-- Status Tabs -->
-    <div class="status-tabs">
-      <a class="status-tab active" href="#">Активные <span class="tab-count">12</span></a>
-      <a class="status-tab" href="#">Неактивные <span class="tab-count">23</span></a>
-      <a class="status-tab" href="#">Отклонённые <span class="tab-count">2</span></a>
-      <a class="status-tab" href="#">Черновик <span class="tab-count">17</span></a>
-      <a class="status-tab" href="#">Архив <span class="tab-count">4</span></a>
+    <div class="tabs status-tabs">
+      <div class="tab active">Активные <span class="tab-counter">12</span></div>
+      <div class="tab">Неактивные <span class="tab-counter">23</span></div>
+      <div class="tab">Отклонённые <span class="tab-counter">2</span></div>
+      <div class="tab">Черновик <span class="tab-counter">17</span></div>
+      <div class="tab">Архив <span class="tab-counter">4</span></div>
     </div>
 
     <!-- Category Chips -->
@@ -610,6 +594,18 @@ function renderListings() {
 }
 
 renderListings();
+
+// Статус-табы (DS-компонент) — визуальное переключение активного (контент в прототипе один)
+(function statusTabs() {
+  var bar = document.querySelector('.status-tabs');
+  if (!bar) return;
+  bar.addEventListener('click', function(e) {
+    var tab = e.target.closest ? e.target.closest('.tab') : null;
+    if (!tab) return;
+    bar.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+  });
+})();
 
 // === SNACKBAR: "Отчёт сохранён" after returning from report ===
 (function() {

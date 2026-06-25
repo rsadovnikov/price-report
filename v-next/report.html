@@ -1618,7 +1618,7 @@
 
     <!-- Results Counter -->
     <div class="results-counter">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#697797" stroke-width="1.2"/><path d="M11 11l3 3" stroke="#697797" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.14648 0.646484C3.55663 0.646484 0.646484 3.55663 0.646484 7.14648C0.646484 10.7363 3.55663 13.6465 7.14648 13.6465C8.58059 13.6465 9.90622 13.1821 10.9812 12.3954L13.9394 15.3536L15.3536 13.9394L12.3954 10.9812C13.1821 9.90622 13.6465 8.58059 13.6465 7.14648C13.6465 3.55663 10.7363 0.646484 7.14648 0.646484ZM2.64648 7.14648C2.64648 4.6612 4.6612 2.64648 7.14648 2.64648C9.63177 2.64648 11.6465 4.6612 11.6465 7.14648C11.6465 9.63177 9.63177 11.6465 7.14648 11.6465C4.6612 11.6465 2.64648 9.63177 2.64648 7.14648Z" fill="#7683A0"/></svg>
       <span id="counterText"></span>
     </div>
 
@@ -2483,14 +2483,32 @@
     // выставился бы мгновенно и кнопка не появилась бы вообще.
     var ownerPanelSeen = false;
     var ownerFabShown = false;
+    var ownerFabForced = false; // принудительный показ после добавления объекта в отслеживание
 
     function updateOwnerBubble() {
       var inner = document.getElementById('ownerBubbleInner');
       if (!inner) return;
-      if (ownerPanelReached() && ownerFabShown) ownerPanelSeen = true;
-      var show = !ownerPanelSeen && scrolledEnough() && !ownerPanelReached() && checkedIds.size > 0;
+      if (ownerPanelReached()) {
+        if (ownerFabShown) ownerPanelSeen = true;
+        ownerFabForced = false; // дошёл до отчёта — форс снимаем
+      }
+      var show = !ownerPanelSeen && checkedIds.size > 0 && !ownerPanelReached()
+        && (ownerFabForced || scrolledEnough());
       if (show) ownerFabShown = true;
       inner.classList.toggle('visible', show);
+    }
+
+    // Добавление объекта в отслеживание — явный сигнал «собираю отчёт»: через секунду
+    // показываем FAB (даже если ещё не доскроллил до порога), пока отчёт не в кадре.
+    var ownerFabAddTimer = null;
+    function triggerOwnerFabFromAdd() {
+      clearTimeout(ownerFabAddTimer);
+      ownerFabAddTimer = setTimeout(function() {
+        if (ownerPanelReached() || checkedIds.size === 0) return;
+        ownerPanelSeen = false; // снять защёлку «один раз за заход» — добавление её перекрывает
+        ownerFabForced = true;
+        updateOwnerBubble();
+      }, 1000);
     }
 
     window.addEventListener('scroll', updateOwnerBubble, { passive: true });
@@ -2617,13 +2635,8 @@
 
     function updateResultsCounter() {
       var shown = Math.min(visibleCount, selectionPoolCount());
-      var inReport = checkedIds.size;
       var shownStr = shown + '\u00a0' + pluralize(shown, 'конкурент', 'конкурента', 'конкурентов');
-      if (inReport > 0) {
-        counterText.innerHTML = 'Нашли <strong>' + shownStr + ',</strong> <span style="color:var(--text-secondary)">' + inReport + '\u00a0уже в отчёте</span>';
-      } else {
-        counterText.innerHTML = 'Нашли <strong>' + shownStr + '</strong>';
-      }
+      counterText.innerHTML = 'Нашли ещё <strong>' + shownStr + '</strong>';
     }
 
     function pluralize(n, one, few, many) {
@@ -3323,6 +3336,7 @@
           checkedIds.add(idx);
           justAddedInSelection.add(idx);
           showSnackbar('Начали отслеживать');
+          triggerOwnerFabFromAdd(); // через секунду показать FAB «Отчёт для собственника»
           var addedTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
           if (addedTr) addedTr.classList.add('row-added');
           hide();
