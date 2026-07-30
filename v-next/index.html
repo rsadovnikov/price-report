@@ -291,17 +291,34 @@
     }
     .listing-send-link:hover { text-decoration: underline; }
 
-    /* Action icons column (far right) — скрыты по умолчанию, проявляются на ховере карточки.
-       Колонка сохраняет ширину (opacity, не display) — раскладка не прыгает. */
+    /* Иконки действий — абсолютно у правого края карточки (сниппета), поверх контента.
+       На узком экране flex-строка переполняется, и колонка при обычном flow уезжала за
+       границу и обрезалась. Карточка (position:relative) остаётся шириной контейнера, а
+       её flex-дети переполняются вправо — поэтому right:0 держит блок у ВИДИМОГО правого
+       края всегда. Проявляется по ховеру (opacity). Фон = ховер-подложка карточки: при
+       наложении на контент (узкий экран) иконки читаются; на широком блок попадает в пустой
+       слэк справа и сливается с фоном — визуал не меняется. */
     .listing-actions {
-      /* Контейнер как в макете: 48px (иконка 24 + по 12px с боков), иконки по центру,
-         вертикальный гэп 16px, верхний отступ — от padding-top карточки (16px). */
+      position: absolute;
+      top: 16px;           /* = padding-top карточки: выровнять с верхом контента */
+      right: 0;
+      z-index: 2;
       display: flex; flex-direction: column; align-items: center;
-      gap: 16px; width: 48px; flex-shrink: 0;
-      margin-left: auto;   /* прижать блок к правому краю строки (съесть слэк) */
+      gap: 16px; width: 48px;
+      padding-left: 12px;
+      background: var(--surface-neutral-default);
       opacity: 0;
       pointer-events: none;
       transition: opacity 150ms ease;
+    }
+    /* Мягкий фейд слева — чтобы подложка не обрезала контент жёсткой вертикальной границей. */
+    .listing-actions::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; right: 100%;
+      width: 20px;
+      background: linear-gradient(to right, transparent, var(--surface-neutral-default));
+      pointer-events: none;
     }
     .listing-card:hover .listing-actions {
       opacity: 1;
