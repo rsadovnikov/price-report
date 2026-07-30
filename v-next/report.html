@@ -248,6 +248,11 @@
       min-width: 0;
       padding-bottom: 32px;
     }
+    /* Когда снизу показан бар «N новых возможных конкурентов» — убираем нижний зазор
+       (padding секции + пустую обёртку кнопок «Показать/Добавить»), чтобы бар шёл сразу
+       за списком. Класс вешается из updateNewCompetitorsBar, когда бар виден. */
+    .report-section.no-bottom-gap { padding-bottom: 0; }
+    .report-section.no-bottom-gap .action-buttons { display: none; }
 
     /* === REPORT HEADER === */
     .report-header {
@@ -596,8 +601,8 @@
       color: var(--text-primary);
       margin-top: 4px;
     }
-    /* Бейдж апдейта — негативная палитра (как негативная кнопка): «Цена изменилась»,
-       «Снято с публикации», «Новый конкурент». */
+    /* Бейдж апдейта — песочная (warning) палитра: «Цена изменилась», «Снято с публикации»,
+       «Новый конкурент». Тот же жёлтый, что у бара «N новых возможных конкурентов» (.ncb-pill). */
     .badge-update {
       display: inline-flex;
       align-items: center;
@@ -606,8 +611,8 @@
       padding: 2px 8px;
       border: none;
       border-radius: 99px;
-      background: var(--surface-negative-default);
-      color: var(--text-negative-default);
+      background: var(--surface-warning-default);
+      color: var(--text-warning-default);
       margin-top: 4px;
     }
     .desc-title.removed {
@@ -885,11 +890,9 @@
       display: block;
     }
     .ncb-stack img + img { margin-left: -12px; }
-    /* Пилюля бара = тот же компонент, что бейдж «Цена изменилась» (.badge-update),
-       только в песочной (warning) палитре. Геометрию не переопределяем. */
+    /* Пилюля бара = тот же компонент, что бейдж «Цена изменилась» (.badge-update).
+       Палитра (warning) наследуется от базового класса — тут только отступ и nowrap. */
     .ncb-pill {
-      background: var(--surface-warning-default);
-      color: var(--text-warning-default);
       margin-top: 0; /* бейдж в строках стоит под адресом с отступом — тут не нужен */
       white-space: nowrap;
     }
@@ -2312,12 +2315,15 @@
     function updateNewCompetitorsBar() {
       var bar = document.getElementById('newCompetitorsBar');
       if (!bar) return;
+      var section = document.querySelector('.report-section');
       var fresh = [];
       newIds.forEach(function(i) { if (!checkedIds.has(i)) fresh.push(i); });
       if (activeTab !== 'in-report' || fresh.length === 0) {
         bar.style.display = 'none';
+        if (section) section.classList.remove('no-bottom-gap');
         return;
       }
+      if (section) section.classList.add('no-bottom-gap');
       // Стопка — фото самих новых конкурентов (тот же photoCache, что и в таблицах)
       document.getElementById('ncbStack').innerHTML = fresh.map(function(idx) {
         if (!photoCache[idx]) photoCache[idx] = nextPhoto();
@@ -2928,7 +2934,9 @@
       if (activeTab === 'in-report') {
         btnShowMore.style.display = 'none';
         btnAddLink.style.display = 'none';
-        if (addMoreWrap) addMoreWrap.style.display = checkedIds.size > 0 ? 'flex' : 'none';
+        // Прячем «Добавить больше объектов», если показан бар «N новых возможных конкурентов»
+        // (newCount() > 0) — не дублируем призыв добрать конкурентов.
+        if (addMoreWrap) addMoreWrap.style.display = (checkedIds.size > 0 && newCount() === 0) ? 'flex' : 'none';
       } else if (activeTab === 'archive') {
         // Архив показываем целиком (без пагинации и «добавить по ссылке»).
         btnShowMore.style.display = 'none';
