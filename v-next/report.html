@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="../components/chips.css">
   <link rel="stylesheet" href="../shared.css">
   <link rel="stylesheet" href="../components/promo-modal.css">
+  <link rel="stylesheet" href="../components/gallery-modal.css">
+  <link rel="stylesheet" href="../components/checkbox.css">
   <style>
 
     /* === REPORT AREA === */
@@ -33,7 +35,9 @@
     .report-card {
       background: #FFFFFF;
       border-radius: 16px;
-      overflow: hidden;
+      /* clip, не hidden: hidden создаёт scroll-контейнер и ломает position: sticky
+         у sticky-блока «Новые конкуренты» внутри карточки */
+      overflow: clip;
       flex-shrink: 0;
     }
 
@@ -421,40 +425,7 @@
       background: #fff;
     }
 
-    /* Checkbox */
-    .checkbox {
-      width: 16px;
-      height: 16px;
-      border: 1px solid var(--stroke-control-default);
-      border-radius: var(--radius-s);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      background: #fff;
-    }
-    .checkbox.checked {
-      background: var(--control-primary);
-      border-color: var(--control-primary);
-    }
-    .checkbox.checked::after {
-      content: '';
-      width: 8px;
-      height: 5px;
-      border-left: 1.5px solid #fff;
-      border-bottom: 1.5px solid #fff;
-      transform: rotate(-45deg) translateY(-1px);
-    }
-    .checkbox.disabled {
-      cursor: default;
-    }
-    .checkbox.checked.disabled {
-      background: #B0B8CC;
-      border-color: #B0B8CC;
-    }
-    /* Metrics row unchecked state */
-    .metrics-row .checkbox:not(.disabled) { cursor: pointer; }
+    /* Чекбокс — DS-компонент (components/checkbox.css); локальных стилей нет. */
 
     /* V-next: hover-кнопка вместо чекбокса (Удалить / Добавить) */
     #tableBSection { position: relative; }
@@ -489,6 +460,29 @@
       object-fit: cover;
       background: #eee;
     }
+    /* Обёртка миниатюры: клик-триггер галереи (курсор zoom-in — аффорданс).
+       На hover — лёгкое затемнение (::after) + приближение фото внутри.
+       Без фикс. размера — обтягивает img, чтобы подойти и таблицам (80px), и owner-блоку. */
+    .photo-thumb-wrap {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+      border-radius: var(--radius-l);
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+    .photo-thumb-wrap .photo-thumb { transition: transform 200ms ease; }
+    .photo-thumb-wrap:hover .photo-thumb { transform: scale(1.08); }
+    .photo-thumb-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(13, 22, 46, 0.18);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 150ms ease;
+      pointer-events: none;
+    }
+    .photo-thumb-wrap:hover::after { opacity: 1; }
 
     /* Description cell */
     .desc-cell { white-space: normal; }
@@ -516,6 +510,13 @@
       line-height: 20px;
       color: var(--text-secondary);
       margin-bottom: 1px;
+    }
+    /* Адрес основного объявления — не больше двух строк */
+    #tableA .desc-zhk {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .desc-address {
       font-size: 14px;
@@ -748,7 +749,6 @@
       flex-wrap: wrap;
     }
 
-    /* Фильтр «Активные/архивные» — чипы size S из DS (components/chips.css). */
     .filters-left {
       display: flex;
       flex-wrap: wrap;
@@ -811,6 +811,10 @@
       background: var(--surface-neutral-default);
       border-radius: var(--radius-xl);
     }
+    .tracking-banner__lines {
+      display: flex;
+      flex-direction: column;
+    }
     .tracking-banner__text {
       font-size: 14px;
       line-height: 20px;
@@ -818,6 +822,15 @@
       color: var(--text-primary-default);
       font-feature-settings: 'liga' off, 'clig' off;
     }
+    .tracking-banner__visit {
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: -0.2px;
+      font-weight: 700;
+      color: var(--text-primary-default);
+      font-feature-settings: 'liga' off, 'clig' off;
+    }
+    .tracking-banner__period { color: var(--text-secondary-default); }
     .tracking-banner__radar {
       flex: none;
       width: 20px;
@@ -827,9 +840,84 @@
       animation: radar-spin 2.4s linear infinite;
     }
     .tracking-banner__radar svg { display: block; }
+    /* Баннер ценности архива — та же геометрия, что tracking-banner, иконка-архив 24×24. */
+    .archive-banner__icon {
+      flex: none;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+    }
+    .archive-banner__icon svg { display: block; }
+    /* Фильтр периода архива — один контрол на месте фасетного ряда. */
+    .archive-filters {
+      padding: 0 24px 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     @keyframes radar-spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) {
       .tracking-banner__radar { animation: none; }
+    }
+
+    /* === NEW COMPETITORS BAR (sticky-уведомление внизу «Отслеживаемых») === */
+    .new-competitors-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 40; /* выше строк таблицы и hover-кнопок */
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--background-primary);
+      border-top: 1px solid var(--stroke-divider-neutral);
+      padding: 12px 24px;
+    }
+    .ncb-stack {
+      display: flex;
+      flex: none;
+    }
+    .ncb-stack img {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-l);
+      border: 2px solid #fff;
+      object-fit: cover;
+      display: block;
+    }
+    .ncb-stack img + img { margin-left: -12px; }
+    /* Пилюля бара = тот же компонент, что бейдж «Цена изменилась» (.badge-update),
+       только в песочной (warning) палитре. Геометрию не переопределяем. */
+    .ncb-pill {
+      background: var(--surface-warning-default);
+      color: var(--text-warning-default);
+      margin-top: 0; /* бейдж в строках стоит под адресом с отступом — тут не нужен */
+      white-space: nowrap;
+    }
+    .ncb-link {
+      color: #005EDE;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      text-decoration: none;
+      font-feature-settings: 'liga' off, 'clig' off;
+    }
+    .ncb-link:hover { text-decoration: underline; }
+    /* Маркер «Это всё, что нашлось» — тот же бар, что «новые конкуренты», но не sticky. */
+    .archive-endmarker {
+      position: static;
+      border-top: none;
+    }
+    .aem-title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--text-primary-default);
+      font-feature-settings: 'liga' off, 'clig' off;
+    }
+    .aem-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     /* === CUSTOM SCROLLBAR === */
@@ -1537,7 +1625,9 @@
             <tbody>
               <tr>
                 <td class="sticky-photo col-photo">
-                  <img class="photo-thumb" id="mainPhoto" src="photos/1.png" alt="photo">
+                  <span class="photo-thumb-wrap" data-action="open-gallery" role="button" tabindex="0" aria-label="Открыть фотографии объявления">
+                    <img class="photo-thumb" id="mainPhoto" src="photos/1.png" alt="photo">
+                  </span>
                 </td>
                 <td class="col-desc desc-cell">
                   <div class="desc-title">1-комн. кв., 50 м², 2/12 этаж</div>
@@ -1587,9 +1677,23 @@
     <div class="tabs">
       <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
       <div class="tab" id="tabSelection">Подборка конкурентов <span class="tab-update-counter" id="tabSelectionCounter" style="display:none">0</span></div>
+      <div class="tab" id="tabArchive">Архивные</div>
+    </div>
+
+    <!-- Ценность архива (виден только на вкладке «Архивные», над общим рядом фильтров) -->
+    <div class="tracking-banner archive-banner" id="archiveBanner" style="display:none">
+      <span class="archive-banner__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.33984 2.85254H17.627C18.516 2.85264 19.4315 2.83689 20.3271 2.88574C20.6831 2.90517 20.9806 2.95812 21.3115 3.1416C21.4786 3.23424 21.6405 3.38519 21.7686 3.55566C21.8645 3.68343 21.9466 3.82876 21.9971 3.97754L22.0371 4.12695V4.12988C22.1847 5.02822 22.2009 6.07296 22.0381 6.97461C21.9105 7.68097 21.3069 8.00338 20.7451 8.16406C20.7583 8.59905 20.7529 9.07282 20.7529 9.49512L20.752 11.9863C20.7512 13.5672 20.7761 15.264 20.6416 16.8486C20.5405 18.0398 20.1068 19.2694 19.1299 20.0713L19.125 20.0752L19.124 20.0752C17.9297 20.9703 16.5851 21.056 15.1992 21.1084C14.4009 21.1386 13.6251 21.1475 12.8271 21.1445C11.36 21.1391 9.88432 21.1654 8.40918 21.0967H8.4082C7.03114 21.0238 5.51921 20.8194 4.49023 19.708C3.39619 18.526 3.337 16.8967 3.28418 15.457C3.24373 14.3544 3.25019 13.2615 3.25 12.1641L3.24902 9.55566C3.24883 9.11234 3.24105 8.61672 3.25391 8.16211C2.80279 8.06211 2.46536 7.85245 2.2373 7.54395C1.99064 7.21016 1.88403 6.77962 1.87598 6.29688C1.87069 5.98045 1.84977 5.56962 1.85449 5.1709C1.85923 4.77131 1.88882 4.36028 1.99023 4.03125H1.99121C2.05688 3.81188 2.16914 3.60922 2.32129 3.4375L2.32227 3.43652C2.77424 2.93274 3.36619 2.89897 3.92188 2.87012L3.92383 2.86914C5.02622 2.8271 6.23542 2.85247 7.33984 2.85254ZM19.0371 8.23047C15.9661 8.2615 12.8445 8.23433 9.77441 8.23438H6.41992C6.04699 8.23443 5.39261 8.25311 4.96094 8.23926C4.98075 9.93854 4.96332 11.6789 4.96387 13.376V13.3779C4.95858 13.9552 4.96576 14.5324 4.98438 15.1094L5.00684 15.6865L5.02734 16.0986C5.0845 17.031 5.20416 17.7595 5.54102 18.291C5.9152 18.8814 6.57977 19.2564 7.84277 19.3457C10.1996 19.5123 12.61 19.4545 14.9844 19.418C15.5372 19.4095 16.1352 19.3909 16.7002 19.2832C17.2628 19.1759 17.7799 18.9814 18.1816 18.6309C18.583 18.2038 18.7837 17.647 18.8867 17.0381C18.9906 16.4243 18.9933 15.7779 19.0137 15.1777C19.0717 13.4688 19.02 11.7595 19.0381 10.0391C19.0442 9.48192 19.0131 8.81488 19.0371 8.23047ZM7.81738 4.54785C6.81041 4.54803 5.75111 4.53183 4.75586 4.55469H4.75195C4.51663 4.55338 4.28096 4.55663 4.0459 4.56738L4.04688 4.56836C3.94286 4.57362 3.76284 4.58484 3.61426 4.58984C3.56232 5.26408 3.55171 5.81889 3.61035 6.49414C4.31878 6.55292 5.01204 6.53713 5.74023 6.53711L8.9209 6.53613H19.2393L19.8828 6.5293C20.047 6.52409 20.21 6.51269 20.3896 6.49707C20.4407 5.78754 20.4404 5.29557 20.3887 4.58789C19.3993 4.53977 18.4291 4.54912 17.4297 4.54883L13.4287 4.54785H7.81738Z" fill="#212C46" stroke="#212C46" stroke-width="0.3"/><rect x="9" y="11" width="6" height="3" fill="#212C46"/></svg></span>
+      <div class="tracking-banner__lines">
+        <span class="tracking-banner__text">Объекты, которые недавно продались, попадают в архив, но всё ещё могут быть полезными в отчёте для клиента</span>
+      </div>
     </div>
 
     <!-- Filters -->
+    <!-- ВАЖНО: один общий ряд фильтров для «Подборки» И «Архивных» (единый DOM-элемент =
+         единый источник состояния). Фильтры СИНХРОННЫ: выбранное в одной вкладке остаётся
+         выбранным в другой. Архив-специфичный «За сколько дней» — отдельно, «допом» в конце
+         (#archiveFilters ниже). Если будете делать фильтры функциональными — состояние
+         этого ряда должно применяться к обеим вкладкам, а «За N дней» — только к архиву. -->
     <div class="filters">
       <div class="filters-left">
         <button class="btn-outline-sm style-secondary">Радиус 3 км <span class="icon">▾</span></button>
@@ -1603,10 +1707,6 @@
              как целое (склеено «неразрывным пробелом»), делит общий wrap-поток с чипами —
              не уезжает на отдельную строку. -->
         <div class="filters-tail">
-          <div class="chip-group" id="archiveFilter" role="group" aria-label="Активные или архивные">
-            <button class="chip chip-s active" type="button" data-archived="0" aria-pressed="true">Активные</button>
-            <button class="chip chip-s" type="button" data-archived="1" aria-pressed="false">Архивные</button>
-          </div>
           <a class="reset-filters" href="#">Сбросить фильтры</a>
         </div>
       </div>
@@ -1631,7 +1731,15 @@
 <defs>
 <clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
 </svg></span>
-      <span class="tracking-banner__text">Следим в реальном времени: меняется ли у конкурента цена, не сняли ли объявление, появились ли новые</span>
+      <div class="tracking-banner__lines">
+        <span class="tracking-banner__text">Следим в реальном времени: меняется ли у конкурента цена, не сняли ли объявление, появились ли новые</span>
+        <span class="tracking-banner__visit">Что изменилось с вашего прошлого визита, <span class="tracking-banner__period" id="trackingVisitPeriod"></span></span>
+      </div>
+    </div>
+
+    <!-- Фильтр периода архива — «допом» в конце, после общего фасетного ряда (только «Архивные») -->
+    <div class="archive-filters" id="archiveFilters" style="display:none">
+      <button class="btn-outline-sm style-secondary" type="button" id="archivePeriodBtn">За 7 дней <span class="icon">▾</span></button>
     </div>
 
     <!-- Table B: Competitors -->
@@ -1681,7 +1789,24 @@
       <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
     </div>
 
+    <!-- Конец подборки → переход в архив (вкладка «Подборка», активные кончились).
+         Тот же бар, что «N новых конкурентов», но не sticky. -->
+    <div class="new-competitors-bar archive-endmarker" id="archiveEndMarker" style="display:none">
+      <div class="ncb-stack" id="aemStack"></div>
+      <span class="aem-title">Это всё, что нашлось</span>
+      <a href="#" class="ncb-link aem-link" data-action="view-archive">Архивные объявления<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10" stroke="#005EDE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+
   </main>
+
+  <!-- Sticky-уведомление о новых конкурентах (вкладка «Отслеживаются», newCount > 0).
+       Липнет к низу вьюпорта, пока секция списка на экране; после — докуется вплотную
+       к низу карточки (вне main — иначе его padding-bottom оставляет зазор 32px). -->
+  <div class="new-competitors-bar" id="newCompetitorsBar" style="display:none">
+    <div class="ncb-stack" id="ncbStack"></div>
+    <span class="badge-update ncb-pill" id="ncbPill"></span>
+    <a href="#" class="ncb-link" data-action="view-new">Посмотреть</a>
+  </div>
 
   </div><!-- /report-card -->
 
@@ -1840,27 +1965,27 @@
                 </div>
                 <div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Показы</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Показы</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">573</span><span class="metrics-row-val">28 473</span></div>
                   </div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Просмотры</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Просмотры</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">412</span><span class="metrics-row-val">20 180</span></div>
                   </div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">В избранном</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">В избранном</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">32</span><span class="metrics-row-val">1 540</span></div>
                   </div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Отклики</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Отклики</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">18</span><span class="metrics-row-val">887</span></div>
                   </div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Звонки</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Звонки</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">9</span><span class="metrics-row-val">454</span></div>
                   </div>
                   <div class="metrics-row">
-                    <div class="metrics-row-left"><div class="checkbox checked"></div><span class="metrics-row-name">Чаты</span></div>
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Чаты</span></div>
                     <div class="metrics-row-values"><span class="metrics-row-val">5</span><span class="metrics-row-val">241</span></div>
                   </div>
                 </div>
@@ -1908,6 +2033,7 @@
 <div class="sticky-tabs-bar" id="stickyTabsBar">
   <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
   <div class="tab" id="stickyTabSelection">Подборка конкурентов <span class="tab-update-counter" id="stickyTabSelectionCounter" style="display:none">0</span></div>
+  <div class="tab" id="stickyTabArchive">Архивные</div>
 </div>
 
 <!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
@@ -1970,6 +2096,7 @@
 <script src="../components/sidebar.js"></script>
 <script src="../components/promo-modal.js"></script>
 <script src="competitors-data.js"></script>
+<script src="../components/gallery-modal.js"></script>
 <script>
   renderHeader('../');
   renderSidebar({ active: '' });
@@ -2011,6 +2138,34 @@
       return src;
     }
 
+    // === ФОТО-ГАЛЕРЕЯ (openGallery) — общие хелперы ===
+    // Миниатюра, обёрнутая триггером галереи (клик → openGallery; курсор zoom-in — аффорданс).
+    function photoThumbHtml(src) {
+      return '<span class="photo-thumb-wrap" data-action="open-gallery" role="button" tabindex="0" aria-label="Открыть фотографии объявления">'
+        + '<img class="photo-thumb" src="' + src + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo">'
+        + '</span>';
+    }
+    // Набор фото для галереи: обложка (миниатюра объекта) + добор из пула, дедуп, 5–7 шт.
+    // Своих фото у конкурентов в данных нет — синтезируем из общего пула (как в МО).
+    var galleryCache = {};
+    function galleryPhotos(idx) {
+      if (galleryCache[idx]) return galleryCache[idx];
+      if (!photoCache[idx]) photoCache[idx] = nextPhoto();
+      var arr = [photoCache[idx]];
+      var extra = 4 + (idx % 3); // 4..6 добор → всего 5..7
+      for (var k = 1; k <= extra; k++) arr.push(photoPool[(idx + k) % photoPool.length]);
+      arr = arr.filter(function (s, i) { return arr.indexOf(s) === i; }); // дедуп
+      galleryCache[idx] = arr;
+      return arr;
+    }
+    function mainObjectPhotos() {
+      var main = document.getElementById('mainPhoto');
+      var src = (main && main.getAttribute('src')) || 'photos/1.png';
+      var arr = [src];
+      for (var k = 1; k <= 5; k++) arr.push(photoPool[k % photoPool.length]);
+      return arr.filter(function (s, i) { return arr.indexOf(s) === i; });
+    }
+
     // ALL_COMPETITORS загружается из competitors-data.js
 
     // === STATE ===
@@ -2025,8 +2180,7 @@
     var removedDates = {}; // idx → formatted date string "D.MM.YY"
     var visitedIds = new Set();
     var visibleCount = 10;
-    var showArchivedOnly = false; // режим фильтра: false = только активные, true = только архивные
-    var activeTab = REPORT_CONFIG.initialTab; // 'selection' | 'in-report'
+    var activeTab = REPORT_CONFIG.initialTab; // 'in-report' | 'selection' | 'archive'
     var photoCache = {}; // idx → photoSrc
     var commentTexts = {}; // idx → comment string
 
@@ -2154,6 +2308,61 @@
       return c;
     }
 
+    // === Sticky-бар «N новых возможных конкурентов» (низ вкладки «Отслеживаются») ===
+    function updateNewCompetitorsBar() {
+      var bar = document.getElementById('newCompetitorsBar');
+      if (!bar) return;
+      var fresh = [];
+      newIds.forEach(function(i) { if (!checkedIds.has(i)) fresh.push(i); });
+      if (activeTab !== 'in-report' || fresh.length === 0) {
+        bar.style.display = 'none';
+        return;
+      }
+      // Стопка — фото самих новых конкурентов (тот же photoCache, что и в таблицах)
+      document.getElementById('ncbStack').innerHTML = fresh.map(function(idx) {
+        if (!photoCache[idx]) photoCache[idx] = nextPhoto();
+        return '<img src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/48x48\'" alt="">';
+      }).join('');
+      var n = fresh.length;
+      var word = n === 1 ? 'новый возможный конкурент'
+        : (n < 5 ? 'новых возможных конкурента' : 'новых возможных конкурентов');
+      document.getElementById('ncbPill').textContent = n + ' ' + word;
+      bar.style.display = 'flex';
+    }
+    // «Посмотреть» → вкладка «Подборка» (новые отсортированы наверх), доскролл к вкладкам
+    document.querySelector('#newCompetitorsBar [data-action="view-new"]')
+      .addEventListener('click', function(e) {
+        e.preventDefault();
+        tabSelection.click();
+        scrollToTabs();
+      });
+
+    // === Маркер конца подборки → переход в архив (низ вкладки «Подборка») ===
+    // Показываем, когда активные конкуренты кончились (нет «Показать ещё») и есть архив.
+    // Стопка — тизер фото первых архивных. Ведёт на вкладку «Архивные».
+    function updateArchiveEndMarker() {
+      var el = document.getElementById('archiveEndMarker');
+      if (!el) return;
+      var teaser = [];
+      removedIds.forEach(function(i) { if (!checkedIds.has(i) && teaser.length < 3) teaser.push(i); });
+      var poolExhausted = (visibleCount >= selectionPoolCount());
+      if (activeTab !== 'selection' || !poolExhausted || teaser.length === 0) {
+        el.style.display = 'none';
+        return;
+      }
+      document.getElementById('aemStack').innerHTML = teaser.map(function(idx) {
+        if (!photoCache[idx]) photoCache[idx] = nextPhoto();
+        return '<img src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/48x48\'" alt="">';
+      }).join('');
+      el.style.display = 'flex';
+    }
+    document.querySelector('#archiveEndMarker [data-action="view-archive"]')
+      .addEventListener('click', function(e) {
+        e.preventDefault();
+        tabArchive.click();
+        scrollToTabs();
+      });
+
     // === Проброс базового объекта из сниппета «Мои объявления» ===
     // Шапка и Table A показывают тот объект, по которому кликнули. Дизайн не меняется — только содержимое.
     (function propBaseObject() {
@@ -2214,6 +2423,15 @@
     var tableBWrapper = document.getElementById('tableBWrapper');
     var emptyBState = document.getElementById('emptyBState');
     var trackingBanner = document.getElementById('trackingBanner');
+    // Срок «с прошлого визита» в баннере — случайный на каждую загрузку (1–10 дней)
+    (function() {
+      var el = document.getElementById('trackingVisitPeriod');
+      if (!el) return;
+      var days = 1 + Math.floor(Math.random() * 10);
+      el.textContent = days === 1
+        ? 'со вчерашнего дня'
+        : 'за ' + days + ' ' + (days < 5 ? 'дня' : 'дней');
+    })();
     var scrollbarMain = document.getElementById('scrollbarMain');
     var scrollbarTrack = document.getElementById('scrollbarTrack');
     var scrollbarThumb = document.getElementById('scrollbarThumb');
@@ -2222,10 +2440,14 @@
     var stickyScrollbarThumb = document.getElementById('stickyScrollbarThumb');
     var tabInReport = document.getElementById('tabInReport');
     var tabSelection = document.getElementById('tabSelection');
+    var tabArchive = document.getElementById('tabArchive');
     var stickyFooter = null; // removed in v3
     var stickyTabsBar = document.getElementById('stickyTabsBar');
     var stickyTabInReport = document.getElementById('stickyTabInReport');
     var stickyTabSelection = document.getElementById('stickyTabSelection');
+    var stickyTabArchive = document.getElementById('stickyTabArchive');
+    var archiveBanner = document.getElementById('archiveBanner');
+    var archiveFilters = document.getElementById('archiveFilters');
     var filtersEl = document.querySelector('.filters');
     var resultsCounter = document.querySelector('.results-counter');
     var counterText = document.getElementById('counterText');
@@ -2248,7 +2470,7 @@
     function makeRow(d, idx, isChecked) {
       if (!photoCache[idx]) photoCache[idx] = nextPhoto();
       // В «Подборке» добавленные строки остаются залитыми (как hover) — маркер «уже добавлен».
-      var rowCls = (activeTab === 'selection' && checkedIds.has(idx)) ? ' class="row-added"' : '';
+      var rowCls = ((activeTab === 'selection' || activeTab === 'archive') && checkedIds.has(idx)) ? ' class="row-added"' : '';
       // Бейдж по контексту вкладки. Красный (.badge-update) = АПДЕЙТ по объекту:
       //   «Отслеживаются» → снятие с публикации / изменение цены отслеживаемого;
       //   «Подборка» → «Новый конкурент».
@@ -2265,7 +2487,7 @@
         else if (removedIds.has(idx)) updateBadge = '<div class="badge-removed">Снято с публикации ' + removedDates[idx] + '</div>';
       }
       return '<tr data-idx="' + idx + '"' + rowCls + '>'
-        + '<td class="sticky-photo col-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo"></td>'
+        + '<td class="sticky-photo col-photo">' + photoThumbHtml(photoCache[idx]) + '</td>'
         + '<td class="col-desc desc-cell">'
         +   '<div class="desc-title' + (removedIds.has(idx) ? ' removed' : '') + '">' + d.desc + '</div>'
         +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
@@ -2307,14 +2529,15 @@
           if (checkedIds.has(i)) items.push({ d: d, i: i });
         });
       } else {
-        // Подборка: не показываем уже отслеживаемые (ушли в whitelist), кроме добавленных
-        // в этот заход (justAddedInSelection). Собираем ВСЕ подходящие без лимита — окно
-        // visibleCount применяем ПОСЛЕ сортировки, чтобы новые конкуренты (идут наверх)
-        // всегда попадали в показ, а не отрезались по индексу (иначе каунтер ≠ числу бейджей).
+        // Подборка / Архивные: не показываем уже отслеживаемые (ушли в whitelist), кроме
+        // добавленных в этот заход (justAddedInSelection). Собираем ВСЕ подходящие без лимита —
+        // окно visibleCount применяем ПОСЛЕ сортировки (только в «Подборке»), чтобы новые
+        // конкуренты (идут наверх) всегда попадали в показ (иначе каунтер ≠ числу бейджей).
+        var wantArchived = (activeTab === 'archive'); // отдельная вкладка вместо чипа «Архивные»
         for (var j = 0; j < ALL_COMPETITORS.length; j++) {
           if (checkedIds.has(j) && !justAddedInSelection.has(j)) continue;
-          // Фильтр «или/или»: режим «Активные» показывает только не-архивные, «Архивные» — только архивные.
-          if (showArchivedOnly ? !removedIds.has(j) : removedIds.has(j)) continue;
+          // «Подборка» — только активные; «Архивные» — только снятые с публикации (removedIds).
+          if (wantArchived ? !removedIds.has(j) : removedIds.has(j)) continue;
           items.push({ d: ALL_COMPETITORS[j], i: j });
         }
       }
@@ -2349,6 +2572,11 @@
         trackingBanner.style.display =
           (activeTab === 'in-report' && checkedIds.size > 0) ? 'flex' : 'none';
       }
+
+      // Sticky-бар «N новых возможных конкурентов» — та же точка ре-рендера
+      updateNewCompetitorsBar();
+      // Маркер конца подборки → архив (низ «Подборки», когда активные кончились)
+      updateArchiveEndMarker();
 
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
@@ -2401,7 +2629,7 @@
           : '<a class="add-comment" href="#" data-occ-add style="margin-top:6px">' + EDIT_ICON + ' Добавить комментарий</a>';
         rows.push(
           '<tr data-owner-idx="' + idx + '">'
-          + '<td class="occ-photo"><img class="photo-thumb" src="' + photoCache[idx] + '" onerror="this.src=\'https://placehold.co/80x80\'" alt="photo"></td>'
+          + '<td class="occ-photo">' + photoThumbHtml(photoCache[idx]) + '</td>'
           + '<td class="occ-desc desc-cell">'
           +   '<div class="' + titleClass + '">' + d.desc + '</div>'
           +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + '\u00a0\u043c\u0438\u043d</div>'
@@ -2628,12 +2856,13 @@
       if (wrap) wrap.classList.toggle('collapsed', !ownerListExpanded);
     });
 
-    // Сколько конкурентов доступно в подборке с учётом фильтров (не в отчёте + архивный фильтр)
+    // Сколько активных конкурентов доступно в «Подборке» (не в отчёте). Архив — отдельная
+    // вкладка, в этот счётчик («Показать ещё» + «Нашли ещё N») не входит.
     function selectionPoolCount() {
       var c = 0;
       for (var j = 0; j < ALL_COMPETITORS.length; j++) {
         if (checkedIds.has(j) && !justAddedInSelection.has(j)) continue;
-        if (showArchivedOnly ? !removedIds.has(j) : removedIds.has(j)) continue;
+        if (removedIds.has(j)) continue;
         c++;
       }
       return c;
@@ -2700,6 +2929,11 @@
         btnShowMore.style.display = 'none';
         btnAddLink.style.display = 'none';
         if (addMoreWrap) addMoreWrap.style.display = checkedIds.size > 0 ? 'flex' : 'none';
+      } else if (activeTab === 'archive') {
+        // Архив показываем целиком (без пагинации и «добавить по ссылке»).
+        btnShowMore.style.display = 'none';
+        btnAddLink.style.display = 'none';
+        if (addMoreWrap) addMoreWrap.style.display = 'none';
       } else {
         // «Показать ещё» — пока в подборке остались нескрытые конкуренты (с учётом архивного фильтра)
         btnShowMore.style.display = visibleCount >= selectionPoolCount() ? 'none' : '';
@@ -2822,6 +3056,37 @@
         visitedIds.add(idx);
       }
       showSnackbar('Переход на страницу объекта', null, true);
+    });
+
+    // === КЛИК ПО ФОТО → ФОТО-ГАЛЕРЕЯ (openGallery) ===
+    // Делегат на документ: покрывает миниатюры конкурентов (Table B), «Мой объект»
+    // (Table A) и блок отчёта собственника. Разные селекторы с чекбоксом/.desc-title/
+    // #rowHoverBtn — не конфликтует.
+    document.addEventListener('click', function(e) {
+      var wrap = e.target.closest ? e.target.closest('[data-action="open-gallery"]') : null;
+      if (!wrap || typeof openGallery !== 'function') return;
+      var trComp = wrap.closest('tr[data-idx], tr[data-owner-idx]');
+      if (trComp) {
+        var idx = parseInt(trComp.getAttribute('data-idx') || trComp.getAttribute('data-owner-idx'), 10);
+        if (isNaN(idx)) return;
+        var d = ALL_COMPETITORS[idx] || {};
+        openGallery({
+          photos: galleryPhotos(idx),
+          title: (d.desc || 'Объявление') + (d.currentPrice ? ', ' + d.currentPrice + ' ₽' : ''),
+          coverIndex: 0,
+          ariaLabel: 'Фотографии объявления'
+        });
+      } else {
+        // «Мой объект» (#mainPhoto) — заголовок из desc-title той же строки.
+        var row = wrap.closest('tr');
+        var titleEl = row && row.querySelector('.desc-title');
+        openGallery({
+          photos: mainObjectPhotos(),
+          title: titleEl ? titleEl.textContent.trim() : 'Мой объект',
+          coverIndex: 0,
+          ariaLabel: 'Фотографии объявления'
+        });
+      }
     });
 
     // === COMMENT HELPERS ===
@@ -3028,12 +3293,11 @@
         return;
       }
       activeTab = 'in-report';
-      tabInReport.classList.add('active');
-      tabSelection.classList.remove('active');
-      stickyTabInReport.classList.add('active');
-      stickyTabSelection.classList.remove('active');
+      setActiveTabChrome(tabInReport, stickyTabInReport);
       filtersEl.style.display = 'none';
       resultsCounter.style.display = 'none';
+      archiveBanner.style.display = 'none';
+      archiveFilters.style.display = 'none';
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -3044,38 +3308,49 @@
       if (activeTab === 'selection') return;
       activeTab = 'selection';
       justAddedInSelection.clear(); // заход на вкладку — пересобираем список, добавленные ранее уходят
-      tabSelection.classList.add('active');
-      tabInReport.classList.remove('active');
-      stickyTabSelection.classList.add('active');
-      stickyTabInReport.classList.remove('active');
+      setActiveTabChrome(tabSelection, stickyTabSelection);
       filtersEl.style.display = '';
       resultsCounter.style.display = '';
+      archiveBanner.style.display = 'none';
+      archiveFilters.style.display = 'none';
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
     });
 
-    // === Фильтр «Активные / архивные» (вкладка «Подборка») ===
-    // Чипы size S (DS-компонент chips). Режим «или/или»: по умолчанию «Активные»
-    // (архивные скрыты), «Архивные» — только снятые с публикации.
-    (function archiveFilter() {
-      var seg = document.getElementById('archiveFilter');
-      if (!seg) return;
-      seg.addEventListener('click', function(e) {
-        var item = e.target.closest ? e.target.closest('.chip') : null;
-        if (!item) return;
-        showArchivedOnly = item.getAttribute('data-archived') === '1';
-        seg.querySelectorAll('.chip').forEach(function(o) {
-          var sel = (o === item);
-          o.classList.toggle('active', sel);
-          o.setAttribute('aria-pressed', sel ? 'true' : 'false');
-        });
-        renderTableB();
-        updateResultsCounter();
-        updateShowMoreBtn();
-        updateArrowVisibility();
+    // Вкладка «Архивные»: снятые с публикации объекты (реальные цены сделок, ориентир по
+    // экспозиции). Баннер ценности + ТОТ ЖЕ фасетный ряд, что в «Подборке» (общий `.filters`,
+    // синхронное состояние) + архив-специфичный «За N дней» допом в конце. Счётчик скрыт.
+    tabArchive.addEventListener('click', function() {
+      var wasScrolledDown = stickyTabsBar.classList.contains('visible');
+      if (activeTab === 'archive') {
+        if (wasScrolledDown) scrollToTabs();
+        return;
+      }
+      activeTab = 'archive';
+      justAddedInSelection.clear();
+      setActiveTabChrome(tabArchive, stickyTabArchive);
+      filtersEl.style.display = '';        // общий фасетный ряд — как в «Подборке» (синхрон)
+      resultsCounter.style.display = 'none';
+      archiveBanner.style.display = 'flex';
+      archiveFilters.style.display = 'flex'; // «За N дней» — архив-специфичный, в конце
+      renderTableB();
+      updateShowMoreBtn();
+      updateArrowVisibility();
+      if (wasScrolledDown) scrollToTabs();
+    });
+
+    // Подсветка активной вкладки (основной ряд + sticky-зеркало) для трёх вкладок разом.
+    function setActiveTabChrome(mainTab, stickyTab) {
+      [tabInReport, tabSelection, tabArchive].forEach(function(t) {
+        t.classList.toggle('active', t === mainTab);
       });
-    })();
+      [stickyTabInReport, stickyTabSelection, stickyTabArchive].forEach(function(t) {
+        t.classList.toggle('active', t === stickyTab);
+      });
+    }
+
+    // Фильтр «Активные/Архивные» (чипы в «Подборке») удалён — архив вынесен в отдельную вкладку.
 
     // === STICKY TABS (mirror original tabs) ===
     stickyTabInReport.addEventListener('click', function() {
@@ -3083,6 +3358,9 @@
     });
     stickyTabSelection.addEventListener('click', function() {
       tabSelection.click();
+    });
+    stickyTabArchive.addEventListener('click', function() {
+      tabArchive.click();
     });
 
     // === SHOW MORE ===
@@ -3135,7 +3413,7 @@
         if (isNaN(idx)) return;
         // Добавленная строка в «Подборке» — плавающую кнопку не показываем: на ней уже
         // висит персистентная «Отслеживается». Заливка строки держится классом .row-added.
-        if (activeTab === 'selection' && checkedIds.has(idx)) { hide(); return; }
+        if ((activeTab === 'selection' || activeTab === 'archive') && checkedIds.has(idx)) { hide(); return; }
         hoverIdx = idx;
         // Подсветка строки держится классом, а не только :hover — чтобы не гасла,
         // когда курсор переходит на плавающую кнопку (она вне строки).
@@ -3270,7 +3548,7 @@
       function renderPersistentBtns() {
         var old = section.querySelectorAll('.persistent-track-btn');
         Array.prototype.forEach.call(old, function(b) { if (b.parentNode) b.parentNode.removeChild(b); });
-        if (activeTab !== 'selection') return;
+        if (activeTab !== 'selection' && activeTab !== 'archive') return;
         var sr = section.getBoundingClientRect();
         var rows = tableBBody.querySelectorAll('tr[data-idx]');
         Array.prototype.forEach.call(rows, function(tr) {
@@ -3631,14 +3909,13 @@
       priceFieldsRange.style.display = 'none';
     });
 
-    // === METRICS CHECKBOXES ===
-    document.getElementById('statsMetricsWrap').addEventListener('click', function(e) {
-      var cb = e.target.closest ? e.target.closest('.checkbox:not(.disabled)') : null;
-      if (!cb) return;
+    // === METRICS CHECKBOXES (нативный input DS-чекбокса) ===
+    document.getElementById('statsMetricsWrap').addEventListener('change', function(e) {
+      var cb = e.target.closest ? e.target.closest('.checkbox__control') : null;
+      if (!cb || cb.disabled) return;
       var row = cb.closest('.metrics-row');
       if (!row) return;
-      cb.classList.toggle('checked');
-      row.classList.toggle('unchecked', !cb.classList.contains('checked'));
+      row.classList.toggle('unchecked', !cb.checked);
     });
 
     // === STATS VISIBILITY ===

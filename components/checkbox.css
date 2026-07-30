@@ -1,0 +1,90 @@
+/* === CHECKBOX — чекбокс ===
+   Источник дизайна: Figma «Отчёт о цене», компонент Checkbox (449:67142),
+   набор Enabled × Selected × isValid (6 состояний).
+   Подключать после tokens.css.
+
+   Разметка:
+     <label class="checkbox">
+       <input class="checkbox__control" type="checkbox">
+       <span class="checkbox__label">Title</span>
+     </label>
+   Лейбл опционален (можно только бокс). Невалидное состояние — атрибут
+   aria-invalid="true" на .checkbox__control. JS-хуки — id/data-action, не классы. */
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.checkbox:has(.checkbox__control:disabled) { cursor: default; }
+
+.checkbox__control {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--stroke-control-default);
+  border-radius: var(--radius-m);
+  background-color: var(--surface-inverted-default);
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+/* hover (в макете нет — лёгкое усиление рамки) */
+.checkbox:hover .checkbox__control:not(:disabled):not(:checked) {
+  border-color: var(--stroke-control-hovered);
+}
+
+/* focus-visible — кольцо для клавиатуры (доступность) */
+.checkbox__control:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 1px;
+}
+
+/* checked (valid) — синяя заливка + белая галка */
+.checkbox__control:checked {
+  background-color: var(--control-main-primary-default);
+  border-color: var(--control-main-primary-default);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='13'%20height='10'%20viewBox='0%200%2012.4142%209.12132'%3E%3Cpath%20d='M12.4142%201.41421L4.70711%209.12132L0%204.41421L1.41421%203L4.70711%206.29289L11%200L12.4142%201.41421Z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+/* invalid (unchecked) — красная рамка + светло-красная заливка */
+.checkbox__control[aria-invalid="true"] {
+  border-color: var(--stroke-border-negative);
+  background-color: var(--surface-negative-default);
+}
+/* invalid + checked — красная заливка, белая галка (наследует bg-image из :checked) */
+.checkbox__control[aria-invalid="true"]:checked {
+  background-color: var(--control-negative-primary-default);
+  border-color: var(--control-negative-primary-default);
+}
+
+/* disabled (unchecked) — серая рамка + серая заливка */
+.checkbox__control:disabled {
+  border-color: var(--stroke-control-disabled);
+  background-color: var(--surface-inverted-disabled);
+  cursor: default;
+}
+/* disabled + checked — серая заливка + серая галка */
+.checkbox__control:disabled:checked {
+  background-color: var(--surface-inverted-disabled);
+  border-color: var(--surface-inverted-disabled);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='13'%20height='10'%20viewBox='0%200%2012.4142%209.12132'%3E%3Cpath%20d='M12.4142%201.41421L4.70711%209.12132L0%204.41421L1.41421%203L4.70711%206.29289L11%200L12.4142%201.41421Z'%20fill='%23b1bad2'/%3E%3C/svg%3E");
+}
+
+/* Лейбл — Body2 (Lato 14/20): размер текста контролов в продукте (фильтры/метрики). */
+.checkbox__label {
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-feature-settings: 'liga' off, 'clig' off;
+  color: var(--text-primary-default);
+}
+.checkbox__control:disabled ~ .checkbox__label { color: var(--text-primary-disabled); }

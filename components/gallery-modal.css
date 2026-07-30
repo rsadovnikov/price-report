@@ -1,0 +1,151 @@
+/* === GALLERY MODAL (фото-галерея / лайтбокс) — полноэкранный просмотр фотографий ===
+   Подключать после tokens.css, shared.css.
+   Управление и сборка DOM — components/gallery-modal.js (openGallery).
+   Формат: тёмный fullscreen-оверлей, шапка (заголовок + крестик), крупное фото по центру,
+   стрелки ‹ ›, счётчик N/M, лента миниатюр снизу, бейдж «Главное фото» на обложке.
+   Источник дизайна: фото-модалка ЛК CIAN. */
+
+.gallery-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--transparent-black800a);   /* ~90% чёрного — иммерсивный фон лайтбокса (примитив: семантические токены не темнее 80%) */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.gallery-overlay.is-open { opacity: 1; }
+
+.gallery {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Шапка --- */
+.gallery__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  flex-shrink: 0;
+}
+.gallery__title {
+  font-size: 16px; line-height: 24px; font-weight: 400;   /* body1 */
+  color: var(--text-inverted-default);
+}
+.gallery__close {
+  width: 40px; height: 40px;
+  border: none; border-radius: 50%;
+  background: transparent;
+  color: var(--icon-inverted-default);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0; flex-shrink: 0;
+}
+.gallery__close:hover { background: rgba(255, 255, 255, 0.12); }
+.gallery__close svg { display: block; pointer-events: none; }
+
+/* --- Сцена (фото + стрелки + счётчик) --- */
+.gallery__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gallery__viewport { overflow: hidden; width: 100%; height: 100%; }
+.gallery__track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.28s ease;
+  will-change: transform;
+}
+.gallery__slide {
+  flex: 0 0 100%;
+  height: 100%;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gallery__img {
+  max-width: calc(100% - 160px);   /* оставляем поля под стрелки */
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* --- Стрелки --- */
+.gallery__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px; height: 48px;
+  border: none; background: transparent;
+  color: var(--icon-inverted-default);
+  cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+.gallery__nav:hover { opacity: 0.6; }
+.gallery__nav svg { display: block; pointer-events: none; }
+.gallery__prev { left: 24px; }
+.gallery__next { right: 24px; }
+
+/* --- Бейдж «Главное фото» (на обложечном слайде) --- */
+.gallery__cover-badge {
+  position: absolute;
+  left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--background-primary);
+  color: var(--text-primary-default);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  font-size: 14px; line-height: 20px; font-weight: 700;   /* heading5 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.24);
+  white-space: nowrap;
+}
+.gallery__cover-badge svg { display: block; }
+
+/* --- Счётчик N/M --- */
+.gallery__counter {
+  position: absolute;
+  right: 24px; bottom: 24px;
+  min-width: 44px; height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text-inverted-default);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; line-height: 16px;
+  z-index: 2;
+}
+
+/* --- Лента миниатюр --- */
+.gallery__thumbs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px 24px;
+  overflow-x: auto;
+  justify-content: center;
+}
+.gallery__thumb {
+  width: 96px; height: 64px;
+  border-radius: var(--radius-m);
+  object-fit: cover;
+  border: 2px solid transparent;
+  opacity: 0.6;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+}
+.gallery__thumb:hover { opacity: 1; }
+.gallery__thumb.is-active {
+  opacity: 1;
+  border-color: var(--control-main-primary-default);   /* синяя рамка активной */
+}
