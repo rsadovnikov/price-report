@@ -282,7 +282,7 @@
 
     /* === REPORT HEADER === */
     .report-header {
-      padding: 36px 24px 24px 24px;
+      padding: 36px 24px 4px 24px;
       text-align: left;
     }
     .report-header h1 {
@@ -357,7 +357,10 @@
     }
     /* Column widths */
     .col-checkbox { width: 40px; min-width: 40px; }
-    .col-photo { width: 86px; min-width: 86px; }
+    /* Ширина = фото 80px + паддинги ячейки 12+12 = 104px. При 86px данные (с фото)
+       распирали колонку до 104, а пустая colspan-шапка легенды держала 86 → легенда
+       съезжала на 18px относительно данных. 104 выравнивает шапку и данные. */
+    .col-photo { width: 104px; min-width: 104px; }
     .col-desc { width: 260px; min-width: 260px; }
     .col-start-price { width: 150px; min-width: 150px; }
     .col-current-price { width: 170px; min-width: 170px; }
@@ -745,7 +748,7 @@
 
     /* === TABS === */
     .tabs {
-      margin-top: 8px;
+      margin-top: 12px;
       /* доскролл к вкладкам учитывает фикс-хедер + небольшой зазор сверху */
       scroll-margin-top: calc(var(--header-h, 67px) + 8px);
     }
@@ -815,7 +818,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 8px 24px 12px 24px;
+      margin: 8px 24px 0px 24px;
       padding: 8px;
       background: var(--surface-neutral-default);
       border-radius: var(--radius-xl);
@@ -824,23 +827,9 @@
       display: flex;
       flex-direction: column;
     }
-    /* Баннер «Отслеживаются» — плоская полоса вплотную под вкладками (макет 452:67988):
-       без верхнего отступа и верхних скруглений, компактнее, текст жирный, иконка 14px в 24px-боксе. */
-    #trackingBanner {
-      margin: 0 24px 8px 24px;                                  /* убран верхний отступ — вплотную к вкладкам */
-      gap: 4px;                                                 /* бокс иконки 24 + 4 → текст на 36px */
-      border-radius: 0 0 var(--radius-xl) var(--radius-xl);     /* убраны верхние скругления */
-    }
-    #trackingBanner .tracking-banner__radar {
-      width: 24px;                                              /* бокс 24 → высота баннера 8+24+8 = 40px */
-      height: 24px;
-      align-items: center;
-      justify-content: center;
-    }
-    #trackingBanner .tracking-banner__text {
-      font-weight: 700;                                         /* по макету текст жирный */
-      letter-spacing: -0.2px;
-    }
+    /* Баннер «Отслеживаются» — отдельная плавающая плашка, как на вкладке «Архивные»
+       (та же базовая геометрия .tracking-banner: отступ сверху, скругления, размер).
+       Иконка-радар 24px = как иконка-архив, высота плашки 40px. */
     .tracking-banner__text {
       font-size: 14px;
       line-height: 20px;
@@ -859,8 +848,8 @@
     .tracking-banner__period { color: var(--text-secondary-default); }
     .tracking-banner__radar {
       flex: none;
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: inline-flex;
       transform-origin: center;
       animation: radar-spin 2.4s linear infinite;
@@ -875,12 +864,6 @@
     }
     .archive-banner__icon svg { display: block; }
     /* Фильтр периода архива — один контрол на месте фасетного ряда. */
-    .archive-filters {
-      padding: 0 24px 12px 24px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
     @keyframes radar-spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) {
       .tracking-banner__radar { animation: none; }
@@ -1472,25 +1455,28 @@
       border-top: 1px solid var(--stroke-divider-default);
     }
 
-    /* === OWNER REPORT BUBBLE === */
+    /* === OWNER REPORT SHELF (полка-teaser внизу, вместо синей FAB) ===
+       Прилеплена к низу вьюпорта на всю ширину контента; уезжает вниз, когда
+       заголовок «Отчёт для собственника» входит в кадр (см. updateOwnerBubble). */
     .owner-bubble {
       position: fixed;
-      bottom: 24px;
-      left: 244px;
-      right: 24px;
-      display: flex;
-      justify-content: flex-end;
+      bottom: 0;
+      left: 244px;   /* ширина сайдбара — карточка прижата к нему слева */
+      right: 16px;   /* = padding-right у .report-area: полка совпадает по ширине с карточкой,
+                        иначе правый «рог» попадал в 16px серого поля справа и был не виден */
       z-index: 150;
       pointer-events: none;
     }
     .owner-bubble-inner {
-      display: inline-flex;
+      position: relative;
+      display: flex;
       align-items: center;
-      gap: 16px;
-      background: #006CFD;
-      border-radius: 32px;
-      padding: 12px 24px;
-      color: #fff;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      height: 48px;
+      background: var(--surface-neutral-default);
+      color: var(--text-secondary-default);
       font-size: 16px;
       font-weight: 700;
       line-height: 24px;
@@ -1498,14 +1484,40 @@
       cursor: pointer;
       pointer-events: auto;
       white-space: nowrap;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-      transform: translateY(72px);
+      transform: translateY(100%);
       opacity: 0;
       transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.25s ease;
       user-select: none;
     }
+    /* «Рога»: вогнутые (обратный радиус) верхние углы — полка будто вырастает из краёв,
+       концы загибаются вверх. Псевдоэлементы залиты цветом полки с radial-gradient-вырезом
+       четвертькруга; сидят над полкой (bottom:100%) у левого/правого края. */
+    .owner-bubble-inner::before,
+    .owner-bubble-inner::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+    }
+    .owner-bubble-inner::before { /* левый рог */
+      left: 0;
+      background: radial-gradient(circle at 100% 0, transparent 15.5px, var(--surface-neutral-default) 16px);
+    }
+    .owner-bubble-inner::after { /* правый рог */
+      right: 0;
+      background: radial-gradient(circle at 0 0, transparent 15.5px, var(--surface-neutral-default) 16px);
+    }
+    .owner-bubble-inner svg {
+      color: var(--icon-secondary-default);
+      flex-shrink: 0;
+    }
     .owner-bubble-inner:hover {
-      background: #0060E0;
+      color: var(--text-primary-default);
+    }
+    .owner-bubble-inner:hover svg {
+      color: var(--icon-primary-default);
     }
     .owner-bubble-inner.visible {
       transform: translateY(0);
@@ -1725,11 +1737,27 @@
     <!-- Filters -->
     <!-- ВАЖНО: один общий ряд фильтров для «Подборки» И «Архивных» (единый DOM-элемент =
          единый источник состояния). Фильтры СИНХРОННЫ: выбранное в одной вкладке остаётся
-         выбранным в другой. Архив-специфичный «За сколько дней» — отдельно, «допом» в конце
-         (#archiveFilters ниже). Если будете делать фильтры функциональными — состояние
-         этого ряда должно применяться к обеим вкладкам, а «За N дней» — только к архиву. -->
+         выбранным в другой. Архив-специфичный «За N дней» (#archivePeriodBtn) стоит ПЕРВЫМ в
+         этом же ряду, но виден только на «Архивных» (toggle его display в обработчиках вкладок).
+         Если будете делать фильтры функциональными — состояние остального ряда применяется к
+         обеим вкладкам, а «За N дней» — только к архиву. -->
+    <!-- Микро-онбординг подборки (вкладка «Подборка конкурентов») -->
+    <div class="tracking-banner" id="selectionBanner" style="display:none">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#paint0_angular_19_23450_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<g clip-path="url(#paint1_angular_19_23450_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
+<defs>
+<clipPath id="paint0_angular_19_23450_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23450_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
+</svg></span>
+      <span class="tracking-banner__text">Постоянно следим, не появились ли новые потенциальные конкуренты у вашего объекта</span>
+    </div>
+
     <div class="filters">
       <div class="filters-left">
+        <!-- Архив-специфичный «За N дней» — в общем ряду фильтров первым, только на вкладке «Архивные»
+             (видимость через #archivePeriodBtn.style.display в обработчиках вкладок). -->
+        <button class="btn-outline-sm style-secondary" type="button" id="archivePeriodBtn" style="display:none">За 7 дней <span class="icon">▾</span></button>
         <button class="btn-outline-sm style-secondary">Радиус 3 км <span class="icon">▾</span></button>
         <button class="btn-outline-sm style-secondary">2 комнаты <span class="icon">▾</span></button>
         <button class="btn-outline-sm style-secondary">До 50 кв. м. <span class="icon">▾</span></button>
@@ -1758,7 +1786,7 @@
 
     <!-- Микро-онбординг отслеживания (вкладка «Отслеживаются», ≥1 объект) -->
     <div class="tracking-banner" id="trackingBanner" style="display:none">
-      <span class="tracking-banner__radar" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#paint0_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
 <g clip-path="url(#paint1_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
 <circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
@@ -1766,11 +1794,6 @@
 <clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
 </svg></span>
       <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
-    </div>
-
-    <!-- Фильтр периода архива — «допом» в конце, после общего фасетного ряда (только «Архивные») -->
-    <div class="archive-filters" id="archiveFilters" style="display:none">
-      <button class="btn-outline-sm style-secondary" type="button" id="archivePeriodBtn">За 7 дней <span class="icon">▾</span></button>
     </div>
 
     <!-- Table B: Competitors -->
@@ -2108,13 +2131,13 @@
 <!-- ===== SNACKBAR CONTAINER ===== -->
 <div class="snackbar-container" id="snackbarContainer" aria-live="polite"></div>
 
-<!-- ===== OWNER REPORT BUBBLE ===== -->
+<!-- ===== OWNER REPORT SHELF (полка-teaser, вместо синей FAB) ===== -->
 <div class="owner-bubble" id="ownerBubble">
   <div class="owner-bubble-inner" id="ownerBubbleInner">
-    Отчёт для собственника
-    <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M7 1v11M7 12l-5-5M7 12l5-5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M8 3v9.5M8 12.5l-3.5-3.5M8 12.5l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
+    <span>Покажите собственнику, на каких конкурентов вы ориентируетесь</span>
   </div>
 </div>
 
@@ -2224,6 +2247,19 @@
       var parts = str.trim().split(' ');
       return new Date(parseInt(parts[2]), MONTHS_RU_PARSE[parts[1]], parseInt(parts[0]));
     }
+    // «Сегодня» = реальная текущая дата (обнулена до полуночи → срок в днях точный).
+    // Единый источник «сейчас» для всей логики срока/снятий. Раньше был заморожен на 18.02.2026.
+    var _now = new Date();
+    var TODAY = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+    var CURRENT_YEAR = TODAY.getFullYear(); // текущий год = год реального «сегодня»
+    // Дата публикации без года, если год — текущий: «9 января 2026» → «9 января»
+    // («15 декабря 2025» и любой прошлый год остаётся с годом).
+    function stripCurrentYear(str) {
+      if (!str) return str;
+      return str.replace(/\s+(\d{4})$/, function (m, y) {
+        return (parseInt(y, 10) === CURRENT_YEAR) ? '' : m;
+      });
+    }
     function formatRemovedDate(d) {
       return d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getFullYear()).slice(2);
     }
@@ -2234,6 +2270,16 @@
     function daysOnMarket(pubDateStr, removedDateStr) {
       return Math.max(1, Math.round((parseRemovedDate(removedDateStr) - parseRuDate(pubDateStr)) / 86400000));
     }
+    // Срок размещения активного объявления = дней от даты публикации до «сегодня».
+    function daysSincePublished(pubDateStr) {
+      return Math.max(1, Math.round((TODAY - parseRuDate(pubDateStr)) / 86400000));
+    }
+    var MONTHS_RU_FULL = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    // Дата публикации = «сегодня» минус N дней, в формате «D месяца YYYY» (как в данных).
+    function formatDateDaysAgo(days) {
+      var d = new Date(TODAY.getTime() - days * 86400000);
+      return d.getDate() + ' ' + MONTHS_RU_FULL[d.getMonth()] + ' ' + d.getFullYear();
+    }
     function pluralDays(n) {
       var mod10 = n % 10, mod100 = n % 100;
       if (mod100 >= 11 && mod100 <= 19) return n + ' дней';
@@ -2242,10 +2288,28 @@
       return n + ' дней';
     }
 
+    // === Синтетические сроки размещения (по команде Романа) ===
+    // Сокращаем сроки: ~80% в 15–50 дней, ~10% в 1–3 дня, ~10% > 50 дней.
+    // Дату публикации выводим из срока (TODAY − срок), чтобы «Срок размещения» и
+    // «Дата публикации» были согласованы. Переопределяем ДО расчёта дат снятия ниже.
+    (function assignListingDates() {
+      function pickDays() {
+        var r = Math.random();
+        if (r < 0.10) return 1 + Math.floor(Math.random() * 3);    // 10%: 1..3 дня
+        if (r < 0.90) return 15 + Math.floor(Math.random() * 36);  // 80%: 15..50 дней
+        return 51 + Math.floor(Math.random() * 70);                // 10%: 51..120 дней
+      }
+      ALL_COMPETITORS.forEach(function(d) {
+        var days = pickDays();
+        d.days = days;
+        d.date = formatDateDaysAgo(days);
+      });
+    })();
+
     // Randomly mark ~35% of competitors as removed on each page load
     (function randomizeRemovedStatus() {
       var probability = 0.35;
-      var today = new Date(2026, 1, 18); // прототип зафиксирован на 18.02.2026
+      var today = TODAY; // реальное «сегодня» (единый источник)
       ALL_COMPETITORS.forEach(function(d, i) {
         if (Math.random() < probability) {
           removedIds.add(i);
@@ -2285,6 +2349,9 @@
     // чтобы на каждой загрузке расклад был разный.
     var _u = parseInt(REPORT_PARAMS.get('u'), 10);
     var TOTAL_UPDATES = (_u >= 0) ? _u : (Math.floor(Math.random() * 6) + 1);
+    // Экспонируем число апдейтов наружу: по нему helpTrigger решает, показывать ли
+    // онбординг-модалку автоматически (нет апдейтов = первый заход, есть = юзер уже знаком).
+    window.REPORT_TOTAL_UPDATES = TOTAL_UPDATES;
     function shuffleArr(a) {
       for (var i = a.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -2306,7 +2373,7 @@
       }
       // 2) «Снято с публикации» — ещё один случайный отслеживаемый, помечаем removed.
       if (used < U) {
-        var today = new Date(2026, 1, 18);
+        var today = TODAY; // реальное «сегодня» (единый источник)
         for (var r = 0; r < tracked.length; r++) {
           var idx = tracked[r];
           if (priceUpdatedIds.has(idx) || removedIds.has(idx)) continue;
@@ -2449,6 +2516,18 @@
       }
     })();
 
+    // === Срок размещения базового объекта «Мой объект» ===
+    // Дата публикации в разметке статична — срок пересчитываем от неё до «сегодня»
+    // (та же логика, что для активных конкурентов) + прячем текущий год в дате.
+    (function baseObjectDuration() {
+      var dateEl = document.querySelector('#tableA .duration-date');
+      var daysEl = document.querySelector('#tableA .duration-days');
+      if (!dateEl || !daysEl) return;
+      var raw = dateEl.textContent.trim();
+      daysEl.textContent = pluralDays(daysSincePublished(raw));
+      dateEl.textContent = stripCurrentYear(raw);
+    })();
+
     // === DOM REFS ===
     var tableALegendScroll = document.getElementById('tableALegendScroll');
     var tableA = document.getElementById('tableA');
@@ -2457,6 +2536,7 @@
     var tableBWrapper = document.getElementById('tableBWrapper');
     var emptyBState = document.getElementById('emptyBState');
     var trackingBanner = document.getElementById('trackingBanner');
+    var selectionBanner = document.getElementById('selectionBanner');
     // Срок «с прошлого визита» в баннере — случайный на каждую загрузку (1–10 дней)
     (function() {
       var el = document.getElementById('trackingVisitPeriod');
@@ -2481,7 +2561,7 @@
     var stickyTabSelection = document.getElementById('stickyTabSelection');
     var stickyTabArchive = document.getElementById('stickyTabArchive');
     var archiveBanner = document.getElementById('archiveBanner');
-    var archiveFilters = document.getElementById('archiveFilters');
+    var archivePeriodBtn = document.getElementById('archivePeriodBtn'); // «За N дней» в общем ряду, только на «Архивных»
     var filtersEl = document.querySelector('.filters');
     var resultsCounter = document.querySelector('.results-counter');
     var counterText = document.getElementById('counterText');
@@ -2531,7 +2611,7 @@
         + '<td class="col-start-price"><div class="price-main">' + d.startPrice + '\u00a0\u20bd</div><div class="price-per-m">' + d.startPricePerM + '\u00a0\u20bd/м\u00b2</div></td>'
         + '<td class="col-current-price" data-comp-idx="' + idx + '"><div class="price-main-row"><div class="price-main">' + d.currentPrice + ' \u20bd</div>' + (d.priceDelta ? '<span class="price-tooltip-trigger">' + (d.priceDelta.startsWith('+') ? DYN_ICON_NEG : DYN_ICON_POS) + '</span>' : '') + '</div><div class="price-per-m">' + d.currentPricePerM + ' \u20bd/м\u00b2</div>' + (d.priceDelta ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + ' \u20bd</div>' : '') + '</td>'
         + '<td class="col-dynamics"></td>'
-        + '<td class="col-duration"><div class="duration-days">' + pluralDays(removedIds.has(idx) ? daysOnMarket(d.date, removedDates[idx]) : d.days) + '</div><div class="duration-date">' + d.date + '</div></td>'
+        + '<td class="col-duration"><div class="duration-days">' + pluralDays(removedIds.has(idx) ? daysOnMarket(d.date, removedDates[idx]) : daysSincePublished(d.date)) + '</div><div class="duration-date">' + stripCurrentYear(d.date) + '</div></td>'
         + '<td class="col-metro metro-cell"><div class="metro-station"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroStation + '</div><div class="metro-walk">' + BUS_ICON + ' ' + d.walkMin + ' мин</div></td>'
         + '<td class="col-repair">' + d.repair + '</td>'
         + '<td class="col-building">' + d.building + '<div class="building-year">' + d.buildYear + '</div></td>'
@@ -2605,6 +2685,10 @@
       if (trackingBanner) {
         trackingBanner.style.display =
           (activeTab === 'in-report' && checkedIds.size > 0) ? 'flex' : 'none';
+      }
+      // Баннер «Постоянно следим за новыми» — только на вкладке «Подборка»
+      if (selectionBanner) {
+        selectionBanner.style.display = (activeTab === 'selection') ? 'flex' : 'none';
       }
 
       // Sticky-бар «N новых возможных конкурентов» — та же точка ре-рендера
@@ -2706,8 +2790,8 @@
           +   deltaHtml
           + '</td>'
           + '<td class="occ-dur">'
-          +   '<div class="duration-days">' + pluralDays(isRemoved ? daysOnMarket(d.date, removedDates[idx]) : d.days) + '</div>'
-          +   '<div class="duration-date">' + d.date + '</div>'
+          +   '<div class="duration-days">' + pluralDays(isRemoved ? daysOnMarket(d.date, removedDates[idx]) : daysSincePublished(d.date)) + '</div>'
+          +   '<div class="duration-date">' + stripCurrentYear(d.date) + '</div>'
           + '</td>'
           + '<td class="occ-repair">' + d.repair + '</td>'
           + '<td class="occ-build">' + d.building + '<div class="building-year">' + d.buildYear + '</div></td>'
@@ -2745,63 +2829,26 @@
       updateOwnerBubble();
     }
 
-    // === OWNER REPORT FAB (кнопка «Отчёт для собственника») ===
-    // Задача кнопки — довести до секции «Создать отчёт для собственника».
-    // По умолчанию (вверху страницы) НЕ показана, чтобы не перетягивать внимание.
-    // Появляется, только когда пользователь осмысленно проскроллил вниз — порог
-    // 50% высоты экрана (не «чувствительно» с первого пикселя). При этом если секция
-    // отчёта уже в кадре — не показываем (вести уже некуда). Скролл вверх до самого
-    // верха снова прячет кнопку.
+    // === OWNER REPORT SHELF (полка-teaser «Покажите собственнику…») ===
+    // Полка прилеплена к низу вьюпорта и видна всегда, пока раздел «Отчёт для
+    // собственника» ещё не в кадре. Как только его заголовок входит во вьюпорт —
+    // уезжает вниз (вести уже некуда). Скролл вверх выше раздела — возвращает её.
     var ownerPanelAnchor = document.querySelector('.owner-report-header')
       || document.getElementById('ownerReportCard');
 
-    // true, если верх секции отчёта вошёл в кадр (коснулся нижнего края вьюпорта) — вести
-    // больше некуда, прячем + защёлка. Прячем максимально поздно: при opt-out-лейауте отчёт
-    // всего ~один экран от верха, поэтому окно показа узкое, и ранний порог его «съедал».
+    // true, если верх раздела отчёта вошёл в кадр (коснулся нижнего края вьюпорта).
     function ownerPanelReached() {
       if (!ownerPanelAnchor) return false;
       var top = ownerPanelAnchor.getBoundingClientRect().top;
       return top <= window.innerHeight;
     }
 
-    // true, если проскроллил вниз на 40% экрана (порог показа — по просьбе Романа).
-    // Скрытие держим максимально поздно (top <= innerHeight), чтобы при этом пороге окно
-    // показа всё же оставалось.
-    function scrolledEnough() {
-      return window.scrollY >= window.innerHeight * 0.4;
-    }
-
-    // Защёлка: «один раз за заход». Латчим seen только когда кнопку реально показали и
-    // потом дошли до отчёта — иначе на высоком окне (отчёт виден сразу при загрузке) seen
-    // выставился бы мгновенно и кнопка не появилась бы вообще.
-    var ownerPanelSeen = false;
-    var ownerFabShown = false;
-    var ownerFabForced = false; // принудительный показ после добавления объекта в отслеживание
-
     function updateOwnerBubble() {
       var inner = document.getElementById('ownerBubbleInner');
       if (!inner) return;
-      if (ownerPanelReached()) {
-        if (ownerFabShown) ownerPanelSeen = true;
-        ownerFabForced = false; // дошёл до отчёта — форс снимаем
-      }
-      var show = !ownerPanelSeen && checkedIds.size > 0 && !ownerPanelReached()
-        && (ownerFabForced || scrolledEnough());
-      if (show) ownerFabShown = true;
+      // Показываем, пока есть выбранные конкуренты и раздел отчёта ещё не в кадре.
+      var show = checkedIds.size > 0 && !ownerPanelReached();
       inner.classList.toggle('visible', show);
-    }
-
-    // Добавление объекта в отслеживание — явный сигнал «собираю отчёт»: через секунду
-    // показываем FAB (даже если ещё не доскроллил до порога), пока отчёт не в кадре.
-    var ownerFabAddTimer = null;
-    function triggerOwnerFabFromAdd() {
-      clearTimeout(ownerFabAddTimer);
-      ownerFabAddTimer = setTimeout(function() {
-        if (ownerPanelReached() || checkedIds.size === 0) return;
-        ownerPanelSeen = false; // снять защёлку «один раз за заход» — добавление её перекрывает
-        ownerFabForced = true;
-        updateOwnerBubble();
-      }, 1000);
     }
 
     window.addEventListener('scroll', updateOwnerBubble, { passive: true });
@@ -3358,7 +3405,7 @@
       filtersEl.style.display = 'none';
       resultsCounter.style.display = 'none';
       archiveBanner.style.display = 'none';
-      archiveFilters.style.display = 'none';
+      archivePeriodBtn.style.display = 'none';
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -3373,7 +3420,7 @@
       filtersEl.style.display = '';
       resultsCounter.style.display = '';
       archiveBanner.style.display = 'none';
-      archiveFilters.style.display = 'none';
+      archivePeriodBtn.style.display = 'none';
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -3394,7 +3441,7 @@
       filtersEl.style.display = '';        // общий фасетный ряд — как в «Подборке» (синхрон)
       resultsCounter.style.display = 'none';
       archiveBanner.style.display = 'flex';
-      archiveFilters.style.display = 'flex'; // «За N дней» — архив-специфичный, в конце
+      archivePeriodBtn.style.display = ''; // «За N дней» — архив-специфичный, первым в общем ряду
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -3681,7 +3728,7 @@
           checkedIds.add(idx);
           justAddedInSelection.add(idx);
           showSnackbar('Начали отслеживать');
-          triggerOwnerFabFromAdd(); // через секунду показать FAB «Отчёт для собственника»
+          updateOwnerBubble(); // конкурентов стало больше — обновить видимость полки
           var addedTr = tableBBody.querySelector('tr[data-idx="' + idx + '"]');
           if (addedTr) addedTr.classList.add('row-added');
           hide();
@@ -4254,8 +4301,12 @@
     }
     link.addEventListener('click', openHelp);
 
-    // Автопоказ при каждом заходе в отчёт — с небольшой задержкой 0.5с.
-    setTimeout(openHelp, 500);
+    // Автопоказ — только если у конкурентов нет апдейтов. Есть апдейты = пользователь
+    // уже знаком с сервисом и взаимодействовал с ним → повторный онбординг не нужен.
+    // Ручной клик по ссылке-справке остаётся доступным всегда.
+    if (!(window.REPORT_TOTAL_UPDATES > 0)) {
+      setTimeout(openHelp, 500);
+    }
   })();
 
   // === Справка под заголовком «Отчёт для собственника» («Чем он помогает и как выглядит») ===
