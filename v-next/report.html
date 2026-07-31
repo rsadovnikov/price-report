@@ -179,6 +179,32 @@
       transform: rotate(0deg);
     }
 
+    /* === СВОРАЧИВАНИЕ БАЗОВОГО ОБЪЕКТА (эксперимент) ===
+       Шеврон + «Мой объект» — кликабельный тоггл в легенде Таблицы A. По умолчанию
+       развёрнуто (шеврон вниз). В свёрнутом — шеврон вправо, текст = параметры квартиры,
+       строка данных (#tableAWrapper) схлопывается по высоте. */
+    .base-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .base-chevron {
+      flex-shrink: 0;
+      color: var(--icon-secondary-default);
+      transition: transform 0.2s ease;
+    }
+    .base-chevron.collapsed { transform: rotate(-90deg); }   /* ∨ вниз → › вправо */
+    /* Текст легенды (в т.ч. параметры квартиры в свёрнутом виде) — серый, наследуется
+       от ячейки заголовка (--text-secondary). Явного цвета не задаём. */
+    /* Строка данных объекта: .table-wrapper уже overflow:hidden. Строка ~90–110px. */
+    #tableAWrapper {
+      max-height: 220px;
+      transition: max-height 0.3s ease;
+    }
+    #tableAWrapper.collapsed { max-height: 0; }
+
     /* === OWNER COMPETITORS MINI-LIST === */
     .owner-comp-wrap {
       overflow: hidden;
@@ -723,28 +749,6 @@
       /* доскролл к вкладкам учитывает фикс-хедер + небольшой зазор сверху */
       scroll-margin-top: calc(var(--header-h, 67px) + 8px);
     }
-    /* Красный каунтер новых конкурентов на табе «Подборка» (Overline, белый на красном). */
-    .tab-update-counter {
-      display: inline-flex;
-      width: 16px;
-      height: 16px;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 4px;
-      margin-left: 6px;
-      border-radius: 99px;
-      background: var(--control-negative-primary-default);
-      color: var(--text-inverted-default);
-      text-align: center;
-      font-feature-settings: 'liga' off, 'clig' off;
-      font-size: 10px;
-      font-weight: 700;
-      line-height: 16px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
     /* === FILTERS === */
     .filters {
       padding: 16px 24px;
@@ -819,6 +823,23 @@
     .tracking-banner__lines {
       display: flex;
       flex-direction: column;
+    }
+    /* Баннер «Отслеживаются» — плоская полоса вплотную под вкладками (макет 452:67988):
+       без верхнего отступа и верхних скруглений, компактнее, текст жирный, иконка 14px в 24px-боксе. */
+    #trackingBanner {
+      margin: 0 24px 8px 24px;                                  /* убран верхний отступ — вплотную к вкладкам */
+      gap: 4px;                                                 /* бокс иконки 24 + 4 → текст на 36px */
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);     /* убраны верхние скругления */
+    }
+    #trackingBanner .tracking-banner__radar {
+      width: 24px;                                              /* бокс 24 → высота баннера 8+24+8 = 40px */
+      height: 24px;
+      align-items: center;
+      justify-content: center;
+    }
+    #trackingBanner .tracking-banner__text {
+      font-weight: 700;                                         /* по макету текст жирный */
+      letter-spacing: -0.2px;
     }
     .tracking-banner__text {
       font-size: 14px;
@@ -924,6 +945,10 @@
     }
 
     /* === CUSTOM SCROLLBAR === */
+    /* ЗАКОНСЕРВИРОВАНО (эксперимент): кастомный скроллбар под легендой верхней таблицы
+       временно скрыт — вместо него нативный скролл самой легенды (см. #tableALegendScroll).
+       JS (updateScrollbarThumb/setupThumbDrag) не трогали — блок цел, вернуть = убрать это правило. */
+    #scrollbarMain { display: none; }
     .custom-scrollbar {
       padding: 5px 24px;
       box-sizing: border-box;
@@ -1134,6 +1159,12 @@
     }
     .table-legend-inner {
       overflow: hidden;
+    }
+    /* Легенда верхней таблицы — нативный горизонтальный скролл (вместо законсервированного
+       кастомного #scrollbarMain): нативный скроллбар появляется прямо под шапкой «Мой объект». */
+    #tableALegendScroll {
+      overflow-x: auto;
+      overflow-y: hidden;
     }
     .table-legend-inner table {
       border-collapse: collapse;
@@ -1590,7 +1621,7 @@
             </colgroup>
             <thead>
               <tr>
-                <th class="col-header-label" colspan="2">Мой объект</th>
+                <th class="col-header-label" colspan="2"><span class="base-toggle" data-action="toggle-base" role="button" tabindex="0" aria-expanded="true"><svg class="base-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="base-legend-text">Мой объект</span></span></th>
                 <th class="col-start-price">Стартовая цена</th>
                 <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
                 <th class="col-dynamics"></th>
@@ -1679,7 +1710,7 @@
     <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
-      <div class="tab" id="tabSelection">Подборка конкурентов <span class="tab-update-counter" id="tabSelectionCounter" style="display:none">0</span></div>
+      <div class="tab" id="tabSelection">Подборка конкурентов</div>
       <div class="tab" id="tabArchive">Архивные</div>
     </div>
 
@@ -1727,17 +1758,14 @@
 
     <!-- Микро-онбординг отслеживания (вкладка «Отслеживаются», ≥1 объект) -->
     <div class="tracking-banner" id="trackingBanner" style="display:none">
-      <span class="tracking-banner__radar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#paint0_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
 <g clip-path="url(#paint1_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
 <circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
 <defs>
 <clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
 </svg></span>
-      <div class="tracking-banner__lines">
-        <span class="tracking-banner__text">Следим в реальном времени: меняется ли у конкурента цена, не сняли ли объявление, появились ли новые</span>
-        <span class="tracking-banner__visit">Что изменилось с вашего прошлого визита, <span class="tracking-banner__period" id="trackingVisitPeriod"></span></span>
-      </div>
+      <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
     </div>
 
     <!-- Фильтр периода архива — «допом» в конце, после общего фасетного ряда (только «Архивные») -->
@@ -2035,7 +2063,7 @@
 <!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
 <div class="sticky-tabs-bar" id="stickyTabsBar">
   <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
-  <div class="tab" id="stickyTabSelection">Подборка конкурентов <span class="tab-update-counter" id="stickyTabSelectionCounter" style="display:none">0</span></div>
+  <div class="tab" id="stickyTabSelection">Подборка конкурентов</div>
   <div class="tab" id="stickyTabArchive">Архивные</div>
 </div>
 
@@ -2057,7 +2085,7 @@
       </colgroup>
       <thead>
         <tr>
-          <th class="col-header-label" colspan="2">Мой объект</th>
+          <th class="col-header-label" colspan="2"><span class="base-toggle" data-action="toggle-base" role="button" tabindex="0" aria-expanded="true"><svg class="base-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="base-legend-text">Мой объект</span></span></th>
           <th class="col-start-price">Стартовая цена</th>
           <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
           <th class="col-dynamics"></th>
@@ -2595,15 +2623,40 @@
     function updateTabLabels() {
       document.getElementById('tabInReportCounter').textContent = checkedIds.size;
       document.getElementById('stickyTabInReportCounter').textContent = checkedIds.size;
-      // Каунтер новых конкурентов на табе «Подборка» (скрыт при 0)
-      var nc = newCount();
-      ['tabSelectionCounter', 'stickyTabSelectionCounter'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = nc;
-        el.style.display = nc > 0 ? 'inline-flex' : 'none';
-      });
+      // Каунтер новых конкурентов на табе «Подборка» убран (по команде Романа) —
+      // вкладка без бейджа. newCount() по-прежнему используется баром и кнопкой «Добавить больше».
     }
+
+    // === СВОРАЧИВАНИЕ БАЗОВОГО ОБЪЕКТА (эксперимент) ===
+    // Клик по «шеврон + Мой объект» в легенде Таблицы A: разворачивает/сворачивает строку
+    // объекта. В свёрнутом — текст легенды = параметры квартиры (.desc-title), строка скрыта.
+    // Затрагивает обе копии легенды (обычная + sticky-шапка).
+    (function baseObjectCollapse() {
+      var baseCollapsed = false;
+      // Параметры квартиры читаем ПОСЛЕ propBaseObject (он уже заполнил .desc-title выше).
+      var descEl = document.querySelector('#tableA .desc-title');
+      var baseParamsText = (descEl && descEl.textContent.trim()) || 'Мой объект';
+
+      function setBaseCollapsed(c) {
+        baseCollapsed = c;
+        var wrap = document.getElementById('tableAWrapper');
+        if (wrap) wrap.classList.toggle('collapsed', c);
+        document.querySelectorAll('.base-chevron').forEach(function (el) { el.classList.toggle('collapsed', c); });
+        document.querySelectorAll('.base-legend-text').forEach(function (el) { el.textContent = c ? baseParamsText : 'Мой объект'; });
+        document.querySelectorAll('.base-toggle').forEach(function (el) { el.setAttribute('aria-expanded', String(!c)); });
+      }
+
+      // Делегат: покрывает и легенду, и sticky-копию. Клик + Enter/Space (роль button).
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('[data-action="toggle-base"]')) setBaseCollapsed(!baseCollapsed);
+      });
+      document.addEventListener('keydown', function (e) {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-action="toggle-base"]')) {
+          e.preventDefault();
+          setBaseCollapsed(!baseCollapsed);
+        }
+      });
+    })();
 
     // === OWNER REPORT BLOCK ===
     var ownerListExpanded = false;
@@ -3777,6 +3830,21 @@
       currentScrollLeft = tableB.scrollLeft;
       isSyncing = true;
       tableA.scrollLeft = currentScrollLeft;
+      stickyHeaderScroll.scrollLeft = currentScrollLeft;
+      isSyncing = false;
+      updateScrollbarThumb();
+      updateArrowVisibility();
+      updateHeaderLabels();
+    });
+
+    // Легенда верхней таблицы теперь нативно прокручивается (кастомный скроллбар законсервирован).
+    // Перетаскивание её нативного скролла синхронит обе таблицы и sticky-шапку.
+    tableALegendScroll.addEventListener('scroll', function() {
+      if (isSyncing) return;
+      currentScrollLeft = tableALegendScroll.scrollLeft;
+      isSyncing = true;
+      tableA.scrollLeft = currentScrollLeft;
+      tableB.scrollLeft = currentScrollLeft;
       stickyHeaderScroll.scrollLeft = currentScrollLeft;
       isSyncing = false;
       updateScrollbarThumb();
