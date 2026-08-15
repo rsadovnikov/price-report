@@ -1,0 +1,106 @@
+/* === CHIPS CONTROL, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 393:82216 —
+ * ряд фильтров на вкладке «Подборка». Компонент в библиотеке — `Chip` (75:64960,
+ * #iOS #BDUI), размер Small.
+ *
+ * Из описания компонента в Figma:
+ *   — «используется для единичного или мультивыбора и фильтрации контента,
+ *     альтернатива Checkbox и Radio»;
+ *   — максимальная ширина 250pt;
+ *   — использовать только в группе от 2 чипсов.
+ *
+ * Чем отличается от вебового components/chips.css:
+ *   — геометрия: высота 36 против 34, паддинг 8/12 против 6/12;
+ *   — выбранный чип: заливка --surface-inverted-selected + рамка
+ *     --stroke-control-selected. В вебе выбранный берёт --surface-main-default —
+ *     оттенок тот же (#e6f0ff), но токен другой, и подменять его нельзя:
+ *     surface/main живёт своей жизнью в тёмном режиме.
+ *   — шеврон — иконка 16 с листом 9.414 × 6.121, а не текстовый символ «▾».
+ *
+ * Размер Medium в макете не встречался, чисел под него нет — не выдумываем.
+ * В описании компонента он помечен как рекомендуемый по умолчанию: если
+ * появится экран с ним, снять анатомию и дописать сюда.
+ */
+
+.chip-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: var(--unit1);
+  flex: none;
+  height: 36px;
+  min-width: 36px;
+  max-width: 250px;                    /* ограничение из описания компонента */
+  padding: var(--unit2) var(--unit3);
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  background: var(--surface-inverted-default);
+  color: var(--text-primary-default);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-base);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.chip-app:active { opacity: 0.6; }
+
+.chip-app--selected {
+  background: var(--surface-inverted-selected);
+  border-color: var(--stroke-control-selected);
+}
+
+.chip-app:disabled,
+.chip-app[aria-disabled="true"] {
+  color: var(--text-primary-disabled);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Иконка: внешняя коробка 16, лист меньше — сохраняем обе величины отдельно */
+.chip-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.chip-app__icon img { display: block; width: 9.414px; height: 6.121px; }
+
+/* --- Группа чипсов с общим горизонтальным скроллом ---
+ *
+ * В макете два ряда фильтров по 519px в окне 375. Скролл при этом ОДИН на оба
+ * ряда: прокручиваешь любой — едут оба. Поэтому переполняется внешний контейнер,
+ * а ряды лежат в одной колонке внутри него, а не скроллятся каждый сам по себе.
+ *
+ * Почему inline-flex, а не width: max-content — при box-sizing: border-box
+ * заданная ширина съела бы правый паддинг, и последний чип упирался бы в край.
+ * У inline-flex ширина не задана, shrink-to-fit считает вместе с паддингом.
+ */
+.chips-scroll-app {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--unit3) 0;
+  scrollbar-width: none;
+}
+.chips-scroll-app::-webkit-scrollbar { display: none; }
+
+.chips-scroll-app__rows {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--unit2);
+  padding: 0 var(--unit5);             /* тот же отступ от края экрана, что у .tabs-app */
+}
+.chips-scroll-app__row {
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+}

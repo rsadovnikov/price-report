@@ -1,0 +1,129 @@
+/* === MAGENTUM CHIPS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="chips.css"> */
+/* Фильтр-чипы — не кнопки. Используются в строке фильтров как toggle-элементы */
+
+/* Цвета и состояния — по прод-киту @cian/ui-kit v7.84.0. Геометрия (34 / 38) оставлена
+   нашей: прод-компонент Chips (chip-button) — это 44px чипсы формы, другой контекст.
+   Подробности и статусы: ../prod-parity.md */
+
+/* Поверхность приложения — отдельный файл `app/chips.css` (`.chip-app`): там высота 36,
+   паддинг 8/12 и выбранный чип берёт --surface-inverted-selected, а не
+   --surface-main-default. Оттенок совпадает, токен другой — не подменять. */
+
+/* --- Базовый чип --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  font-family: var(--font-base);
+  font-size: var(--type-body2-size);
+  font-weight: 400;
+  line-height: var(--type-body2-lh);
+  color: var(--text-primary);
+  background: var(--background-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Hover / active — по прод-киту (chip-button) */
+.chip:hover {
+  border-color: var(--stroke-control-hovered);
+  background: var(--surface-inverted-hovered);
+}
+.chip:active {
+  border-color: var(--stroke-control-pressed);
+  background: var(--surface-inverted-pressed);
+}
+
+/* Focus с клавиатуры */
+.chip:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+}
+
+/* Selected — в проде это заливка --surface-main-default + рамка #3686ff,
+   а не белый фон с синей рамкой (было). */
+.chip.active {
+  background: var(--surface-main-default);
+  border-color: var(--stroke-control-selected);
+  color: var(--text-primary-default);
+}
+.chip.active:hover { background: var(--surface-main-default); }
+
+/* Disabled */
+.chip:disabled,
+.chip[aria-disabled="true"] {
+  border-color: var(--stroke-control-default);
+  color: var(--text-primary-disabled);
+  background: var(--background-primary);
+  cursor: default;
+  pointer-events: none;
+}
+/* Выбранный + disabled — серая заливка, как в проде */
+.chip.active:disabled,
+.chip.active[aria-disabled="true"] {
+  background: var(--surface-inverted-disabled);
+  border-color: var(--stroke-control-default);
+}
+
+/* --- Группа чипов (Figma: «использовать только в группе от 2х») --- */
+.chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Размер S (компактный фильтр-чип) — Figma «Chip» S, node 61:23398 ---
+   Отличия от базового: radius 4px, padding 8/12, выбранный — ЗАЛИВКА (не аутлайн). */
+.chip-s {
+  padding: 8px 12px;
+  min-width: 28px;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-m); /* 4px */
+  border-color: var(--stroke-control-default); /* #d0d8e9 */
+}
+.chip-s.active {
+  background: var(--surface-main-default); /* #e6f0ff */
+  border-color: var(--stroke-control-selected); /* #3686ff — токен есть, ΔE 0 к проду */
+  color: var(--text-primary-default);
+}
+.chip-s.active:hover { background: var(--surface-main-default); }
+
+/* --- Размер M — 1:1 прод chip-button (44px, padding 10/16, radius 8, текст 14/20).
+   Это тот случай, когда прод-геометрия чипсов у нас действительно нужна: переключатели
+   в форме (напр. «Точная сумма / Диапазон»), а не плотная строка фильтров. --- */
+.chip-m {
+  height: 44px;
+  padding: 10px 16px;
+  border-radius: var(--radius-l);
+}
+
+/* --- Иконка — см. base.css .icon --- */
+.chip .icon {
+  color: #2777F0;
+}
+.chip:disabled .icon,
+.chip[aria-disabled="true"] .icon {
+  color: #B1BAD2;
+}
+
+/* --- Иконка сброса (крестик) --- */
+.chip-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  color: #2777F0;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.chip-clear:hover {
+  background: rgba(39, 119, 240, 0.12);
+}

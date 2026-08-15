@@ -1,0 +1,113 @@
+/* === TABS COMPONENT ===
+   Сверено с прод-китом @cian/ui-kit v7.84.0 (UI-Kit/Tabs/Tabs) 2026-08-12.
+   Две размерные ветки, обе Bold:
+     .tab     = прод medium — padding 8/0, высота 38, текст 16/22
+     .tab-s   = прод small  — padding 4/0, высота 28, текст 14/20
+   Ряд: column-gap 24, разделитель 1px --stroke-divider-default.
+   Статусы и что осталось: ../prod-parity.md */
+
+.tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0 24px;
+  position: relative;
+}
+/* Серый разделитель — inset по бокам (не на всю ширину компонента),
+   поэтому рисуем псевдоэлементом, а не border-bottom (бордер шёл бы за паддинг). */
+.tabs::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  height: 1px;
+  background: var(--stroke-divider-default);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--unit2) 0;
+  /* Кастомный текстовый стиль, не роль из шкалы. За сменой поверхности не идёт:
+     в приложении здесь останутся вебовые числа, пока их не переопределит app-дельта. */
+
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: -0.2px;
+  color: var(--text-primary-default);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+  position: relative;
+  z-index: 1; /* активное подчёркивание поверх серого разделителя */
+}
+
+/* Индикатор — ВНЕ потока (как в проде), иначе таб становится на 2px выше сетки.
+   Лежит на серой линии ряда: bottom: -1px. */
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.tab .tab-counter {
+  font-weight: 400;
+  /* Кастомный текстовый стиль, не роль из шкалы. За сменой поверхности не идёт:
+     в приложении здесь останутся вебовые числа, пока их не переопределит app-дельта. */
+
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--text-secondary-default);
+}
+
+/* Малый размер — прод small. Ниже базовых правил: иначе .tab .tab-counter
+   (та же специфичность, но позже в файле) перебивает кегль счётчика. */
+.tab-s {
+  padding: var(--unit1) 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+}
+.tab-s .tab-counter {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+}
+
+/* Hover — в проде это серая подложка-подчёркивание, цвет текста НЕ меняется */
+.tab:hover::after {
+  background: var(--surface-neutral-hovered);
+}
+
+.tab.active {
+  color: var(--text-main-default);
+}
+.tab.active::after {
+  background: var(--control-main-primary-default);
+}
+
+.tab.active .tab-counter {
+  color: var(--text-main-default);
+}
+
+/* Disabled */
+.tab:disabled,
+.tab[aria-disabled="true"] {
+  color: var(--text-primary-disabled);
+  pointer-events: none;
+}
+.tab:disabled .tab-counter,
+.tab[aria-disabled="true"] .tab-counter {
+  color: var(--text-primary-disabled);
+}
+
+/* Focus с клавиатуры */
+.tab:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+}

@@ -1,0 +1,154 @@
+/**
+ * Шторка снизу (bottom sheet) — поверхность приложения (iOS).
+ * Стили: components/app/sheet.css.
+ *
+ * openSheet({
+ *   title:  'Действия',                  // заголовок (Cells / Title)
+ *   base:   '../../_design-system/',     // путь к дизайн-системе — нужен для иконок
+ *   items: [
+ *     { icon: 'pdf', label: 'Обзор конкурентов', badge: '3 обновления', href: 'report.html' },
+ *     { icon: 'trash', label: 'Удалить объявление', onSelect: function(){} }
+ *   ],
+ *
+ * Бейдж — компонент app/badge.css. Строкой задаётся текст (по умолчанию warning
+ * secondary), объектом — ещё и оси: { text: '3 обновления', color: 'main', style: 'primary' }.
+ * Требует подключённого components/app/badge.css.
+ *   ariaLabel: 'Действия с объявлением',
+ *   onClose: function(){}
+ * }) -> { close, el }
+ *
+ * Закрытие: крестик, тап по затемнению, Esc, свайп вниз за шапку. На время показа
+ * блокируется скролл body.
+ *
+ * Строка без href и без onSelect остаётся кликабельной, но ничего не делает —
+ * так удобно набирать меню-заглушку в прототипе.
+ */
+function openSheet(config) {
+  config = config || {};
+
+  var ICONS = {
+    price:    'vas-paid-16.svg',
+    edit:     'edit-16.svg',
+    document: 'document-16.svg',
+    chart:    'chart-16.svg',
+    pdf:      'pdf-16.svg',
+    share:    'share-ios-16.svg',
+    locker:   'locker-16.svg',
+    trash:    'trash-16.svg'
+  };
+  var base = config.base || '../../_design-system/';
+  var icons = base + 'assets/icons/';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function badgeHtml(badge) {
+    if (!badge) return '';
+    var b = typeof badge === 'string' ? { text: badge } : badge;
+    if (!b.text) return '';
+    return '<span class="badge-app badge-app--' + esc(b.color || 'warning')
+      + ' badge-app--' + esc(b.style || 'secondary') + '">'
+      + '<span class="badge-app__text">' + esc(b.text) + '</span></span>';
+  }
+
+  var rows = (config.items || []).map(function (item) {
+    var tag = item.href ? 'a' : 'button';
+    var attrs = item.href ? ' href="' + esc(item.href) + '"' : ' type="button"';
+    var file = ICONS[item.icon];
+    return '<' + tag + ' class="sheet-app-row"' + attrs + '>'
+      + (file
+        ? '<span class="sheet-app-row__icon sheet-app-row__icon--' + esc(item.icon) + '">'
+          + '<img src="' + icons + file + '" alt=""></span>'
+        : '')
+      + '<span class="sheet-app-row__label">' + esc(item.label) + '</span>'
+      + badgeHtml(item.badge)
+      + '</' + tag + '>';
+  }).join('');
+
+  var overlay = document.createElement('div');
+  overlay.className = 'sheet-app-overlay';
+  overlay.innerHTML =
+    '<div class="sheet-app" role="dialog" aria-modal="true"'
+      + (config.ariaLabel ? ' aria-label="' + esc(config.ariaLabel) + '"' : '') + '>'
+      + '<div class="sheet-app__bar">'
+        + '<button class="sheet-app__close" type="button" data-action="close" aria-label="Закрыть">'
+          + '<img src="' + icons + 'close-24.svg" alt=""></button>'
+      + '</div>'
+      + (config.title ? '<h2 class="sheet-app__title">' + esc(config.title) + '</h2>' : '')
+      + '<div class="sheet-app__list">' + rows + '</div>'
+      + '<div class="sheet-app__home" aria-hidden="true"></div>'
+    + '</div>';
+
+  var panel = overlay.querySelector('.sheet-app');
+  var bodyOverflow = document.body.style.overflow;
+  var closed = false;
+
+  function close() {
+    if (closed) return;
+    closed = true;
+    overlay.classList.remove('is-open');
+    document.removeEventListener('keydown', onKey);
+    document.body.style.overflow = bodyOverflow;
+    // Ждём конец анимации, но не полагаемся на событие: если transition не случился
+    // (reduced motion, вкладка в фоне), таймер всё равно уберёт узел.
+    var done = false;
+    function remove() {
+      if (done) return;
+      done = true;
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      if (typeof config.onClose === 'function') config.onClose();
+    }
+    panel.addEventListener('transitionend', remove, { once: true });
+    setTimeout(remove, 400);
+  }
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+    else if (e.target.closest('[data-action="close"]')) close();
+  });
+
+  // Выбор строки: сначала отдаём обработчик, потом закрываем. Ссылку не перехватываем —
+  // переход случится сам.
+  overlay.addEventListener('click', function (e) {
+    var row = e.target.closest('.sheet-app-row');
+    if (!row) return;
+    var idx = Array.prototype.indexOf.call(row.parentNode.children, row);
+    var item = (config.items || [])[idx];
+    if (item && typeof item.onSelect === 'function') item.onSelect(item);
+    if (!row.hasAttribute('href')) close();
+  });
+
+  // Свайп вниз за шапку. Только за шапку: иначе жест перехватывал бы прокрутку списка.
+  var startY = null;
+  var bar = overlay.querySelector('.sheet-app__bar');
+  bar.addEventListener('touchstart', function (e) { startY = e.touches[0].clientY; }, { passive: true });
+  bar.addEventListener('touchmove', function (e) {
+    if (startY === null) return;
+    var dy = e.touches[0].clientY - startY;
+    if (dy <= 0) return;
+    panel.style.transition = 'none';
+    panel.style.transform = 'translateY(' + dy + 'px)';
+  }, { passive: true });
+  bar.addEventListener('touchend', function (e) {
+    if (startY === null) return;
+    var dy = (e.changedTouches[0] || {}).clientY - startY;
+    panel.style.transition = '';
+    panel.style.transform = '';
+    startY = null;
+    if (dy > 80) close();
+  });
+
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  document.addEventListener('keydown', onKey);
+  // Кадр на применение начального состояния, иначе анимации не будет.
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+  });
+
+  return { close: close, el: overlay };
+}

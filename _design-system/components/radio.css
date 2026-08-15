@@ -1,0 +1,164 @@
+/* === RADIO — радиокнопка ===
+   Сверено с прод-китом @cian/ui-kit (UI-Kit/Radio/Radio) 2026-08-13: контракт снят
+   не замером состояний, а чтением самих CSS-правил кита — hover/active/focus-visible
+   через getComputedStyle не поймать (синтетические события не поднимают псевдоклассы).
+   Подключать после tokens.css.
+
+   Разметка:
+     <label class="radio">
+       <input class="radio__control" type="radio" name="group">
+       <span class="radio__title">Title</span>
+     </label>
+
+   С описанием (прод-слот description) — индикатор уезжает к первой строке:
+     <label class="radio">
+       <input class="radio__control" type="radio" name="group">
+       <span class="radio__body">
+         <span class="radio__title">Title</span>
+         <span class="radio__description">Description</span>
+       </span>
+     </label>
+
+   Невалидное — aria-invalid="true" на .radio__control.
+   Размер: .radio = прод 16/24; .radio-s = 14/20 для плотных панелей (см. заметку внизу).
+   JS-хуки — id/name/data-action, не классы. */
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--unit2);
+  cursor: pointer;
+  user-select: none;
+}
+.radio:has(.radio__control:disabled) { cursor: default; }
+
+/* С описанием прод переводит индикатор к верхней строке (проп indicatorPosition) */
+.radio:has(.radio__description) { align-items: flex-start; }
+.radio:has(.radio__description) .radio__control { margin-top: 2px; }
+
+.radio__control {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--stroke-control-default);
+  border-radius: 50%;
+  background-color: var(--surface-inverted-default);
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.radio__control:disabled { cursor: default; }
+
+/* Точка 10×10 белым (--text-on-bright-default), появляется только у выбранного */
+.radio__control:checked {
+  background-color: var(--control-main-primary-default);
+  border-color: var(--control-main-primary-default);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%3E%3Ccircle%20cx='5'%20cy='5'%20r='5'%20fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+/* Hover / active. В проде правила для НЕвыбранного написаны как
+   `input:active .indicator` — потомок вместо соседа, поэтому там они не срабатывают
+   вовсе (то же у invalid hover/active). Намерение читается однозначно, поэтому
+   селекторы у нас исправлены; расхождение записано в prod-parity.md. */
+.radio:hover .radio__control:not(:disabled):not(:checked) {
+  border-color: var(--stroke-control-hovered);
+  background-color: var(--surface-inverted-hovered);
+}
+.radio .radio__control:not(:disabled):not(:checked):active {
+  border-color: var(--stroke-control-pressed);
+  background-color: var(--surface-inverted-pressed);
+}
+.radio:hover .radio__control:checked:not(:disabled):not([aria-invalid="true"]) {
+  background-color: var(--control-main-primary-hovered);
+  border-color: var(--control-main-primary-hovered);
+}
+.radio .radio__control:checked:not(:disabled):not([aria-invalid="true"]):active {
+  background-color: var(--control-main-primary-pressed);
+  border-color: var(--control-main-primary-pressed);
+}
+
+/* Фокус с клавиатуры — прод даёт кольцо тенью, без outline-offset */
+.radio__control:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--stroke-control-focused);
+}
+
+/* Invalid — светло-красная заливка у невыбранного, сплошная у выбранного */
+.radio__control[aria-invalid="true"] {
+  border-color: var(--stroke-border-negative);
+  background-color: var(--surface-negative-default);
+}
+.radio:hover .radio__control[aria-invalid="true"]:not(:disabled):not(:checked) {
+  background-color: var(--surface-negative-hovered);
+}
+.radio .radio__control[aria-invalid="true"]:not(:disabled):not(:checked):active {
+  background-color: var(--surface-negative-pressed);
+}
+.radio__control[aria-invalid="true"]:checked {
+  background-color: var(--control-negative-primary-default);
+  border-color: var(--control-negative-primary-default);
+}
+.radio:hover .radio__control[aria-invalid="true"]:checked:not(:disabled) {
+  background-color: var(--control-negative-primary-hovered);
+  border-color: var(--control-negative-primary-hovered);
+}
+.radio .radio__control[aria-invalid="true"]:checked:not(:disabled):active {
+  background-color: var(--control-negative-primary-pressed);
+  border-color: var(--control-negative-primary-pressed);
+}
+
+/* Disabled — заливка и рамка одним серым.
+   Точка у выбранного остаётся БЕЛОЙ (прод не перекрашивает её, в отличие от галки
+   чекбокса, которая уходит в #b1bad2). Непоследовательность кита, ведём по проду. */
+.radio__control:disabled {
+  border-color: var(--stroke-control-disabled);
+  background-color: var(--surface-inverted-disabled);
+}
+.radio__control:disabled:checked {
+  border-color: var(--stroke-control-disabled);
+  background-color: var(--surface-inverted-disabled);
+}
+
+/* Текст */
+.radio__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}
+.radio__title {
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  font-weight: 400;
+  letter-spacing: normal;
+  font-feature-settings: 'liga' off, 'clig' off;
+  color: var(--text-primary-default);
+}
+.radio__description {
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  font-weight: 400;
+  color: var(--text-secondary-default);
+}
+.radio:has(.radio__control:disabled) .radio__title,
+.radio:has(.radio__control:disabled) .radio__description {
+  color: var(--text-secondary-disabled);
+}
+
+/* Размер S — 14/20. У прода такого пропа нет: у него единственный размер 16/24.
+   Заведён под плотные панели прототипа, где рядом стоит .checkbox__label (14/20).
+   Расхождение «наши контролы 14/20 против прод 16/24» — в prod-parity.md. */
+.radio-s .radio__title { font-size: var(--type-body2-size); line-height: var(--type-body2-lh); }
+.radio-s .radio__description { font-size: var(--type-caption-size); line-height: var(--type-caption-lh); }
+
+/* Группа — прод RadioGroup ставит элементы в колонку */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}

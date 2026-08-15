@@ -1,0 +1,181 @@
+/* === ШТОРКА СНИЗУ (bottom sheet), ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Геометрия из Figma «Доработки отчёта о цене и конкурентах», node 563:72931.
+ * Логика открытия/закрытия — components/app/sheet.js.
+ *
+ * Вебовый аналог — components/drawer.css, но это другая конструкция: шторка выезжает
+ * снизу, а не справа, ширину не имеет (всегда во всю), закрывается свайпом вниз и
+ * заканчивается home-индикатором. Общее только затемнение и Esc.
+ *
+ * Скругление сверху 8, а не 16 — так в макете. Ниже родного iOS-шита (там 10–12),
+ * но это кит ЦИАН, а не системный контрол.
+ */
+
+.sheet-app-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  background: var(--overlay-default);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.sheet-app-overlay.is-open { opacity: 1; }
+
+.sheet-app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 420px;                    /* как у экрана: на широком мониторе не растягиваем */
+  margin: 0 auto;
+  background: var(--background-primary);
+  border-radius: var(--radius-l) var(--radius-l) 0 0;
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+  /* Шторка не должна перерастать экран: список внутри прокручивается */
+  max-height: 92dvh;
+}
+.sheet-app-overlay.is-open .sheet-app { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-app-overlay,
+  .sheet-app { transition-duration: 0.01ms; }
+}
+
+/* --- Шапка шторки ---
+ * В макете это тот же NavigationBar / iOS: крестик слева, заголовок по центру.
+ * Заголовок здесь пустой (белый текст-плейсхолдер), настоящий — строкой ниже,
+ * в Cells / Title. Правый отступ 56 держит место под симметрию с крестиком.
+ */
+.sheet-app__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--unit4);
+  padding: 10px 56px 10px var(--unit4);
+  flex: none;
+}
+.sheet-app__close {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px; height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.sheet-app__close::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 44px; height: 44px;
+  transform: translate(-50%, -50%);
+}
+.sheet-app__close:active { opacity: 0.6; }
+.sheet-app__close img { display: block; width: 14px; height: 14px; }
+
+/* --- Заголовок (Cells / Title) ---
+ * Heading3. В макете слой отрисован вебовым режимом переменных (Roboto 22/28) —
+ * берём роль, на этой поверхности это SF Pro 22/27.
+ */
+.sheet-app__title {
+  margin: 0;
+  padding: var(--unit2) var(--unit5);
+  flex: none;
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-lh);
+  letter-spacing: var(--type-h3-ls);
+  font-weight: var(--type-h3-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Список действий --- */
+.sheet-app__list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--unit5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Строка 48 = 14 + интерлиньяж Body1 (20) + 14. Высоту не фиксируем: на другой
+   поверхности интерлиньяж иной, и строка должна поехать вместе с ним. */
+.sheet-app-row {
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 0.5px solid var(--stroke-divider-default);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+  /* Строка бывает и <button>, а он не наследует шрифт: без этого подпись внутри
+     съедет на системный UA-шрифт и поверхность потеряется. */
+  font-family: var(--font-base);
+}
+/* У последней строки разделитель убран: в макете он есть у всех восьми, но это
+   след копирования — линия перед home-индикатором висит в воздухе. */
+.sheet-app-row:last-child { border-bottom: 0; }
+.sheet-app-row:active { background: var(--surface-neutral-default); }
+
+.sheet-app-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.sheet-app-row__icon img { display: block; }
+
+/* Экспорты иконок из макета — каждый своей геометрии внутри бокса 16 */
+.sheet-app-row__icon--price    img { width: 12.5px; height: 14px; }
+.sheet-app-row__icon--edit     img { width: 14px;   height: 14px; }
+.sheet-app-row__icon--document img { width: 12px;   height: 16px; }
+.sheet-app-row__icon--chart    img { width: 13px;   height: 14px; }
+.sheet-app-row__icon--pdf      img { width: 13px;   height: 16px; }
+.sheet-app-row__icon--share    img { width: 14px;   height: 15.933px; }
+.sheet-app-row__icon--locker   img { width: 12px;   height: 14px; }
+.sheet-app-row__icon--trash    img { width: 14px;   height: 16px; }
+
+.sheet-app-row__label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+
+/* Бейдж в строке — компонент app/badge.css, здесь только запрет на сжатие */
+.sheet-app-row .badge-app { flex: none; }
+
+/* --- Home indicator ---
+ * Полоска — цвет железа, а не палитры, поэтому числом. Прячется в standalone:
+ * там индикатор рисует система, поверх нашего.
+ */
+.sheet-app__home {
+  position: relative;
+  flex: none;
+  height: 34px;
+}
+.sheet-app__home::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 8px;
+  width: 134px; height: 5px;
+  transform: translateX(-50%);
+  border-radius: 100px;
+  background: #000;
+}
+@media (display-mode: standalone) {
+  .sheet-app__home::after { display: none; }
+  .sheet-app__home { height: env(safe-area-inset-bottom); }
+}

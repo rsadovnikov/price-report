@@ -1,0 +1,183 @@
+/* === КНОПКА, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Почему отдельное семейство классов, а не наши .btn-{variant}-{size}:
+ * в приложении стиль и цвет — ДВЕ независимые оси (Style × Color, 2 × 5), а у нас
+ * они слиты в имя класса и набор неполный. Натягивать вебовые имена на другую
+ * модель — врать про API. Поэтому здесь свой префикс .btn-app.
+ *
+ * Что подтверждено витриной (прогон площадки 2026-08-14):
+ *   — Style: primary = сплошная заливка + белый текст; secondary = светлая подложка
+ *     + цветной текст. Обе оси сняты во всех 10 сочетаниях.
+ *   — Color: main / positive / warning / negative / inverted. inverted в обоих
+ *     стилях выглядит одинаково: белая заливка, тёмный текст.
+ *   — Size: small / medium / large существуют.
+ *   — Есть состояние загрузки (In Progress) и вторая строка (Subtitle).
+ *
+ * Геометрия (отступы, gap, min-width, радиус) взята из анатомии Figma — там она
+ * задана переменными и точна. Витрина для этого не нужна: снимать числа с картинки
+ * дороже и менее надёжно. Витрину оставляем на то, чего в макете нет, — поведение,
+ * жесты, живые состояния.
+ *
+ * Не подтверждено и помечено ↯: вид состояний загрузки и подзаголовка.
+ *
+ * Цвета берём из палитры, а не с экрана: зеркало сдвигает насыщенные оттенки
+ * (см. surface-app.md).
+ */
+
+.btn-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--radius-l);          /* ↯ по аналогии с вебом */
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  transition: opacity 0.12s ease;
+}
+.btn-app:active { opacity: 0.6; }          /* тач-состояние вместо hover */
+
+/* --- Размеры ---
+ * ⚠️ Правилось дважды, обе записи ниже — чтобы не наступить снова.
+ *
+ * 2026-08-14 (неверно). Снял вертикальные отступы с анатомии (6 / 10 / 16) и решил,
+ * что высота выводится из них: значит на iOS кнопка ниже — 32 / 40 / 52.
+ *
+ * 2026-08-15 (тоже не до конца). На экране конкурентов нашлась
+ * `Button/Subtitle: false/M/VerticalPaddings` = 12 при min-height 44 → решил, что
+ * инвариант — высота, а отступ подстраивается под интерлиньяж. Первая половина верна,
+ * вторая нет.
+ *
+ * 2026-08-15, вечер — как есть на самом деле. Проверено двумя узлами в режиме iOS
+ * (у обоих FontFamily = SF Pro, так что чтение чистое):
+ *
+ *   узел 563:68777 (medium): Heading4 16/20, VerticalPaddings/M = 12 → 12+20+12 = 44
+ *   узел  64:41643 (small):  Heading5 14/17, VerticalPaddings/S =  6 →  6+17+6  = 29
+ *
+ * То есть:
+ *   1. ТИПОГРАФИКА У РАЗМЕРОВ РАЗНАЯ: small — Heading5, medium — Heading4.
+ *      Раньше здесь на всех размерах стоял Heading4, и small был на 2px крупнее.
+ *   2. Вертикальный отступ — самостоятельная переменная, он НЕ выводится из высоты
+ *      и не обязан её добирать. У small сумма даёт 29, до 36 добивает min-height.
+ *   3. Инвариант — min-height 36 / 44 / 56. Он же гарантирует, что на вебовых
+ *      значениях интерлиньяжа кнопка не поедет.
+ *
+ * Large своей переменной пока не встретилось: 18 — по остаточному принципу
+ * (18+20+18 = 56), и min-height его страхует. Найдётся узел — сверить.
+ *
+ * min-width держит квадрат для кнопок без подписи.
+ */
+.btn-app--small  { padding: 6px  var(--unit3); gap: var(--unit1); min-width: 36px; min-height: 36px; }
+.btn-app--medium { padding: 12px var(--unit4); gap: var(--unit2); min-width: 44px; min-height: 44px; }
+.btn-app--large  { padding: 18px 20px;         gap: var(--unit2); min-width: 56px; min-height: 56px; }
+
+/* Small набран Heading5, остальные размеры — Heading4 из базового правила */
+.btn-app--small {
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+}
+
+/* Из трёх размеров ниже минимальной тач-зоны 44pt остался только small (36).
+   Сама кнопка компактна, зону добираем псевдоэлементом, не меняя вид.
+   У medium добирать больше нечего: он ровно 44. */
+.btn-app--small { position: relative; }
+.btn-app--small::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+
+/* Ширина: на витрине кнопка показана и по контенту, и во всю ширину.
+   Похоже, в приложении это свойство самого компонента — проверить. */
+.btn-app--block { display: flex; width: 100%; }
+
+/* --- Style × Color --- */
+.btn-app--primary.btn-app--main      { background: var(--control-main-primary-default);     color: var(--text-inverted-default); }
+.btn-app--primary.btn-app--positive  { background: var(--control-positive-primary-default); color: var(--text-inverted-default); }
+.btn-app--primary.btn-app--warning   { background: var(--control-warning-primary-default);  color: var(--text-inverted-default); }
+.btn-app--primary.btn-app--negative  { background: var(--control-negative-primary-default); color: var(--text-inverted-default); }
+.btn-app--primary.btn-app--inverted  { background: var(--background-primary);               color: var(--text-primary-default); }
+
+.btn-app--secondary.btn-app--main     { background: var(--control-main-secondary-default);  color: var(--text-main-default); }
+.btn-app--secondary.btn-app--positive { background: var(--surface-positive-default);        color: var(--text-positive-default); }
+.btn-app--secondary.btn-app--warning  { background: var(--surface-warning-default);         color: var(--text-warning-default); }
+.btn-app--secondary.btn-app--negative { background: var(--surface-negative-default);        color: var(--text-negative-default); }
+.btn-app--secondary.btn-app--inverted { background: var(--background-primary);              color: var(--text-primary-default); }
+
+/* --- Состояния --- */
+.btn-app:disabled,
+.btn-app--disabled {
+  background: var(--control-main-primary-disabled);
+  color: var(--text-primary-disabled, var(--text-secondary-default));
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Загрузка: у вебовой кнопки такого состояния нет вовсе */
+.btn-app--loading { pointer-events: none; }
+.btn-app--loading .btn-app__label { visibility: hidden; }
+.btn-app--loading::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  animation: btn-app-spin 0.7s linear infinite;
+}
+.btn-app--loading { position: relative; }
+@keyframes btn-app-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .btn-app--loading::after { animation-duration: 2.4s; }
+}
+
+/* Вторая строка внутри кнопки — тоже нет в вебе */
+.btn-app--stacked {
+  flex-direction: column;
+  gap: 0;
+  height: auto;
+  padding-top: var(--unit2);
+  padding-bottom: var(--unit2);
+}
+.btn-app__subtitle {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  opacity: 0.75;
+}
+
+/* --- LinkButton ---
+ * По анатомии из Figma: тап-зона min 44pt, иконка 16, отступ 8, текст Heading4
+ * цветом --text/main/default. Это не залитая кнопка, а ссылка с тач-зоной —
+ * тем и отличается от наших экшн-ссылок в links.css, у которых зоны нет.
+ */
+.btn-app-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--unit2);
+  min-height: 44px;
+  padding: 0 var(--unit2);
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-main-default);
+}
+.btn-app-link:active { opacity: 0.6; }
+.btn-app-link .btn-app-link__icon { width: 16px; height: 16px; flex: none; }

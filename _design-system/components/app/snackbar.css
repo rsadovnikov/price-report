@@ -1,0 +1,189 @@
+/* === SNACKBAR, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: библиотека «🍏 iOS», компонент Snackbar (19135:34320), снято 2026-08-15.
+ * Применение в наших макетах: 681:20571 — «Начали отслеживать» после добавления
+ * объекта в отслеживаемые (экран 64:39388).
+ *
+ * Разметку строит snackbar.js — руками писать не нужно.
+ *
+ * Чем отличается от вебового Toast (components/toast.css):
+ *   — веб всплывает справа внизу и складывается в стопку, здесь плашка одна и
+ *     во всю ширину экрана за вычетом полей;
+ *   — веб: фон всегда тёмный (--text-primary-default), тип задаёт только иконку.
+ *     Здесь тип задаёт и фон: neutral / positive / warning / negative;
+ *   — веб: до двух кнопок действия, встают колонкой. Здесь слот один, и это
+ *     ссылка с вертикальным разделителем слева, а не кнопка;
+ *   — веб: текст Body1 16/24. Здесь Body1 приложения — 16/20.
+ * Поэтому отдельный компонент, а не «тот же с другими отступами».
+ *
+ * --- Тёмный Colors Mode ---
+ * В обоих наших макетах снекбар отрисован в тёмном режиме. Разбирая его, выяснилось
+ * приятное: **тёмный режим — это не отдельная палитра, а те же шкалы с другого конца.**
+ * Все до единого значения нашлись примитивами:
+ *
+ *   фон neutral #212c46 = --solid-gray1100   (светлый режим: --surface-neutral-default)
+ *   фон positive #103607 = --solid-green1100
+ *   фон warning  #472103 = --solid-orange1100
+ *   фон negative #59030f = --solid-red1100
+ *   ссылка       #a8cbff = --solid-blue90    (светлый: --text-main-default)
+ *   иконка info  #9bc3ff = --solid-blue100   (светлый: --icon-main-default)
+ *   разделитель  #4f5c79 = --solid-gray700   (светлый: --stroke-divider-default)
+ *
+ * То есть заводить тёмный режим по-настоящему = переопределить семантический слой
+ * на другие ступени тех же примитивов, а не рисовать новые цвета. Пока такого слоя
+ * нет, режим живёт модификатором `--dark`; появится — этот блок схлопнется.
+ */
+
+.snackbar-app-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--unit2);
+  /* В макете низ плашки отбит на 14 — не по сетке; округляем к 16 (правило «шаг 4»).
+     Поля по бокам — 20, как у остальных блоков экрана. */
+  padding: 0 var(--unit5) calc(var(--unit4) + env(safe-area-inset-bottom));
+  max-width: 420px;
+  margin: 0 auto;
+  pointer-events: none;              /* клики проходят сквозь пустую область */
+}
+
+.snackbar-app {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit2);
+  box-sizing: border-box;
+  padding: var(--unit3);
+  border-radius: var(--radius-l);
+  background: var(--surface-neutral-default);
+  pointer-events: all;
+  /* Появление в макете не показано: ↯ повторяем вебовый тост — прозрачность плюс
+     сдвиг 10px от своего края, 300ms. */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
+}
+.snackbar-app.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .snackbar-app { transition: opacity 300ms; transform: none; }
+}
+
+/* --- Иконка слева ---
+   Контейнер тянется на всю высоту плашки, а глиф прижат к верху: при двух строках
+   текста иконка остаётся у первой. */
+.snackbar-app__icon {
+  display: flex;
+  align-items: flex-start;
+  align-self: stretch;
+  flex: none;
+}
+.snackbar-app__icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+/* Знак «внимание» — единственный не круглый: лист меньше коробки 24 и не квадратный */
+.snackbar-app__icon svg.snackbar-app__glyph--warning { width: 22.557px; height: 19.984px; }
+
+/* --- Текст ---
+   Отступ 2 сверху из макета: он ставит строку 16/20 по оптическому центру
+   иконки 24, иначе текст сидит выше. */
+.snackbar-app__text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-top: 2px;
+  font-family: var(--font-base);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Действие: разделитель + ссылка --- */
+.snackbar-app__action {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: var(--unit2);
+  flex: none;
+}
+/* Разделитель в макете — линия 0.5, повёрнутая на 90°, длиной во всю высоту блока */
+.snackbar-app__divider {
+  align-self: stretch;
+  width: 0.5px;
+  background: var(--stroke-divider-default);
+}
+.snackbar-app__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  max-width: 335px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-main-default);
+}
+.snackbar-app__link:active { opacity: 0.6; }
+
+/* --- Крестик --- */
+.snackbar-app__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex: none;
+  width: 24px;
+  padding: 0;
+  margin-left: var(--unit1);         /* в макете это padding-left 4 на контейнере */
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--solid-gray200);       /* #919ebe — семантического icon-токена с этим шагом нет */
+}
+.snackbar-app__close svg { display: block; width: 16px; height: 16px; fill: currentColor; }
+
+/* --- ColorType: фон плашки и цвет глифа --- */
+.snackbar-app[data-type="default"]  { background: var(--surface-neutral-default); }
+.snackbar-app[data-type="success"]  { background: var(--surface-positive-default); }
+.snackbar-app[data-type="warning"]  { background: var(--surface-warning-default); }
+.snackbar-app[data-type="error"]    { background: var(--surface-negative-default); }
+
+.snackbar-app[data-type="default"] .snackbar-app__icon { color: var(--icon-main-default); }
+.snackbar-app[data-type="success"] .snackbar-app__icon { color: var(--icon-positive-default); }
+.snackbar-app[data-type="warning"] .snackbar-app__icon { color: var(--icon-warning-default); }
+.snackbar-app[data-type="error"]   .snackbar-app__icon { color: var(--icon-negative-default); }
+
+/* --- Тёмный Colors Mode (см. шапку файла) --- */
+.snackbar-app--dark[data-type="default"] { background: var(--solid-gray1100); }
+.snackbar-app--dark[data-type="success"] { background: var(--solid-green1100); }
+.snackbar-app--dark[data-type="warning"] { background: var(--solid-orange1100); }
+.snackbar-app--dark[data-type="error"]   { background: var(--solid-red1100); }
+
+.snackbar-app--dark .snackbar-app__text    { color: var(--text-inverted-default); }
+.snackbar-app--dark .snackbar-app__link    { color: var(--solid-blue90); }
+.snackbar-app--dark .snackbar-app__divider { background: var(--solid-gray700); }
+
+/* Глиф в тёмном режиме — ступень 100 своей шкалы вместо 600, ровно как фон берёт
+   1100 вместо 50. Правило одно на все четыре типа, а не четыре подобранных цвета. */
+.snackbar-app--dark[data-type="default"] .snackbar-app__icon { color: var(--solid-blue100); }
+.snackbar-app--dark[data-type="success"] .snackbar-app__icon { color: var(--solid-green100); }
+.snackbar-app--dark[data-type="warning"] .snackbar-app__icon { color: var(--solid-orange100); }
+.snackbar-app--dark[data-type="error"]   .snackbar-app__icon { color: var(--solid-red100); }

@@ -1,0 +1,65 @@
+/* === ПОВЕРХНОСТЬ: ПРИЛОЖЕНИЕ (iOS) ===
+ *
+ * Подключать ПОСЛЕ tokens.css — переопределяет только типографику.
+ * Палитра, отступы и радиусы общие с вебом и здесь не трогаются.
+ *
+ *   <link rel="stylesheet" href="../../_design-system/tokens.css">
+ *   <link rel="stylesheet" href="../../_design-system/tokens/surface-app.css">
+ *
+ * Источник: Figma «🍏 iOS» → Fonts / Текстовые стили (node 19995:33826), снято 2026-08-14.
+ * Значения перенесены числами, а не пересчитаны от вебовых: у SF Pro другие метрики,
+ * и пропорция кегль/интерлиньяж в приложении своя (≈1.2 против ≈1.45 в вебе).
+ */
+
+:root {
+  /* SF Pro не подключается файлом — это системная гарнитура Apple. -apple-system и
+     system-ui отдают её и на айфоне, и на маке (в ките будет честный шрифт).
+     Оптический переход SF Pro Text → Display на 20pt система делает сама. */
+  --font-base: -apple-system, system-ui, 'SF Pro Text', sans-serif;
+
+  /* Начертания: Semibold = 600, Regular = 400.
+   *
+   * ⚠️ ИСПРАВЛЕНО 2026-08-15. Здесь стояло 590 — число из кода, который отдаёт Figma
+   * (`font-[590]`). Это НЕ вес CSS, а значение оси `wght` вариативного файла SF Pro:
+   * Apple ставит Semibold на 590, а не на 600. Скопировать его в `font-weight` —
+   * та же ошибка, что брать число вместо роли, только на уровне шрифта.
+   *
+   * Замер (canvas, 28px, сумма альфы — то есть буквально «сколько чернил»):
+   *
+   *   400 — 693      500 — 809      590 — 970 ←      600 — 923
+   *   610 — 935      650 — 980      700 — 1037
+   *
+   * Кривая монотонна везде, кроме 590: чернил там больше, чем у 600 и 610, и почти
+   * столько же, сколько у 650, — при том что строка УЖЕ, чем у 600. То есть 590 в CSS
+   * рисуется не «чуть легче Semibold», а заметно тяжелее его. Отсюда и ощущение, что
+   * на экранах всё жирное.
+   *
+   * Сами промежуточные начертания при этом на месте: у SF девять весов, и наш стек их
+   * достаёт — 10 разных ширин на 10 значений, рендерит `.SF NS` (проверено через
+   * CSS.getPlatformFontsForNode). Проблема была ровно в числе 590. */
+
+  /* Заголовки — Semibold 600 */
+  --type-h1-size: 36px;  --type-h1-lh: 43px;  --type-h1-ls: 0.36px;   --type-h1-weight: 600;
+  --type-h2-size: 28px;  --type-h2-lh: 34px;  --type-h2-ls: 0.36px;   --type-h2-weight: 600;
+  --type-h3-size: 22px;  --type-h3-lh: 27px;  --type-h3-ls: 0.35px;   --type-h3-weight: 600;
+  --type-h4-size: 16px;  --type-h4-lh: 20px;  --type-h4-ls: -0.32px;  --type-h4-weight: 600;
+  --type-h5-size: 14px;  --type-h5-lh: 17px;  --type-h5-ls: -0.24px;  --type-h5-weight: 600;
+
+  /* Heading6 в iOS-ките отсутствует — в таблице стилей его нет. Держим роль живой,
+     чтобы вебовая разметка не рассыпалась: тот же кегль, что Caption, но Semibold.
+     Это наша достройка, а не значение из макета. Если в приложении такой роли
+     действительно не должно быть — убрать её из app-разметки, а не подменять здесь. */
+  --type-h6-size: 12px;  --type-h6-lh: 15px;  --type-h6-ls: 0;        --type-h6-weight: 600;
+
+  /* Текст — Regular 400 */
+  --type-body1-size: 16px;    --type-body1-lh: 20px;    --type-body1-ls: -0.32px;
+  --type-body1-weight: 400;
+  --type-body2-size: 14px;    --type-body2-lh: 17px;    --type-body2-ls: -0.24px;
+  --type-body2-weight: 400;
+  --type-caption-size: 12px;  --type-caption-lh: 15px;  --type-caption-ls: 0;
+  --type-caption-weight: 400;
+
+  /* Overline в приложении Regular и с мелким трекингом — в вебе он Bold 700 / 1px */
+  --type-overline-size: 10px; --type-overline-lh: 12px; --type-overline-ls: 0.3px;
+  --type-overline-weight: 400;
+}

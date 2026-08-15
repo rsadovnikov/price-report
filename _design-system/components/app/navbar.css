@@ -1,0 +1,169 @@
+/* === НАВИГАЦИЯ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Шапка экрана: мок статус-бара + NavigationBar/iOS + крупный заголовок (Cells / Title).
+ * Геометрия из Figma «Доработки отчёта о цене и конкурентах», node 563:68192.
+ *
+ * Почему отдельно от вебовой шапки: в вебе шапка — логотип + сайдбар + поиск во всю
+ * ширину; здесь — иконочный ряд 24px и заголовок отдельной строкой под ним. Это разная
+ * конструкция, а не разные отступы одной.
+ *
+ * Иконки — экспорт из Figma в assets/icons/. Цвет запечён в файле (все синие,
+ * --icon-main-default), currentColor через <img> не работает — это осознанный размен:
+ * иконка приходит из макета байт в байт, но не перекрашивается.
+ */
+
+/* --- Мок статус-бара ---
+ * Нужен только когда экран смотрят в браузере: на телефоне свой статус-бар уже есть,
+ * и второй нарисованный будет дублем. Поэтому в standalone (экран добавлен на домашний
+ * экран — на iOS 26 это происходит по умолчанию) мок прячется, а место занимает
+ * safe-area у .screen-app.
+ */
+.statusbar-app {
+  position: relative;
+  flex: none;
+  width: 100%;
+  height: 44px;                       /* стандартная высота статус-бара iOS */
+  background: var(--background-primary);
+}
+.statusbar-app__time {
+  position: absolute;
+  left: 21px; top: 50%;
+  transform: translateY(-50%);
+  width: 52px; height: 20px;
+}
+.statusbar-app__indicators {
+  position: absolute;
+  right: 14.73px; top: 50%;
+  transform: translateY(-50%);
+  width: 66.6px; height: 19.333px;
+}
+/* Островок. В макете он белый с живой активностью ЦИАН — её не переносили, это
+   декорация макета, а не элемент экрана. Оставлен физический вид: чёрная плашка.
+   #000 здесь — цвет железа, а не токен палитры, поэтому и написан числом. */
+.statusbar-app__island {
+  position: absolute;
+  left: calc(50% + 0.5px); top: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px; height: 26px;
+  border-radius: var(--radius-full);
+  background: #000;
+}
+@media (display-mode: standalone) {
+  .statusbar-app { display: none; }
+  /* Место, которое занимал мок, отдаём системному статус-бару */
+  .appbar { padding-top: env(safe-area-inset-top); }
+}
+
+/* --- Шапка целиком ---
+ * Собирается из статус-бара, навбара и блока «заголовок + табы». Отступы снизу
+ * набегают из двух вложенных контейнеров макета: 8 у блока фильтров и 12 у шапки.
+ */
+.appbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-bottom: var(--unit3);
+  background: var(--background-primary);
+}
+.appbar__filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit3);
+  padding-bottom: var(--unit2);
+}
+/* Вариант без зазора: когда блоки под заголовком несут собственные отступы
+   (так на экране отчёта — подпись «Мой объект» уже с паддингом 8). */
+.appbar__filters--flat { gap: 0; }
+
+/* Шапка вплотную: ни зазоров между полосами, ни нижнего отступа. Так собран
+   экран конкурентов — там под табами сразу начинается лента. */
+.appbar--flush { gap: 0; padding-bottom: 0; }
+
+/* --- NavigationBar / iOS ---
+ * Высота не задаётся: 10 + 24 + 10 = 44 — та самая константа, по которой мы
+ * калибруем снимки зеркала. Зафиксируешь числом — перестанет сходиться, если
+ * поменяется размер иконок.
+ */
+.navbar-app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--unit4);
+  padding: 10px var(--unit4);
+  background: var(--background-primary);
+}
+
+/* Заголовок по центру. Он тянется, поэтому стрелка остаётся слева, а действие
+   справа — даже когда заголовок пустой (так на экране отчёта). */
+.navbar-app__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+
+/* Текстовое действие справа. В макете оно собрано на компоненте
+   «❌ Link Button | Depricated» — устаревший, поэтому переносим не компонент,
+   а результат: Heading4 цветом --text-main-default. */
+.navbar-app__link {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-main-default);
+}
+.navbar-app__link:active { opacity: 0.6; }
+.navbar-app__icons {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.navbar-app__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px; height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+/* Иконка 24 меньше минимальной тач-зоны 44pt — добираем псевдоэлементом, как у кнопок */
+.navbar-app__icon::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 44px; height: 44px;
+  transform: translate(-50%, -50%);
+}
+.navbar-app__icon:active { opacity: 0.6; }
+.navbar-app__icon img { display: block; }
+
+/* Размеры внутри бокса 24×24 у каждой иконки свои — таковы экспорты из макета.
+   Одним правилом на всех их растянет: у поиска квадрат 21.99, у фильтра 24×22,
+   у колокольчика 22×24. */
+.navbar-app__icon--back img   { width: 16px;     height: 16px; }
+.navbar-app__icon--search img { width: 21.993px; height: 21.993px; }
+.navbar-app__icon--filter img { width: 24px;     height: 22px; }
+.navbar-app__icon--bell img   { width: 22px;     height: 24px; }
+
+/* Заголовок раздела (Cells / Title) переехал в components/app/cells.css —
+   он не про навигацию, а про ячейки, и встречается не только в шапке. */

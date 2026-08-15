@@ -1,0 +1,108 @@
+/* === ACTION LINKS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="links.css"> */
+/* Документация по вариантам: ../links.md */
+
+/* ==========================================
+   ACTION LINK — базовые свойства
+   Только для действий (не смена URL).
+   Для навигации — используй обычный <a>.
+   ========================================== */
+
+.map-link,
+.add-comment,
+.reset-filters,
+.listing-send-link,
+.help-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-base);
+  font-weight: 700;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: -0.2px;
+  color: var(--text-main-default);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.map-link:hover,
+.add-comment:hover,
+.reset-filters:hover,
+.listing-send-link:hover,
+.help-link:hover {
+  color: var(--text-main-hovered);
+  text-decoration: underline;
+}
+
+.map-link:active,
+.add-comment:active,
+.reset-filters:active,
+.listing-send-link:active,
+.help-link:active {
+  color: var(--text-main-pressed);
+}
+
+.map-link:disabled,
+.add-comment:disabled,
+.reset-filters:disabled,
+.listing-send-link:disabled,
+.help-link:disabled,
+[aria-disabled="true"].map-link,
+[aria-disabled="true"].help-link {
+  color: var(--text-main-disabled);
+  pointer-events: none;
+  text-decoration: none;
+}
+
+.map-link:focus-visible,
+.add-comment:focus-visible,
+.reset-filters:focus-visible,
+.listing-send-link:focus-visible,
+.help-link:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
+/* ==========================================
+   ACTION LINK — icon only
+   Квадратная кнопка 28×28 с одной иконкой
+   ========================================== */
+
+.action-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;   /* = прод spacing-size XS */
+  height: 28px;
+  color: var(--text-main-default);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.action-link-icon:hover { color: var(--text-main-hovered); }
+.action-link-icon:active { color: var(--text-main-pressed); }
+.action-link-icon:disabled,
+[aria-disabled="true"].action-link-icon {
+  color: var(--text-main-disabled);
+  pointer-events: none;
+}
+.action-link-icon:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
+/* Размер M — прод spacing-size M (44×44), под тач-цели */
+.action-link-icon-m {
+  width: 44px;
+  height: 44px;
+}

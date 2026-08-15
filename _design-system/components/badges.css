@@ -1,0 +1,112 @@
+/* === LABEL и COUNTER — плашка и числовой бейдж ===
+   Два разных прод-компонента, живут в одном файле: оба — мелкие пилюли, оба
+   почти всегда стоят рядом с чем-то. Сверено с прод-китом @cian/ui-kit 2026-08-13:
+   `UI-Kit/Label/Label` и `UI-Kit/Counter/Counter`.
+   Подключать после tokens.css.
+
+   Не путать:
+     Label   — плашка с ТЕКСТОМ («Новый конкурент», «Снято с публикации»), высота 24,
+               цвет задаётся снаружи, может нести иконку.
+     Counter — только ЧИСЛО, круг/пилюля 16 или 20, две темы (info / critical).
+
+   И третий похожий — Badge из кита приложения (components/app/badge.css). Внешне
+   близнец Label, но это другой компонент: цвет там перечислен осью ColorType, а не
+   свободный; по горизонтали 10 вместо 8; два слота иконок вместо одного.
+   Сюда его не сливаем и наоборот.
+
+   Разметка:
+     <span class="label label-warning">Новый конкурент</span>
+     <span class="label label-neutral"><svg …></svg>Снято с публикации</span>
+     <span class="counter counter-s counter-critical">3</span>
+   ========================================== */
+
+/* ==========================================
+   LABEL
+   ========================================== */
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 24px;
+  padding: var(--unit1) var(--unit2);
+  /* Прод пишет `border-radius: var(--unit_12)` (48px) — на высоте 24 это та же
+     полная пилюля, что и наш --radius-full. Ведём своим токеном. */
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  font-weight: 400;
+  font-feature-settings: 'liga' off, 'clig' off;
+}
+
+/* Отступ между иконкой и текстом — прод раздвигает детей, а не задаёт gap */
+.label > :not(:last-child) { margin-right: var(--unit1); }
+
+/* Только иконка, без текста — квадрат 24×24 */
+.label-empty { padding: var(--unit1); }
+
+/* ⚠️ Прод ставит font-weight 600, которого у Lato нет (есть 400 и 700) —
+   браузер синтезирует начертание. Берём 700: ближайшее настоящее. */
+.label-bold { font-weight: 700; }
+
+.label-shadow { filter: drop-shadow(0 4px 16px var(--shadow-default)); }
+
+.label-clickable { cursor: pointer; }
+.label-clickable:active { opacity: 0.5; }
+
+/* Цвет у прода — свободный параметр (токен, произвольный цвет или градиент).
+   Ниже — только те сочетания, что реально нужны прототипу. */
+.label-warning {
+  background: var(--surface-warning-default);
+  color: var(--text-warning-default);
+}
+.label-neutral {
+  background: var(--surface-inverted-disabled);
+  color: var(--text-primary-default);
+}
+.label-main {
+  background: var(--accent-main-primary);
+  color: var(--text-inverted-default);
+}
+
+
+/* ==========================================
+   COUNTER
+   ========================================== */
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 var(--unit1);
+  border-radius: 100px;
+  color: var(--text-inverted-default);
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-weight: 400;
+  font-feature-settings: 'liga' off, 'clig' off;
+}
+
+/* Small — 16. Однозначное число даёт круг, многозначное растягивает в пилюлю. */
+.counter-s {
+  height: 16px;
+  min-width: 16px;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+}
+
+/* Medium — 20. Нижний padding 1px есть и в проде: цифра садится оптически ровнее. */
+.counter-m {
+  height: 20px;
+  min-width: 20px;
+  padding-bottom: 1px;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+}
+
+/* Темы — в проде их ровно две */
+.counter-info { background-color: var(--accent-main-primary); }
+.counter-critical { background-color: var(--accent-negative-primary); }

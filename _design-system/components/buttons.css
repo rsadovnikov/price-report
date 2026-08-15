@@ -1,0 +1,284 @@
+/* === MAGENTUM BUTTONS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="buttons.css"> */
+/* Сетка: variant (primary|secondary|outline|ghost) × size (lg|md|sm) */
+
+/* --- Базовые свойства --- */
+[class^="btn-"],
+[class*=" btn-"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-weight: 700;
+  /* Прозрачная рамка есть у ВСЕХ тем (как в прод-ките) — иначе обводочная кнопка
+     на 2px выше залитой того же размера. Не менять на border: none. */
+  border: 1px solid transparent;
+  outline: none;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* Фокус с клавиатуры — по прод-контракту */
+[class^="btn-"]:focus-visible,
+[class*=" btn-"]:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   SIZES
+   ========================================== */
+
+/* Размеры сняты с прод-кита @cian/ui-kit v7.84.0 (Button, size = XS | M | L):
+   height задан явно, вертикальный padding нейтрализуется центровкой — как в проде.
+   min-width = height: у иконочной кнопки без текста получается квадрат.
+   letter-spacing — по типографической шкале кита (Heading4/5 = −0.2), НЕ по рендеру
+   кнопки: прод-Button не применяет к лейблу собственный текстовый стиль. Это дефект
+   прода, а не решение — см. buttons.md. */
+
+/* Large = прод L (56px, Heading4 16/24) */
+.btn-primary-lg,
+.btn-secondary-lg,
+.btn-outline-lg,
+.btn-ghost-lg {
+  height: 56px;
+  min-width: 56px;
+  padding: var(--unit4) var(--unit5);
+  gap: var(--unit2);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: -0.2px;
+  border-radius: var(--radius-l);
+}
+
+/* Medium = прод M (44px, Heading4 16/24) */
+.btn-primary-md,
+.btn-secondary-md,
+.btn-outline-md,
+.btn-ghost-md,
+.btn-negative-secondary-md {
+  height: 44px;
+  min-width: 44px;
+  padding: var(--unit4);
+  gap: var(--unit2);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: -0.2px;
+  border-radius: var(--radius-l);
+}
+
+/* Small = прод XS (36px, Heading5 14/20) */
+.btn-primary-sm,
+.btn-secondary-sm,
+.btn-outline-sm,
+.btn-ghost-sm,
+.btn-negative-secondary-sm {
+  height: 36px;
+  min-width: 36px;
+  padding: var(--unit2) var(--unit3);
+  gap: 6px;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: -0.2px;
+  border-radius: var(--radius-l);
+}
+
+
+/* ==========================================
+   PRIMARY — синяя заливка, белый текст
+   ========================================== */
+
+.btn-primary-lg,
+.btn-primary-md,
+.btn-primary-sm {
+  background: var(--control-main-primary-default);
+  color: var(--text-on-bright-default);
+}
+.btn-primary-lg:hover,
+.btn-primary-md:hover,
+.btn-primary-sm:hover  { background: var(--control-main-primary-hovered); }
+.btn-primary-lg:active,
+.btn-primary-md:active,
+.btn-primary-sm:active { background: var(--control-main-primary-pressed); }
+.btn-primary-lg:disabled,
+.btn-primary-md:disabled,
+.btn-primary-sm:disabled,
+.btn-primary-lg.disabled,
+.btn-primary-md.disabled,
+.btn-primary-sm.disabled {
+  background: var(--control-main-primary-disabled);
+  color: var(--text-on-bright-disabled);
+  pointer-events: none;
+}
+
+/* ==========================================
+   SECONDARY — голубая заливка, синий текст
+   ========================================== */
+
+.btn-secondary-lg,
+.btn-secondary-md,
+.btn-secondary-sm {
+  background: var(--control-main-secondary-default);
+  color: var(--text-main-default);
+}
+.btn-secondary-lg:hover,
+.btn-secondary-md:hover,
+.btn-secondary-sm:hover { background: var(--control-main-secondary-hovered); }
+.btn-secondary-lg:active,
+.btn-secondary-md:active,
+.btn-secondary-sm:active { background: var(--control-main-secondary-pressed); }
+.btn-secondary-lg:disabled,
+.btn-secondary-md:disabled,
+.btn-secondary-sm:disabled,
+.btn-secondary-lg.disabled,
+.btn-secondary-md.disabled,
+.btn-secondary-sm.disabled {
+  background: var(--control-main-secondary-disabled);
+  color: var(--text-main-disabled);
+  pointer-events: none;
+}
+
+/* Loading state (secondary-lg) */
+.btn-secondary-lg.loading {
+  pointer-events: none;
+  color: transparent;
+  position: relative;
+}
+.btn-secondary-lg.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   OUTLINE — прозрачный фон, обводка
+   style=primary (по умолчанию): синяя обводка, синий текст
+   style=secondary: серая обводка, тёмный текст
+   ========================================== */
+
+.btn-outline-lg,
+.btn-outline-md,
+.btn-outline-sm {
+  background: transparent;
+  color: var(--text-main-default);
+  border-color: var(--stroke-border-main);
+}
+.btn-outline-lg:hover,
+.btn-outline-md:hover,
+.btn-outline-sm:hover { background: var(--surface-inverted-hovered); }
+.btn-outline-lg:active,
+.btn-outline-md:active,
+.btn-outline-sm:active { background: var(--surface-inverted-pressed); }
+.btn-outline-lg:disabled,
+.btn-outline-md:disabled,
+.btn-outline-sm:disabled,
+.btn-outline-lg.disabled,
+.btn-outline-md.disabled,
+.btn-outline-sm.disabled {
+  color: var(--text-main-disabled);
+  border-color: var(--stroke-control-disabled);
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Outline secondary = прод stroke_secondary */
+.btn-outline-lg.style-secondary,
+.btn-outline-md.style-secondary,
+.btn-outline-sm.style-secondary {
+  color: var(--text-primary-default);
+  border-color: var(--stroke-control-default);
+}
+.btn-outline-lg.style-secondary:hover,
+.btn-outline-md.style-secondary:hover,
+.btn-outline-sm.style-secondary:hover {
+  background: var(--surface-inverted-hovered);
+  border-color: var(--stroke-control-hovered);
+}
+.btn-outline-lg.style-secondary:active,
+.btn-outline-md.style-secondary:active,
+.btn-outline-sm.style-secondary:active {
+  background: var(--surface-inverted-pressed);
+  border-color: var(--stroke-control-pressed);
+}
+.btn-outline-lg.style-secondary:disabled,
+.btn-outline-md.style-secondary:disabled,
+.btn-outline-sm.style-secondary:disabled,
+.btn-outline-lg.style-secondary.disabled,
+.btn-outline-md.style-secondary.disabled,
+.btn-outline-sm.style-secondary.disabled {
+  color: var(--text-primary-disabled);
+  border-color: var(--stroke-control-disabled);
+}
+
+/* ==========================================
+   GHOST — без фона, синий текст
+   ========================================== */
+
+.btn-ghost-lg,
+.btn-ghost-sm {
+  background: none;
+  color: var(--text-main);
+}
+.btn-ghost-lg:hover,
+.btn-ghost-sm:hover { opacity: 0.75; }
+
+/* ==========================================
+   NEGATIVE SECONDARY — светло-красная заливка, красный текст
+   Деструктивное действие (напр. «Удалить»). Спека из Figma: Heading4, 44px target.
+   ========================================== */
+
+.btn-negative-secondary-md,
+.btn-negative-secondary-sm {
+  background: var(--control-negative-secondary-default);
+  color: var(--text-negative-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-negative-secondary-md:hover,
+.btn-negative-secondary-sm:hover {
+  background: var(--control-negative-secondary-hovered);
+  color: var(--text-negative-hovered);
+}
+.btn-negative-secondary-md:active,
+.btn-negative-secondary-sm:active {
+  background: var(--control-negative-secondary-pressed);
+  color: var(--text-negative-pressed);
+}
+.btn-negative-secondary-md:disabled,
+.btn-negative-secondary-sm:disabled,
+.btn-negative-secondary-md.disabled,
+.btn-negative-secondary-sm.disabled {
+  background: var(--control-negative-secondary-disabled);
+  color: var(--text-negative-disabled);
+  pointer-events: none;
+}
+
+/* ==========================================
+   ICON BUTTON — квадрат 28×28, без фона
+   ========================================== */
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.btn-icon:hover { background: var(--stroke-divider-neutral); }
+.btn-icon svg { pointer-events: none; }

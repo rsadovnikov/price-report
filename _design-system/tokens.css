@@ -1,0 +1,624 @@
+/* === CIAN DESIGN SYSTEM TOKENS === */
+/* Структура: Primitives → Semantic (Light) → Legacy Aliases → Spacing → Radius → Typography → Subway */
+
+/* ─────────────────────────────────────────
+   1. PRIMITIVES
+   ───────────────────────────────────────── */
+:root {
+  --solid-white: #ffffff;
+  --solid-black: #000000;
+
+  /* Blue */
+  --solid-blue50:   #e6f0ff;
+  --solid-blue60:   #d9e8ff;
+  --solid-blue70:   #cde1ff;
+  --solid-blue80:   #c1daff;
+  --solid-blue90:   #a8cbff;
+  --solid-blue100:  #9bc3ff;
+  --solid-blue200:  #68a4ff;
+  --solid-blue300:  #3686ff;
+  --solid-blue400:  #2178fd;
+  --solid-blue500:  #006cfd;
+  --solid-blue600:  #005ede;
+  --solid-blue700:  #0253c4;
+  --solid-blue800:  #0448ab;
+  --solid-blue900:  #033d92;
+  --solid-blue1000: #043379;
+  --solid-blue1100: #022864;
+  --solid-blue1200: #011d50;
+  --solid-blue1300: #00133d;
+  --solid-blue1400: #000b28;
+
+  /* Gray */
+  --solid-gray50:   #f3f5fa;
+  --solid-gray60:   #e1e6f4;
+  --solid-gray70:   #d0d8e9;
+  --solid-gray80:   #c0c9dd;
+  --solid-gray90:   #b1bad2;
+  --solid-gray100:  #a0acca;
+  --solid-gray200:  #919ebe;
+  --solid-gray300:  #8391af;
+  --solid-gray400:  #7683a0;
+  --solid-gray500:  #697797;
+  --solid-gray600:  #5b6888;
+  --solid-gray700:  #4f5c79;
+  --solid-gray800:  #434f6c;
+  --solid-gray900:  #37435f;
+  --solid-gray1000: #2c3752;
+  --solid-gray1100: #212c46;
+  --solid-gray1200: #17203a;
+  --solid-gray1300: #0d162e;
+  --solid-gray1400: #050b22;
+
+  /* Green */
+  --solid-green50:   #ebf9e6;
+  --solid-green60:   #e1f6d9;
+  --solid-green70:   #d8f3cc;
+  --solid-green80:   #caf1ba;
+  --solid-green90:   #bfecab;
+  --solid-green100:  #b0e899;
+  --solid-green200:  #61e33c;
+  --solid-green300:  #48cb14;
+  --solid-green400:  #38bb04;
+  --solid-green500:  #34ac0a;
+  --solid-green600:  #227e01;
+  --solid-green700:  #1c6f01;
+  --solid-green800:  #1b6006;
+  --solid-green900:  #155206;
+  --solid-green1000: #14440a;
+  --solid-green1100: #103607;
+  --solid-green1200: #0b2906;
+  --solid-green1300: #051d02;
+  --solid-green1400: #021200;
+
+  /* Orange */
+  --solid-orange50:   #fff2e6;
+  --solid-orange60:   #ffecd9;
+  --solid-orange70:   #ffe5cc;
+  --solid-orange80:   #ffdebc;
+  --solid-orange90:   #ffd5ac;
+  --solid-orange100:  #ffcc99;
+  --solid-orange200:  #ffb061;
+  --solid-orange300:  #fe8512;
+  --solid-orange400:  #f17804;
+  --solid-orange500:  #db6f0a;
+  --solid-orange600:  #a14f00;
+  --solid-orange700:  #8c460a;
+  --solid-orange800:  #793e0e;
+  --solid-orange900:  #683409;
+  --solid-orange1000: #572a06;
+  --solid-orange1100: #472103;
+  --solid-orange1200: #371801;
+  --solid-orange1300: #261102;
+  --solid-orange1400: #180900;
+
+  /* Red */
+  --solid-red50:   #ffe9eb;
+  --solid-red60:   #ffdde1;
+  --solid-red70:   #ffd2d6;
+  --solid-red80:   #ffc3c9;
+  --solid-red90:   #ffb6bd;
+  --solid-red100:  #ffa5ae;
+  --solid-red200:  #ff6973;
+  --solid-red300:  #f8334a;
+  --solid-red400:  #e41f36;
+  --solid-red500:  #db1f36;
+  --solid-red600:  #c2122d;
+  --solid-red700:  #aa1528;
+  --solid-red800:  #97061f;
+  --solid-red900:  #81071a;
+  --solid-red1000: #6c0815;
+  --solid-red1100: #59030f;
+  --solid-red1200: #460009;
+  --solid-red1300: #340005;
+  --solid-red1400: #220002;
+
+  /* Brand */
+  --brand-azure:          #3484fd;
+  --brand-cornflower-blue:#8aabfe;
+  --brand-cyan:           #c1e8fd;
+  --brand-denim:          #87aee8;
+  --brand-indigo:         #023a85;
+  --brand-iris:           #c9c8ff;
+  --brand-lapis:          #006cfd;
+  --brand-mauve:          #f0daff;
+  --brand-midnight:       #031938;
+  --brand-navy:           #031d40;
+  --brand-peach:          #ffdcc8;
+  --brand-pink:           #ffe1ff;
+  --brand-royal-blue:     #032553;
+  --brand-sand:           #ffebaf;
+  --brand-sapphire:       #015bd4;
+  --brand-sky:            #9ec1fe;
+  --brand-space:          #020f21;
+
+  /* Decorative */
+  --decorative-blackberry500:       #1d1346;
+  --decorative-blackberry700:       #19103c;
+  --decorative-bronze:              #fdc889;
+  --decorative-deep-orange:         #ff7e00;
+  --decorative-eggplant:            #4c0066;
+  --decorative-gold:                #fbd15e;
+  --decorative-lavender:            #f3eaff;
+  --decorative-lavender-transparent:#8729ff1a;
+  --decorative-magentum:            #8b008b;
+  --decorative-platinum:            #081c62;
+  --decorative-purple:              #8729ff;
+  --decorative-silver:              #d5d8e0;
+  --decorative-violet:              #9900cc;
+  --decorative-yellow:              #fff500;
+
+  /* Transparent — Black */
+  --transparent-black0a:   #00000000;
+  --transparent-black50a:  #0000000f;
+  --transparent-black60a:  #0000001a;
+  --transparent-black70a:  #00000033;
+  --transparent-black80a:  #00000040;
+  --transparent-black90a:  #0000004d;
+  --transparent-black100a: #00000059;
+  --transparent-black200a: #00000066;
+  --transparent-black300a: #00000099;
+  --transparent-black400a: #000000b2;
+  --transparent-black500a: #000000bf;
+  --transparent-black600a: #000000cc;
+  --transparent-black700a: #000000d9;
+  --transparent-black800a: #000000e5;
+
+  /* Transparent — White */
+  --transparent-white0a:   #ffffff00;
+  --transparent-white50a:  #ffffff0f;
+  --transparent-white60a:  #ffffff1a;
+  --transparent-white70a:  #ffffff33;
+  --transparent-white80a:  #ffffff40;
+  --transparent-white90a:  #ffffff4d;
+  --transparent-white100a: #ffffff59;
+  --transparent-white200a: #ffffff66;
+  --transparent-white300a: #ffffff99;
+  --transparent-white400a: #ffffffb2;
+  --transparent-white500a: #ffffffbf;
+  --transparent-white600a: #ffffffcc;
+  --transparent-white700a: #ffffffd9;
+  --transparent-white800a: #ffffffe5;
+
+  /* Transparent — Blue */
+  --transparent-blue50a:  #0468ff1a;
+  --transparent-blue60a:  #0468ff26;
+  --transparent-blue70a:  #0468ff33;
+  --transparent-blue80a:  #0468ff40;
+  --transparent-blue90a:  #0468ff4d;
+  --transparent-blue100a: #0468ff66;
+  --transparent-blue200a: #0468ff99;
+  --transparent-blue300a: #0468ffcc;
+
+  /* Transparent — Gray */
+  --transparent-gray50a:  #5564f51a;
+  --transparent-gray60a:  #0022b026;
+  --transparent-gray70a:  #00197d33;
+  --transparent-gray80a:  #00177140;
+  --transparent-gray90a:  #0014634d;
+  --transparent-gray100a: #0e1d5766;
+  --transparent-gray200a: #10214a99;
+  --transparent-gray300a: #112148cc;
+
+  /* Transparent — Red */
+  --transparent-red50a:  #ff1f341a;
+  --transparent-red60a:  #ff1f3426;
+  --transparent-red70a:  #ff1f3433;
+  --transparent-red80a:  #ff1f3440;
+  --transparent-red90a:  #ff1f344d;
+  --transparent-red100a: #ff1f3466;
+  --transparent-red200a: #ff1f3499;
+  --transparent-red300a: #ff1f34cc;
+
+  /* Transparent — Green */
+  --transparent-green50a:  #3ac5001a;
+  --transparent-green60a:  #3ac50026;
+  --transparent-green70a:  #3ac50033;
+  --transparent-green80a:  #3ac50040;
+  --transparent-green90a:  #3ac5004d;
+  --transparent-green100a: #3ac50066;
+  --transparent-green200a: #3ac50099;
+  --transparent-green300a: #3ac500cc;
+
+  /* Transparent — Orange */
+  --transparent-orange50a:  #ff7e001a;
+  --transparent-orange60a:  #ff7e0026;
+  --transparent-orange70a:  #ff7e0033;
+  --transparent-orange80a:  #ff7e0040;
+  --transparent-orange90a:  #ff7e004d;
+  --transparent-orange100a: #ff7e0066;
+  --transparent-orange200a: #ff7e0099;
+  --transparent-orange300a: #ff7e00cc;
+}
+
+/* ─────────────────────────────────────────
+   2. SEMANTIC TOKENS (Light theme)
+   ───────────────────────────────────────── */
+:root {
+  /* Accent */
+  --accent-ghost-primary:    var(--solid-gray500);
+  --accent-ghost-secondary:  var(--solid-gray60);
+  --accent-main-primary:     var(--solid-blue600);
+  --accent-main-secondary:   var(--solid-blue60);
+  --accent-negative-primary: var(--solid-red600);
+  --accent-negative-secondary: var(--solid-red60);
+  --accent-positive-primary: var(--solid-green600);
+  --accent-positive-secondary: var(--solid-green60);
+  --accent-warning-primary:  var(--solid-orange600);
+  --accent-warning-secondary: var(--solid-orange60);
+
+  /* Background */
+  --background-elevation:  var(--solid-white);
+  --background-primary:    var(--solid-white);
+  --background-secondary:  var(--solid-gray50);
+
+  /* Brand aliases */
+  --brand-black: var(--solid-black);
+  --brand-white: var(--solid-white);
+
+  /* Control — Main */
+  --control-main-primary-default:  var(--solid-blue500);
+  --control-main-primary-hovered:  var(--solid-blue600);
+  --control-main-primary-pressed:  var(--solid-blue700);
+  --control-main-primary-disabled: var(--solid-gray60);
+  --control-main-secondary-default:  var(--solid-blue50);
+  --control-main-secondary-hovered:  var(--solid-blue60);
+  --control-main-secondary-pressed:  var(--solid-blue70);
+  --control-main-secondary-disabled: var(--solid-gray60);
+
+  /* Control — Negative */
+  --control-negative-primary-default:  var(--solid-red500);
+  --control-negative-primary-hovered:  var(--solid-red600);
+  --control-negative-primary-pressed:  var(--solid-red700);
+  --control-negative-primary-disabled: var(--solid-gray60);
+  --control-negative-secondary-default:  var(--solid-red50);
+  --control-negative-secondary-hovered:  var(--solid-red60);
+  --control-negative-secondary-pressed:  var(--solid-red70);
+  --control-negative-secondary-disabled: var(--solid-gray60);
+
+  /* Control — Positive */
+  --control-positive-primary-default:  var(--solid-green500);
+  --control-positive-primary-hovered:  var(--solid-green600);
+  --control-positive-primary-pressed:  var(--solid-green700);
+  --control-positive-primary-disabled: var(--solid-gray60);
+  --control-positive-secondary-default:  var(--solid-green50);
+  --control-positive-secondary-hovered:  var(--solid-green60);
+  --control-positive-secondary-pressed:  var(--solid-green70);
+  --control-positive-secondary-disabled: var(--solid-gray60);
+
+  /* Control — Warning */
+  --control-warning-primary-default:  var(--solid-orange500);
+  --control-warning-primary-hovered:  var(--solid-orange600);
+  --control-warning-primary-pressed:  var(--solid-orange700);
+  --control-warning-primary-disabled: var(--solid-gray60);
+  --control-warning-secondary-default:  var(--solid-orange50);
+  --control-warning-secondary-hovered:  var(--solid-orange60);
+  --control-warning-secondary-pressed:  var(--solid-orange70);
+  --control-warning-secondary-disabled: var(--solid-gray60);
+
+  /* Control — Inverted */
+  --control-inverted-primary-default:  var(--solid-white);
+  --control-inverted-primary-hovered:  var(--solid-blue60);
+  --control-inverted-primary-pressed:  var(--solid-blue70);
+  --control-inverted-primary-disabled: var(--solid-gray60);
+
+  /* Decorative */
+  --decorative-blackberry:      var(--decorative-blackberry500);
+  --decorative-blackberry-dark: var(--decorative-blackberry700);
+  --decorative-deep-orange-vas: var(--decorative-deep-orange);
+  --decorative-orange:          var(--solid-orange300);
+
+  /* Icon — Primary */
+  --icon-primary-default:  var(--solid-gray1100);
+  --icon-primary-hovered:  var(--solid-gray1200);
+  --icon-primary-pressed:  var(--solid-gray1300);
+  --icon-primary-disabled: var(--solid-gray90);
+
+  /* Icon — Secondary */
+  --icon-secondary-default:  var(--solid-gray400);
+  --icon-secondary-hovered:  var(--solid-gray500);
+  --icon-secondary-pressed:  var(--solid-gray600);
+  --icon-secondary-disabled: var(--solid-gray90);
+
+  /* Icon — Main */
+  --icon-main-default:  var(--solid-blue500);
+  --icon-main-hovered:  var(--solid-blue600);
+  --icon-main-pressed:  var(--solid-blue700);
+  --icon-main-disabled: var(--solid-gray90);
+
+  /* Icon — Negative */
+  --icon-negative-default:  var(--solid-red600);
+  --icon-negative-hovered:  var(--solid-red700);
+  --icon-negative-pressed:  var(--solid-red800);
+  --icon-negative-disabled: var(--solid-gray90);
+
+  /* Icon — Positive */
+  --icon-positive-default:  var(--solid-green600);
+  --icon-positive-hovered:  var(--solid-green700);
+  --icon-positive-pressed:  var(--solid-green800);
+  --icon-positive-disabled: var(--solid-gray90);
+
+  /* Icon — Warning */
+  --icon-warning-default:  var(--solid-orange600);
+  --icon-warning-hovered:  var(--solid-orange700);
+  --icon-warning-pressed:  var(--solid-orange800);
+  --icon-warning-disabled: var(--solid-gray90);
+
+  /* Icon — Inverted */
+  --icon-inverted-default:  var(--solid-white);
+  --icon-inverted-hovered:  var(--solid-gray50);
+  --icon-inverted-pressed:  var(--solid-gray60);
+  --icon-inverted-disabled: var(--solid-gray90);
+
+  /* Icon — On Bright */
+  --icon-on-bright-default:  var(--solid-white);
+  --icon-on-bright-hovered:  var(--solid-gray50);
+  --icon-on-bright-pressed:  var(--solid-gray60);
+  --icon-on-bright-disabled: var(--solid-gray90);
+
+  /* Overlay */
+  --overlay-control-default: var(--transparent-black80a);
+  --overlay-control-inverted: var(--transparent-white80a);
+  --overlay-default:      var(--transparent-black200a);
+  --overlay-media-banner: var(--transparent-black300a);
+  --overlay-negative:     var(--transparent-red200a);
+  --overlay-popover:      var(--transparent-black600a);
+
+  /* Shadow */
+  --shadow-default: var(--transparent-black60a);
+
+  /* Stroke — Border */
+  --stroke-border-default:  var(--solid-gray70);
+  --stroke-border-main:     var(--solid-blue400);
+  --stroke-border-negative: var(--solid-red400);
+  --stroke-border-neutral:  var(--solid-gray50);
+  --stroke-border-positive: var(--solid-green400);
+  --stroke-border-warning:  var(--solid-orange400);
+
+  /* Stroke — Control */
+  --stroke-control-default:  var(--solid-gray70);
+  --stroke-control-disabled: var(--solid-gray60);
+  --stroke-control-focused:  var(--solid-blue200);
+  --stroke-control-hovered:  var(--solid-gray80);
+  --stroke-control-pressed:  var(--solid-blue200);
+  --stroke-control-selected: var(--solid-blue300);
+
+  /* Stroke — Divider */
+  --stroke-divider-default:  var(--solid-gray70);
+  --stroke-divider-main:     var(--solid-blue200);
+  --stroke-divider-negative: var(--solid-red200);
+  --stroke-divider-neutral:  var(--solid-gray50);
+  --stroke-divider-positive: var(--solid-green100);
+  --stroke-divider-warning:  var(--solid-orange200);
+
+  /* Subscription */
+  --subscription-bronze:   var(--decorative-bronze);
+  --subscription-gold:     var(--decorative-gold);
+  --subscription-platinum: var(--decorative-platinum);
+  --subscription-silver:   var(--decorative-silver);
+
+  /* Surface — Main */
+  --surface-main-default:  var(--solid-blue50);
+  --surface-main-hovered:  var(--solid-blue70);
+  --surface-main-pressed:  var(--solid-blue80);
+  --surface-main-selected: var(--solid-blue60);
+  --surface-main-disabled: var(--solid-gray60);
+
+  /* Surface — Negative */
+  --surface-negative-default:  var(--solid-red50);
+  --surface-negative-hovered:  var(--solid-red70);
+  --surface-negative-pressed:  var(--solid-red80);
+  --surface-negative-selected: var(--solid-red60);
+  --surface-negative-disabled: var(--solid-gray60);
+
+  /* Surface — Positive */
+  --surface-positive-default:  var(--solid-green50);
+  --surface-positive-hovered:  var(--solid-green70);
+  --surface-positive-pressed:  var(--solid-green80);
+  --surface-positive-selected: var(--solid-green60);
+  --surface-positive-disabled: var(--solid-gray60);
+
+  /* Surface — Warning */
+  --surface-warning-default:  var(--solid-orange50);
+  --surface-warning-hovered:  var(--solid-orange70);
+  --surface-warning-pressed:  var(--solid-orange80);
+  --surface-warning-selected: var(--solid-orange60);
+  --surface-warning-disabled: var(--solid-gray60);
+
+  /* Surface — Neutral */
+  --surface-neutral-default:  var(--solid-gray50);
+  --surface-neutral-hovered:  var(--solid-gray70);
+  --surface-neutral-pressed:  var(--solid-gray80);
+  --surface-neutral-selected: var(--solid-gray60);
+  --surface-neutral-disabled: var(--solid-gray60);
+
+  /* Surface — Inverted */
+  --surface-inverted-default:  var(--solid-white);
+  --surface-inverted-hovered:  var(--solid-blue60);
+  --surface-inverted-pressed:  var(--solid-blue70);
+  --surface-inverted-selected: var(--solid-blue50);
+  --surface-inverted-disabled: var(--solid-gray60);
+
+  /* Text — Primary */
+  --text-primary-default:  var(--solid-gray1300);
+  --text-primary-hovered:  var(--solid-gray1200);
+  --text-primary-pressed:  var(--solid-gray1100);
+  --text-primary-disabled: var(--solid-gray90);
+
+  /* Text — Secondary */
+  --text-secondary-default:  var(--solid-gray500);
+  --text-secondary-hovered:  var(--solid-gray600);
+  --text-secondary-pressed:  var(--solid-gray700);
+  --text-secondary-disabled: var(--solid-gray90);
+
+  /* Text — Main */
+  --text-main-default:  var(--solid-blue600);
+  --text-main-hovered:  var(--solid-blue700);
+  --text-main-pressed:  var(--solid-blue800);
+  --text-main-disabled: var(--solid-gray90);
+
+  /* Text — Negative */
+  --text-negative-default:  var(--solid-red600);
+  --text-negative-hovered:  var(--solid-red700);
+  --text-negative-pressed:  var(--solid-red800);
+  --text-negative-disabled: var(--solid-gray90);
+
+  /* Text — Positive */
+  --text-positive-default:  var(--solid-green600);
+  --text-positive-hovered:  var(--solid-green700);
+  --text-positive-pressed:  var(--solid-green800);
+  --text-positive-disabled: var(--solid-gray90);
+
+  /* Text — Warning */
+  --text-warning-default:  var(--solid-orange600);
+  --text-warning-hovered:  var(--solid-orange700);
+  --text-warning-pressed:  var(--solid-orange800);
+  --text-warning-disabled: var(--solid-gray90);
+
+  /* Text — Inverted */
+  --text-inverted-default:  var(--solid-white);
+  --text-inverted-hovered:  var(--solid-gray50);
+  --text-inverted-pressed:  var(--solid-gray60);
+  --text-inverted-disabled: var(--solid-gray90);
+
+  /* Text — On Bright */
+  --text-on-bright-default:  var(--solid-white);
+  --text-on-bright-hovered:  var(--solid-gray50);
+  --text-on-bright-pressed:  var(--solid-gray60);
+  --text-on-bright-disabled: var(--solid-gray90);
+
+  /* Theme shortcuts */
+  --theme-black:  var(--solid-black);
+  --theme-white:  var(--solid-white);
+  --theme-blue:   var(--solid-blue500);
+  --theme-gray:   var(--solid-gray500);
+  --theme-green:  var(--solid-green500);
+  --theme-orange: var(--solid-orange500);
+  --theme-red:    var(--solid-red500);
+  --theme-dark:   var(--solid-gray1200);
+}
+
+/* ─────────────────────────────────────────
+   3. LEGACY ALIASES
+   Обратная совместимость с существующими прототипами
+   ───────────────────────────────────────── */
+:root {
+  --text-primary:   var(--text-primary-default);
+  --text-secondary: var(--text-secondary-default);
+  --text-main:      var(--text-main-default);
+  --control-primary:   var(--control-main-primary-default);
+  --control-secondary: var(--control-main-secondary-default);
+  --negative: var(--accent-negative-primary);
+  --positive: var(--accent-positive-primary);
+}
+
+/* ─────────────────────────────────────────
+   4. SPACING
+   ───────────────────────────────────────── */
+:root {
+  --unit0-5: 2px;
+  --unit1:   4px;
+  --unit2:   8px;
+  --unit3:   12px;
+  --unit4:   16px;
+  --unit5:   20px;
+  --unit6:   24px;
+  --unit7:   28px;
+  --unit8:   32px;
+  --unit9:   36px;
+  --unit10:  40px;
+  --unit11:  44px;
+  --unit12:  48px;
+  --unit15:  60px;
+}
+
+/* ─────────────────────────────────────────
+   5. RADIUS
+   ───────────────────────────────────────── */
+:root {
+  --radius-s:    2px;   /* legacy */
+  --radius-m:    4px;   /* legacy */
+  --radius-l:    8px;   /* legacy */
+  --radius-xl:   12px;
+  --radius-xxl:  16px;
+  --radius-full: 99px;
+}
+
+/* ─────────────────────────────────────────
+   6. TYPOGRAPHY
+   ───────────────────────────────────────── */
+:root {
+  --font-base: 'Lato', sans-serif;
+
+  /* Роли типографики. Значения здесь — вебовые (Magentum Desktop/Typography);
+     поверхность приложения переопределяет их целиком в tokens/surface-app.css.
+     Почему токенами, а не числами в правилах: у приложения другая гарнитура и
+     другая шкала, и без ролей смена поверхности меняла бы только классы
+     заголовков и текста, а размеры внутри кнопок, инпутов и табов оставались
+     бы вебовыми. Интерлиньяж задаётся числом, а не коэффициентом — при смене
+     гарнитуры пропорция не переносится. */
+  --type-h1-size: 28px;  --type-h1-lh: 36px;  --type-h1-ls: -0.5px;  --type-h1-weight: 700;
+  --type-h2-size: 22px;  --type-h2-lh: 28px;  --type-h2-ls: -0.5px;  --type-h2-weight: 700;
+  --type-h3-size: 18px;  --type-h3-lh: 24px;  --type-h3-ls: -0.5px;  --type-h3-weight: 700;
+  --type-h4-size: 16px;  --type-h4-lh: 24px;  --type-h4-ls: -0.2px;  --type-h4-weight: 700;
+  --type-h5-size: 14px;  --type-h5-lh: 20px;  --type-h5-ls: -0.2px;  --type-h5-weight: 700;
+  --type-h6-size: 12px;  --type-h6-lh: 16px;  --type-h6-ls: -0.2px;  --type-h6-weight: 700;
+  --type-body1-size: 16px;  --type-body1-lh: 24px;  --type-body1-ls: 0;  --type-body1-weight: 400;
+  --type-body2-size: 14px;  --type-body2-lh: 20px;  --type-body2-ls: 0;  --type-body2-weight: 400;
+  --type-caption-size: 12px;  --type-caption-lh: 16px;  --type-caption-ls: 0;  --type-caption-weight: 400;
+  --type-overline-size: 10px; --type-overline-lh: 16px; --type-overline-ls: 1px; --type-overline-weight: 700;
+}
+
+/* Fallback для знака рубля ₽ (U+20BD) — Lato его не содержит */
+@font-face {
+  font-family: 'Lato';
+  src: local('Segoe UI'), local('Roboto'), local('Arial Unicode MS'), local('Arial');
+  unicode-range: U+20BD;
+}
+
+/* ─────────────────────────────────────────
+   7. SUBWAY COLORS
+   ───────────────────────────────────────── */
+:root {
+  /* Москва */
+  --msk-sokolnicheskaya:        #cf0000;
+  --msk-zamoskvoretskaya:       #00701a;
+  --msk-arbatskaya:             #0078be;
+  --msk-filyovskaya:            #009bd5;
+  --msk-koltsevaya:             #800000;
+  --msk-kaluzhskaya:            #ff7f00;
+  --msk-taganskaya:             #94007c;
+  --msk-kalininskaya:           #ffdf00;
+  --msk-serpukhovskaya:         #a2a5b5;
+  --msk-lyublinskaya:           #8ad02a;
+  --msk-bolshaya-koltsevaya:    #7acdce;
+  --msk-butovskaya:             #acbfe3;
+  --msk-nekrasovskaya:          #db0a5b;
+  --msk-troitskaya:             #33735e;
+  --msk-kommunarskaya:          #d8d8d8;
+  --msk-ryblevo-arkhangelskaya: #273040;
+  --msk-birulevskaya:           #9b2b53;
+  --msk-monorail:               #0177bf;
+  --msk-mcс:                    #fa6f9e;
+  --msk-mcd1:                   #de9c4e;
+  --msk-mcd2:                   #bd748f;
+  --msk-mcd3:                   #e95b0c;
+  --msk-mcd4:                   #41b384;
+  --msk-mcd5:                   #77b729;
+
+  /* Санкт-Петербург */
+  --spb-kirovskaya:     #d70834;
+  --spb-moskovskaya:    #087dcd;
+  --spb-nevskaya:       #069857;
+  --spb-pravoberejnaya: #df6e08;
+  --spb-frunzenskaya:   #700579;
+
+  /* Другие города */
+  --ekb-first:        #00701a;
+  --kzn-central:      #cf0000;
+  --nn-autozavodskaya:#cf0000;
+  --nn-sormovskaya:   #03238b;
+  --nsk-dzerjinskaya: #00701a;
+  --nsk-leneinskaya:  #cf0000;
+  --smr-first:        #cf0000;
+}

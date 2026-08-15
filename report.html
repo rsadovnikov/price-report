@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Обзор конкурентов для объекта — ЦИАН</title>
+  <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
+  <link rel="stylesheet" href="_design-system/fonts.css">
+  <link rel="stylesheet" href="_design-system/tokens.css">
+  <link rel="stylesheet" href="_design-system/components/buttons.css">
+  <link rel="stylesheet" href="_design-system/components/links.css">
+  <link rel="stylesheet" href="_design-system/components/tabs.css">
+  <link rel="stylesheet" href="_design-system/components/inputs.css">
+  <link rel="stylesheet" href="_design-system/components/chips.css">
+  <link rel="stylesheet" href="_design-system/base.css">
+  <link rel="stylesheet" href="_design-system/web.css">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css">
+  <link rel="stylesheet" href="_design-system/components/radio.css">
+  <link rel="stylesheet" href="_design-system/components/badges.css">
+  <link rel="stylesheet" href="_design-system/components/spinner.css">
+  <link rel="stylesheet" href="_design-system/components/toast.css">
+  <link rel="stylesheet" href="report.css">
+  <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
+  <script>if (new URLSearchParams(location.search).has('activate')) document.documentElement.classList.add('activating');</script>
+</head>
+<body>
+
+<!-- Экран «генерации» отчёта: показывается по клику «Конкуренты» (?activate=1). Виден только при html.activating; report.js снимает класс через 3с. -->
+<div class="report-loader" id="reportLoader" aria-hidden="true">
+  <span class="spinner"></span>
+  <div class="report-loader__label">Формируем отчёт…</div>
+</div>
+
+<div id="header"></div>
+
+<div class="layout">
+  <div id="sidebar"></div>
+
+  <!-- ===== REPORT AREA ===== -->
+  <div class="report-area">
+  <div class="report-card">
+
+<!-- ===== REPORT SECTION ===== -->
+  <main class="report-section">
+    <!-- Report Header -->
+    <div class="report-header">
+      <h1>Обзор конкурентов для объекта</h1>
+      <button class="help-link" type="button" data-action="open-help">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="8" cy="8" r="8" fill="#0468FF" fill-opacity="0.1"/>
+          <path d="M9 12H7V7H9V12ZM8 4C8.55228 4 9 4.44772 9 5C9 5.55228 8.55228 6 8 6C7.44772 6 7 5.55228 7 5C7 4.44772 7.44772 4 8 4Z" fill="#0468FF"/>
+        </svg>
+        Чем полезен сервис
+      </button>
+    </div>
+
+    <!-- Table A: My Object -->
+    <div class="table-section">
+      <!-- Легенда: шапка + скроллбар вне overflow-контейнера (аналогично sticky шапке) -->
+      <div class="table-legend">
+        <div class="table-legend-inner" id="tableALegendScroll">
+          <table>
+            <colgroup>
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="col-header-label" colspan="2"><span class="base-toggle" data-action="toggle-base" role="button" tabindex="0" aria-expanded="true"><svg class="base-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="base-legend-text">Мой объект</span></span></th>
+                <th class="col-start-price">Стартовая цена</th>
+                <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
+                <th class="col-dynamics"></th>
+                <th class="col-duration">Срок размещения<br><span style="font-weight:400">Дата публикации</span></th>
+                <th class="col-metro">Метро</th>
+                <th class="col-repair">Ремонт</th>
+                <th class="col-building">Тип дома</th>
+                <th class="col-views">Просмотры<br><span style="font-weight:400">за 10 дней / за всё время</span></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="custom-scrollbar sticky-custom-scrollbar" id="scrollbarMain">
+          <div class="custom-scrollbar-track" id="scrollbarTrack">
+            <div class="custom-scrollbar-thumb" id="scrollbarThumb"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Тело таблицы (только tbody, без thead) -->
+      <div class="table-wrapper" id="tableAWrapper">
+        <div class="table-inner" id="tableA">
+          <table>
+            <colgroup>
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
+            <tbody>
+              <tr>
+                <td class="sticky-photo col-photo">
+                  <span class="photo-thumb-wrap" data-action="open-gallery" role="button" tabindex="0" aria-label="Открыть фотографии объявления">
+                    <img class="photo-thumb" id="mainPhoto" src="photos/mo/mo1-1.jpg" alt="photo">
+                  </span>
+                </td>
+                <td class="col-desc desc-cell">
+                  <div class="desc-title">1-комн. кв., 37,5 м², 10/22 этаж</div>
+                  <div class="desc-metro"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> Аэропорт <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg> 13 мин</div>
+                  <div class="desc-zhk">ЖК &laquo;Черняховского 19&raquo;, Москва, САО, р-н Аэропорт, ул. Черняховского, 19</div>
+                </td>
+                <td class="col-start-price">
+                  <div class="price-main">24 500 000 ₽</div>
+                  <div class="price-per-m">653 333 ₽/м²</div>
+                </td>
+                <!-- История цены — смещениями от публикации (dayOffset), иначе она разъедется
+                     со сроком размещения: цена «менялась» бы раньше, чем объявление вышло. -->
+                <td class="col-current-price" data-history='[{"dayOffset":13,"price":"23 700 000","delta":"−800 000","isUp":false},{"dayOffset":0,"price":"24 500 000"}]'>
+                  <div class="price-main-row">
+                    <div class="price-main">23 700 000 ₽</div>
+                    <span class="price-tooltip-trigger"><img class="dynamics-icon" src="MO/positive-changes.svg" alt=""></span>
+                  </div>
+                  <div class="price-per-m">632 000 ₽/м²</div>
+                  <div class="price-delta">−800 000 ₽</div>
+                </td>
+                <td class="col-dynamics"></td>
+                <!-- Срок размещения — данные, дата публикации считается от него (TODAY − days),
+                     как у конкурентов. Календарная дата в разметке протухала: стояло
+                     «17 декабря 2025», и объект «висел» уже 239 дней вместо 56. -->
+                <td class="col-duration" data-days="36">
+                  <div class="duration-days">36 дней</div>
+                  <div class="duration-date"></div>
+                </td>
+                <td class="col-metro metro-cell">
+                  <div class="metro-station"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> Аэропорт</div>
+                  <div class="metro-walk">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg>
+                    13 мин
+                  </div>
+                </td>
+                <td class="col-repair">Косметический</td>
+                <td class="col-building">Монолитный<div class="building-year">2019</div></td>
+                <td class="col-views">
+                  <div class="views-cell">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 8C0 8 3 2 8 2C13 2 16 8 16 8C16 8 13 14 8 14C3 14 0 8 0 8ZM8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z" fill="#7683A0"/></svg>
+                    41 / 383
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
+      <div class="tab" id="tabSelection">Подборка конкурентов</div>
+      <div class="tab" id="tabArchive">Архивные</div>
+    </div>
+
+    <!-- Ценность архива (виден только на вкладке «Архивные», над общим рядом фильтров) -->
+    <div class="tracking-banner archive-banner" id="archiveBanner" style="display:none">
+      <span class="archive-banner__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.33984 2.85254H17.627C18.516 2.85264 19.4315 2.83689 20.3271 2.88574C20.6831 2.90517 20.9806 2.95812 21.3115 3.1416C21.4786 3.23424 21.6405 3.38519 21.7686 3.55566C21.8645 3.68343 21.9466 3.82876 21.9971 3.97754L22.0371 4.12695V4.12988C22.1847 5.02822 22.2009 6.07296 22.0381 6.97461C21.9105 7.68097 21.3069 8.00338 20.7451 8.16406C20.7583 8.59905 20.7529 9.07282 20.7529 9.49512L20.752 11.9863C20.7512 13.5672 20.7761 15.264 20.6416 16.8486C20.5405 18.0398 20.1068 19.2694 19.1299 20.0713L19.125 20.0752L19.124 20.0752C17.9297 20.9703 16.5851 21.056 15.1992 21.1084C14.4009 21.1386 13.6251 21.1475 12.8271 21.1445C11.36 21.1391 9.88432 21.1654 8.40918 21.0967H8.4082C7.03114 21.0238 5.51921 20.8194 4.49023 19.708C3.39619 18.526 3.337 16.8967 3.28418 15.457C3.24373 14.3544 3.25019 13.2615 3.25 12.1641L3.24902 9.55566C3.24883 9.11234 3.24105 8.61672 3.25391 8.16211C2.80279 8.06211 2.46536 7.85245 2.2373 7.54395C1.99064 7.21016 1.88403 6.77962 1.87598 6.29688C1.87069 5.98045 1.84977 5.56962 1.85449 5.1709C1.85923 4.77131 1.88882 4.36028 1.99023 4.03125H1.99121C2.05688 3.81188 2.16914 3.60922 2.32129 3.4375L2.32227 3.43652C2.77424 2.93274 3.36619 2.89897 3.92188 2.87012L3.92383 2.86914C5.02622 2.8271 6.23542 2.85247 7.33984 2.85254ZM19.0371 8.23047C15.9661 8.2615 12.8445 8.23433 9.77441 8.23438H6.41992C6.04699 8.23443 5.39261 8.25311 4.96094 8.23926C4.98075 9.93854 4.96332 11.6789 4.96387 13.376V13.3779C4.95858 13.9552 4.96576 14.5324 4.98438 15.1094L5.00684 15.6865L5.02734 16.0986C5.0845 17.031 5.20416 17.7595 5.54102 18.291C5.9152 18.8814 6.57977 19.2564 7.84277 19.3457C10.1996 19.5123 12.61 19.4545 14.9844 19.418C15.5372 19.4095 16.1352 19.3909 16.7002 19.2832C17.2628 19.1759 17.7799 18.9814 18.1816 18.6309C18.583 18.2038 18.7837 17.647 18.8867 17.0381C18.9906 16.4243 18.9933 15.7779 19.0137 15.1777C19.0717 13.4688 19.02 11.7595 19.0381 10.0391C19.0442 9.48192 19.0131 8.81488 19.0371 8.23047ZM7.81738 4.54785C6.81041 4.54803 5.75111 4.53183 4.75586 4.55469H4.75195C4.51663 4.55338 4.28096 4.55663 4.0459 4.56738L4.04688 4.56836C3.94286 4.57362 3.76284 4.58484 3.61426 4.58984C3.56232 5.26408 3.55171 5.81889 3.61035 6.49414C4.31878 6.55292 5.01204 6.53713 5.74023 6.53711L8.9209 6.53613H19.2393L19.8828 6.5293C20.047 6.52409 20.21 6.51269 20.3896 6.49707C20.4407 5.78754 20.4404 5.29557 20.3887 4.58789C19.3993 4.53977 18.4291 4.54912 17.4297 4.54883L13.4287 4.54785H7.81738Z" fill="#212C46" stroke="#212C46" stroke-width="0.3"/><rect x="9" y="11" width="6" height="3" fill="#212C46"/></svg></span>
+      <div class="tracking-banner__lines">
+        <span class="tracking-banner__text">Объекты, которые недавно продались, попадают в архив, но всё ещё могут быть полезными в отчёте для клиента</span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <!-- ВАЖНО: один общий ряд фильтров для «Подборки» И «Архивных» (единый DOM-элемент =
+         единый источник состояния). Фильтры СИНХРОННЫ: выбранное в одной вкладке остаётся
+         выбранным в другой. Архив-специфичный «За N дней» (#archivePeriodBtn) стоит ПЕРВЫМ в
+         этом же ряду, но виден только на «Архивных» (toggle его display в обработчиках вкладок).
+         Если будете делать фильтры функциональными — состояние остального ряда применяется к
+         обеим вкладкам, а «За N дней» — только к архиву. -->
+    <!-- Микро-онбординг подборки (вкладка «Подборка конкурентов») -->
+    <div class="tracking-banner" id="selectionBanner" style="display:none">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#paint0_angular_19_23450_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<g clip-path="url(#paint1_angular_19_23450_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
+<defs>
+<clipPath id="paint0_angular_19_23450_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23450_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
+</svg></span>
+      <span class="tracking-banner__text">Постоянно следим, не появились ли новые потенциальные конкуренты у вашего объекта</span>
+    </div>
+
+    <div class="filters">
+      <div class="filters-left">
+        <!-- Архив-специфичный «За N дней» — в общем ряду фильтров первым, только на вкладке «Архивные»
+             (видимость через #archivePeriodBtn.style.display в обработчиках вкладок). -->
+        <button class="btn-outline-sm style-secondary" type="button" id="archivePeriodBtn" style="display:none">За 7 дней <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Радиус 3 км <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">2 комнаты <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">До 50 кв. м. <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">15–25 млн ₽ <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Ремонт <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Тип дома <span class="icon">▾</span></button>
+        <button class="btn-outline-sm style-secondary">Год постройки <span class="icon">▾</span></button>
+        <!-- Сегмент + «Сбросить фильтры» склеены в один неразрывный блок: переносится
+             как целое (склеено «неразрывным пробелом»), делит общий wrap-поток с чипами —
+             не уезжает на отдельную строку. -->
+        <div class="filters-tail">
+          <a class="reset-filters" href="#">Сбросить фильтры</a>
+        </div>
+      </div>
+      <a class="map-link" href="#">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 4v10l4.5-2.5L10.5 14 15 12V2l-4.5 2.5L6 2 1 4z" stroke="#005EDE" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 2v9.5M10.5 4.5V14" stroke="#005EDE" stroke-width="1.2"/></svg>
+        На карте
+      </a>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="results-counter">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.14648 0.646484C3.55663 0.646484 0.646484 3.55663 0.646484 7.14648C0.646484 10.7363 3.55663 13.6465 7.14648 13.6465C8.58059 13.6465 9.90622 13.1821 10.9812 12.3954L13.9394 15.3536L15.3536 13.9394L12.3954 10.9812C13.1821 9.90622 13.6465 8.58059 13.6465 7.14648C13.6465 3.55663 10.7363 0.646484 7.14648 0.646484ZM2.64648 7.14648C2.64648 4.6612 4.6612 2.64648 7.14648 2.64648C9.63177 2.64648 11.6465 4.6612 11.6465 7.14648C11.6465 9.63177 9.63177 11.6465 7.14648 11.6465C4.6612 11.6465 2.64648 9.63177 2.64648 7.14648Z" fill="#7683A0"/></svg>
+      <span id="counterText"></span>
+    </div>
+
+    <!-- Микро-онбординг отслеживания (вкладка «Отслеживаются», ≥1 объект) -->
+    <div class="tracking-banner" id="trackingBanner" style="display:none">
+      <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#paint0_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<g clip-path="url(#paint1_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00366142 -0.00366142 0 9.99998 9.99931)"><foreignObject x="-1382.35" y="-1382.35" width="2764.71" height="2764.71"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 0) 0deg,rgba(23, 32, 58, 0) 297.692deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99998" cy="9.99931" r="4.3614" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.0},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.82692307233810425},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:2.0743919463970173e-15,&#34;m01&#34;:-7.3228402137756348,&#34;m02&#34;:13.661401748657227,&#34;m10&#34;:7.3228402137756348,&#34;m11&#34;:2.0743919463970173e-15,&#34;m12&#34;:6.3378906250},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
+<circle cx="9.99998" cy="10.0001" r="1.61533" fill="#212C46"/>
+<defs>
+<clipPath id="paint0_angular_19_23449_clip_path"><circle cx="9.99996" cy="9.99977" r="7.69975"/></clipPath><clipPath id="paint1_angular_19_23449_clip_path"><circle cx="9.99998" cy="9.99931" r="4.3614"/></clipPath></defs>
+</svg></span>
+      <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
+    </div>
+
+    <!-- Table B: Competitors -->
+    <div class="table-section" id="tableBSection">
+      <div id="emptyBState" class="empty-report-state" style="display:none">
+        <div class="empty-report-illustration">
+          <img src="MO/Frame 2136137207.jpg" alt="" width="280">
+        </div>
+        <div class="empty-report-text">Выберите подходящих конкурентов, чтобы отслеживать по ним изменения</div>
+        <div class="empty-report-actions">
+          <button class="btn-primary-lg" type="button" id="btnSelectCompetitors">Выбрать конкурентов</button>
+        </div>
+      </div>
+      <div class="table-nav-zone" id="tableNavZone">
+      <div class="table-wrapper" id="tableBWrapper">
+        <div class="table-inner" id="tableB">
+          <table>
+            <colgroup>
+              <col class="col-photo">
+              <col class="col-desc">
+              <col class="col-start-price">
+              <col class="col-current-price">
+              <col class="col-dynamics">
+              <col class="col-duration">
+              <col class="col-metro">
+              <col class="col-repair">
+              <col class="col-building">
+              <col class="col-views">
+            </colgroup>
+            <tbody id="tableBBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+      <button id="rowHoverBtn" type="button"></button>
+    </div>
+
+    <!-- Добавить больше объектов (вкладка «Отслеживаются») -->
+    <div id="addMoreWrap" style="display:none;justify-content:flex-start;padding:8px 0 0 24px">
+      <button class="btn-secondary-lg" id="btnAddMore" type="button">Добавить больше объектов</button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="btnShowMore" class="btn-secondary-lg">Показать больше объектов</button>
+      <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
+    </div>
+
+    <!-- Конец подборки → переход в архив (вкладка «Подборка», активные кончились).
+         Тот же бар, что «N новых конкурентов», но не sticky. -->
+    <div class="new-competitors-bar archive-endmarker" id="archiveEndMarker" style="display:none">
+      <div class="ncb-stack" id="aemStack"></div>
+      <span class="aem-title">Это всё, что нашлось</span>
+      <a href="#" class="ncb-link aem-link" data-action="view-archive">Архивные объявления<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10" stroke="#005EDE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+
+  </main>
+
+  <!-- Sticky-уведомление о новых конкурентах (вкладка «Отслеживаются», newCount > 0).
+       Липнет к низу вьюпорта, пока секция списка на экране; после — докуется вплотную
+       к низу карточки (вне main — иначе его padding-bottom оставляет зазор 32px). -->
+  <div class="new-competitors-bar" id="newCompetitorsBar" style="display:none">
+    <div class="ncb-stack" id="ncbStack"></div>
+    <span class="label label-warning ncb-pill" id="ncbPill"></span>
+    <a href="#" class="ncb-link" data-action="view-new">Посмотреть</a>
+  </div>
+
+  </div><!-- /report-card -->
+
+  <!-- ===== OWNER REPORT CARD ===== -->
+  <div class="owner-report-card" id="ownerReportCard">
+    <div class="owner-report-header">
+      <h2 class="owner-report-title title-disabled" id="ownerReportTitle">Создать отчёт для собственника</h2>
+      <div class="owner-report-subtitle" id="ownerReportSubtitle">Чтобы создать отчёт, выберите хотя бы одного конкурента</div>
+      <button class="help-link" type="button" data-action="open-owner-help" style="margin-top:12px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="8" cy="8" r="8" fill="#0468FF" fill-opacity="0.1"/>
+          <path d="M9 12H7V7H9V12ZM8 4C8.55228 4 9 4.44772 9 5C9 5.55228 8.55228 6 8 6C7.44772 6 7 5.55228 7 5C7 4.44772 7.44772 4 8 4Z" fill="#0468FF"/>
+        </svg>
+        Чем он помогает и как выглядит
+      </button>
+    </div>
+    <div class="owner-report-content owner-content-locked" id="ownerReportContent">
+      <div class="owner-steps">
+
+        <!-- Шаг 1: Выбраны конкуренты -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">1</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="owner-step-title">Выбраны <span id="stepCompetitorsTitle">0 конкурентов</span></div>
+            <div class="owner-step-list-toggle" id="ownerListToggle">
+              Добавить комментарии к объектам
+              <svg class="step-list-chevron" id="stepListChevron" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.70711 9.12109L15.4142 1.41399L14 -0.000225067L7.70711 6.29267L1.41421 -0.000225067L0 1.41399L7.70711 9.12109Z" fill="#006CFD"/>
+              </svg>
+            </div>
+            <!-- Список выбранных конкурентов -->
+            <div class="owner-comp-wrap" id="ownerCompWrap">
+              <div class="owner-comp-table-scroll">
+                <table class="owner-comp-table">
+                  <tbody id="ownerCompBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 2: Рекомендация по цене -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">2</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="price-report-block">
+              <div class="price-input-section">
+                <div class="heading4" id="priceRecommendationTitle">Дайте рекомендацию по цене</div>
+                <div class="body2">Ваше экспертное мнение о подходящей стоимости для объекта</div>
+                <div class="price-mode-row">
+                  <div class="price-chips">
+                    <button class="chip chip-m" id="priceChipSingle" type="button">Точная сумма</button>
+                    <button class="chip chip-m active" id="priceChipRange" type="button">Диапазон</button>
+                  </div>
+                  <div class="price-fields-row" id="priceFieldsRange">
+                    <div class="input input-m price-field">
+                      <span class="input__adornment">от</span>
+                      <input class="input__control" type="text" tabindex="-1" aria-label="Цена от">
+                      <span class="input__adornment">₽</span>
+                    </div>
+                    <div class="input input-m price-field">
+                      <span class="input__adornment">до</span>
+                      <input class="input__control" type="text" tabindex="-1" aria-label="Цена до">
+                      <span class="input__adornment">₽</span>
+                    </div>
+                  </div>
+                  <div class="price-fields-row" id="priceFieldsSingle" style="display:none">
+                    <div class="input input-m price-field">
+                      <input class="input__control" type="text" tabindex="-1" aria-label="Цена">
+                      <span class="input__adornment">₽</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="cian-estimate-block">
+                <div class="cian-estimate-desc">
+                  <div class="body1">Оценка от Циана</div>
+                  <div class="body2">Дополним отчёт инфографикой на основе <strong>данных из Росреестра</strong> о сделках по похожим объектам</div>
+                </div>
+                <div class="radio-group">
+                  <label class="radio radio-s">
+                    <input class="radio__control" type="radio" name="cian-estimate" checked>
+                    <span class="radio__title">Показывать в отчёте</span>
+                  </label>
+                  <label class="radio radio-s">
+                    <input class="radio__control" type="radio" name="cian-estimate">
+                    <span class="radio__title">Не показывать</span>
+                  </label>
+                </div>
+                <div class="price-estimate-visual">
+                  <div class="price-scale-row">
+                    <div class="price-tooltip-wrap">
+                      <div class="price-tooltip-bubble">
+                        <span class="price-tooltip-lbl">Ваше объявление</span>
+                        <span class="price-tooltip-val">19 130 000 ₽</span>
+                      </div>
+                      <div class="price-tooltip-caret"></div>
+                      <div class="price-tooltip-dot"></div>
+                    </div>
+                    <div class="price-scale-bar">
+                      <div class="price-zone price-zone-lower">Ниже рынка</div>
+                      <div class="price-zone price-zone-good">Хорошая цена</div>
+                      <div class="price-zone price-zone-higher">Выше рынка</div>
+                    </div>
+                  </div>
+                  <div class="price-scale-bounds">
+                    <div class="price-scale-bound">
+                      <span class="price-scale-bound-val">14 900 000 ₽</span>
+                      <span class="price-scale-bound-sub">278 000 ₽/м²</span>
+                    </div>
+                    <div class="price-scale-bound">
+                      <span class="price-scale-bound-val">16 200 000 ₽</span>
+                      <span class="price-scale-bound-sub">324 000 ₽/м²</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 3: Статистика -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">3</div>
+            <div class="owner-step-line"></div>
+          </div>
+          <div class="owner-step-body">
+            <div class="stats-block">
+              <div class="stats-section-header">
+                <div>
+                  <div class="heading4">Статистика по объекту собственника</div>
+                  <div class="body2" style="margin-top:4px">Так клиент сможет сопоставить ситуацию на рынке с активностью по его объявлению</div>
+                </div>
+                <div class="radio-group">
+                  <label class="radio radio-s">
+                    <input class="radio__control" type="radio" name="stats-include" checked>
+                    <span class="radio__title">Показывать в отчёте</span>
+                  </label>
+                  <label class="radio radio-s">
+                    <input class="radio__control" type="radio" name="stats-include">
+                    <span class="radio__title">Не показывать</span>
+                  </label>
+                </div>
+              </div>
+              <div class="metrics-wrap" id="statsMetricsWrap">
+                <div class="metrics-col-headers">
+                  <span class="metrics-col-lbl">за 10 дней</span>
+                  <span class="metrics-col-lbl">за всё время</span>
+                </div>
+                <div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Показы</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">573</span><span class="metrics-row-val">28 473</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Просмотры</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">412</span><span class="metrics-row-val">20 180</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">В избранном</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">32</span><span class="metrics-row-val">1 540</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Отклики</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">18</span><span class="metrics-row-val">887</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Звонки</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">9</span><span class="metrics-row-val">454</span></div>
+                  </div>
+                  <div class="metrics-row">
+                    <div class="metrics-row-left"><input class="checkbox__control" type="checkbox" checked><span class="metrics-row-name">Чаты</span></div>
+                    <div class="metrics-row-values"><span class="metrics-row-val">5</span><span class="metrics-row-val">241</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаг 4: Комментарий -->
+        <div class="owner-step">
+          <div class="owner-step-left">
+            <div class="owner-step-dot">4</div>
+          </div>
+          <div class="owner-step-body">
+            <div class="comment-block">
+              <div class="heading4">Общий комментарий для собственника</div>
+              <label class="textarea comment-textarea-wrap">
+                <textarea
+                  class="textarea__control"
+                  id="commentTextarea"
+                  maxlength="300"
+                  data-min-rows="5"
+                  data-max-rows="10"
+                  placeholder="Какая ситуация на рынке, как лучше поступить с ценой, сколько конкурентных предложений рядом и т. д."
+                ></textarea>
+                <span class="textarea__counter" id="commentCounter">0/300</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /owner-steps -->
+
+      <!-- Кнопки действий -->
+      <div class="owner-report-actions">
+        <a class="btn-primary-lg" href="pdf-report.pdf" target="_blank" rel="noopener">Создать PDF-отчёт</a>
+        <button class="btn-ghost-lg" id="btnSaveExit">Сохранить и выйти</button>
+      </div>
+
+    </div><!-- /owner-report-content -->
+  </div><!-- /owner-report-card -->
+
+  </div><!-- /report-area -->
+</div>
+
+<!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
+<div class="sticky-tabs-bar" id="stickyTabsBar">
+  <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
+  <div class="tab" id="stickyTabSelection">Подборка конкурентов</div>
+  <div class="tab" id="stickyTabArchive">Архивные</div>
+</div>
+
+<!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
+<div class="sticky-table-header" id="stickyTableHeader">
+  <div class="sticky-header-inner" id="stickyHeaderScroll">
+    <table>
+      <colgroup>
+        <col class="col-photo">
+        <col class="col-desc">
+        <col class="col-start-price">
+        <col class="col-current-price">
+        <col class="col-dynamics">
+        <col class="col-duration">
+        <col class="col-metro">
+        <col class="col-repair">
+        <col class="col-building">
+        <col class="col-views">
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="col-header-label" colspan="2">Конкурент</th>
+          <th class="col-start-price">Стартовая цена</th>
+          <th class="col-current-price">Цена сейчас<br><span style="font-weight:400">Разница со стартовой</span></th>
+          <th class="col-dynamics"></th>
+          <th class="col-duration">Срок размещения<br><span style="font-weight:400">Дата публикации</span></th>
+          <th class="col-metro">Метро</th>
+          <th class="col-repair">Ремонт</th>
+          <th class="col-building">Тип дома</th>
+          <th class="col-views">Просмотры<br><span style="font-weight:400">за 10 дней / за всё время</span></th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <div class="custom-scrollbar sticky-custom-scrollbar" id="stickyScrollbarMain">
+    <div class="custom-scrollbar-track" id="stickyScrollbarTrack">
+      <div class="custom-scrollbar-thumb" id="stickyScrollbarThumb"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SNACKBAR CONTAINER ===== -->
+
+<!-- ===== OWNER REPORT FAB =====
+     Статичная кнопка в правом нижнем углу, видна на всех вкладках.
+     Макет: Figma «Доработки отчёта о цене и конкурентах», узел 603:65864.
+     Заменила полку-teaser, выезжавшую по скроллу (логика появления оказалась сложной).
+     До инициализации — скрыта и без анимации (--hidden --preload): есть ли отслеживаемые
+     объекты, известно только после report.js, а таблица всё равно рендерится им же. -->
+<button class="owner-fab owner-fab--hidden owner-fab--preload" id="ownerFab" type="button">
+  <span class="owner-fab__label">Отчёт для собственника</span>
+  <span class="owner-fab__icon">
+    <!-- Icons/Action/16/ArrowDown из кита, экспорт из макета: лист 13.997×15.939 в боксе 16×16 -->
+    <svg width="13.997" height="15.939" viewBox="0 0 13.997 15.9387" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M8.04868 0H5.95029V12.0883L1.40661 7.59308L0 9.01485L6.99848 15.9387L13.997 9.01485L12.5904 7.59308L8.04868 12.0863V0Z" fill="currentColor"/>
+    </svg>
+  </span>
+</button>
+
+<div class="price-tooltip" id="priceTooltip">
+  <div class="price-tooltip-title">История цены</div>
+  <div class="price-tooltip-body"></div>
+</div>
+
+<script src="_design-system/components/header.js"></script>
+<script src="_design-system/components/sidebar.js"></script>
+<script src="_design-system/components/promo-modal.js"></script>
+<script src="competitors-data.js"></script>
+<script src="_design-system/components/gallery-modal.js"></script>
+<script src="_design-system/components/toast.js"></script>
+<script src="_design-system/components/textarea.js"></script>
+<script src="_design-system/components/spinner.js"></script>
+<script src="report.js"></script>
+
+<!-- ===== ONBOARDING TOOLTIP ===== -->
+
+
+<div class="onboarding-tooltip" id="onboardingTooltip">
+  <div class="onboarding-tooltip-title">Добавили объект в отчёт.</div>
+  <div class="onboarding-tooltip-body">Все выбранные объекты конкурентов можно увидеть в этой вкладке.</div>
+  <button class="onboarding-tooltip-close" type="button" aria-label="Закрыть">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+</body>
+</html>

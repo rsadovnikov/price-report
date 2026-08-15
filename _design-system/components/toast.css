@@ -1,0 +1,175 @@
+/* === TOAST ===
+   Сверено с прод-китом @cian/ui-kit v7.84.0 (UI-Kit/Toast) 2026-08-12.
+   Заменяет Snackbar: прод-страница Snackbar помечена @deprecated → «Используйте Toast».
+
+   Разметка (её строит toast.js, руками писать не нужно):
+     <div class="toast-container toast-container--bottom-right">
+       <section class="toast-holder">
+         <div class="toast toast-m" data-type="success">
+           <div class="toast__adornment"><span class="toast__icon">…svg…</span></div>
+           <section class="toast__content"><p class="toast__text">Текст</p></section>
+           <div class="toast__actions"><button class="toast__action">Действие</button></div>
+         </div>
+       </section>
+     </div>
+
+   Подключать после tokens.css. */
+
+.toast-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 101;          /* прод: 101 */
+  pointer-events: none;  /* клики проходят сквозь пустую область */
+}
+.toast-container--top-center,
+.toast-container--top-right { top: 0; }
+.toast-container--bottom-center,
+.toast-container--bottom-right { bottom: 0; }
+
+.toast-holder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--unit2);     /* прод: 8px между тостами в стопке */
+  margin: var(--unit6);  /* прод: отступ 24 от края */
+}
+.toast-container--top-right .toast-holder,
+.toast-container--bottom-right .toast-holder { align-items: flex-end; }
+
+/* --- Сам тост --- */
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  min-height: 52px;
+  max-height: 90px;
+  border-radius: var(--radius-l);
+  background-color: var(--text-primary-default); /* #0d162e — прод берёт именно этот токен */
+  pointer-events: all;
+  position: relative;
+  transition: opacity 300ms, margin 300ms;
+}
+
+/* Размеры (прод S / M / L) */
+.toast-s { width: 100%; min-width: 288px; max-width: 616px; }
+.toast-m { width: 368px; }
+.toast-l { width: 616px; }
+
+/* Появление/уход: сдвиг на 10px от своего края + прозрачность */
+.toast-container--top-center .toast,
+.toast-container--top-right .toast { margin-top: -10px; }
+.toast-container--bottom-center .toast,
+.toast-container--bottom-right .toast { margin-bottom: -10px; }
+.toast { opacity: 0; }
+.toast.is-visible { opacity: 1; margin-top: 0; margin-bottom: 0; }
+
+/* --- Иконка слева --- */
+.toast__adornment {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: var(--unit3) 0 var(--unit3) var(--unit3); /* прод: 12px 0 12px 12px */
+}
+.toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+/* У success/error глиф лежит в белом круге — иначе цветная заливка теряется на тёмном фоне */
+.toast[data-type="success"] .toast__icon,
+.toast[data-type="error"] .toast__icon {
+  background: var(--surface-inverted-default);
+  border-radius: 50%;
+}
+.toast[data-type="success"] .toast__icon { color: var(--control-positive-primary-default); }
+.toast[data-type="error"]   .toast__icon { color: var(--control-negative-primary-default); }
+.toast__icon svg { display: block; }
+
+/* --- Текст --- */
+.toast__content {
+  padding: var(--unit3);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.toast__text {
+  margin: 0;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  font-weight: 400;
+  color: var(--text-inverted-default);
+}
+
+/* --- Действия справа --- */
+/* Колонка, а не строка: в проде две кнопки действия встают друг под друга
+   (right-adornment 141×93 при двух кнопках 140×47), иначе тост распирает шире своего размера. */
+.toast__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+.toast__action {
+  padding: var(--unit2) var(--unit3); /* прод: 8px 12px */
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  font-weight: 400;
+  white-space: nowrap;
+  color: var(--control-main-primary-default); /* прод: #006cfd прямо на тёмном фоне */
+}
+.toast__action:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
+/* Кнопка закрытия — иконка ×, вторичный серый (как в проде) */
+.toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-right: var(--unit3);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--icon-secondary-default);
+}
+.toast__close:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
+/* Спиннер для type="loading" */
+.toast[data-type="loading"] .toast__icon::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--icon-secondary-default);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: toast-spin 0.7s linear infinite;
+}
+@keyframes toast-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: opacity 300ms; }
+  .toast[data-type="loading"] .toast__icon::after { animation: none; }
+}
+
+/* Мобильный: прод сжимает высоту и растягивает по ширине */
+@media (max-width: 640px) {
+  .toast { min-height: 44px; max-height: 84px; width: 100%; }
+  .toast-holder { margin: var(--unit3); align-items: stretch; }
+}

@@ -1,0 +1,346 @@
+/* === СНИППЕТ ОБЪЯВЛЕНИЯ В «МОИХ ОБЪЯВЛЕНИЯХ», ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Геометрия из Figma «Доработки отчёта о цене и конкурентах»,
+ * nodes 563:68204 / 563:68248 / 563:68297 (три варианта одного сниппета).
+ *
+ * Это не контрол из группы Controls, а паттерн экрана: карточка объявления,
+ * блок продвижения, плитки действий и строка статистики. Контролы из него не
+ * растут — наоборот, он их использует.
+ *
+ * Карточка во всю ширину экрана и при этом со скруглением 16 — так в макете.
+ * Отступ от краёв даёт не карточка, а её внутренний паддинг 20.
+ *
+ * Расхождение в макете, которое мы нормализовали: у блока продвижения радиус
+ * 9px в первом и третьем сниппете и 8px во втором. Взяли --radius-l (8) —
+ * 9 в шкале радиусов ЦИАН не существует.
+ */
+
+.snippet-app {
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary);
+  border-radius: var(--radius-xxl);
+}
+
+/* --- Верх: фото, цена, параметры, адрес --- */
+
+.snippet-app__info {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit3);
+  padding: var(--unit5) var(--unit5) var(--unit4);
+}
+.snippet-app__photo {
+  flex: none;
+  width: 84px; height: 84px;
+  border-radius: var(--radius-l);
+  object-fit: cover;
+  display: block;
+}
+.snippet-app__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit2);
+  flex: 1;
+  min-width: 0;
+}
+.snippet-app__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+.snippet-app__titles {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.snippet-app__price {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+.snippet-app__params {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-primary-default);
+}
+.snippet-app__addr {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+/* «Ещё» — три точки. Бокс 16, внутри полоска 16×4; тач-зона добирается до 44. */
+.snippet-app__more {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.snippet-app__more::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 44px; height: 44px;
+  transform: translate(-50%, -50%);
+}
+.snippet-app__more img { display: block; width: 16px; height: 4px; }
+
+/* --- Низ: действия и статистика --- */
+
+.snippet-app__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit4);
+  padding: 0 var(--unit5) var(--unit5);
+}
+.snippet-app__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}
+
+/* --- Блок продвижения (.item-ios-action-block в макете) ---
+ * Серая плашка во всю ширину: слева состояние продвижения, справа действие.
+ */
+.action-block-app {
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  padding: var(--unit2) var(--unit4);
+  background: var(--surface-neutral-default);
+  border-radius: var(--radius-l);
+}
+.action-block-app__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: var(--unit1) 0;
+}
+/* Действие справа — текстовая ссылка, не залитая кнопка */
+.action-block-app__link {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-base);
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-main-default);
+  text-decoration: none;
+}
+.action-block-app__link:active { opacity: 0.6; }
+
+/* Простой текст вместо блока продвижения — «83 позиция по району» */
+.action-block-app__text {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+.action-block-app__note {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-secondary-default);
+}
+
+/* Строка «Ставка 10 ₽ · Выше 70% ↑» — переносится, если не влезает */
+.promo-app {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--unit2);
+}
+.promo-app__bid,
+.promo-app__rank {
+  margin: 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+}
+.promo-app__bid  { color: var(--decorative-orange); }
+.promo-app__rank { color: var(--text-secondary-default); }
+.promo-app__rank-box {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+}
+/* Стрелка роста — экспорт из макета, высота не целая: 16 × 16.346 */
+.promo-app__rank-icon { display: block; flex: none; width: 16px; height: 16.346px; }
+
+/* --- Плитки действий ---
+ * Ряд из двух: узкая по контенту («4 конкурента») и растянутая («Отправить рассылку»).
+ * Растягивается именно вторая — у первой ширина по содержимому.
+ */
+.action-row-app {
+  display: flex;
+  align-items: stretch;
+  gap: var(--unit1);
+}
+.action-tile-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  padding: var(--unit3) var(--unit4);
+  background: var(--surface-neutral-default);
+  border: 0;
+  border-radius: var(--radius-l);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+.action-tile-app:active { opacity: 0.6; }
+.action-tile-app--wide { flex: 1; min-width: 0; min-height: 56px; }
+.action-tile-app--warning { background: var(--surface-warning-default); }
+
+/* Вариант с иконкой справа: текст уходит влево, иконка прижата к правому краю */
+.action-tile-app--split {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--unit3);
+  text-align: left;
+}
+.action-tile-app__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
+.action-tile-app__title {
+  margin: 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-main-default);
+}
+.action-tile-app__note {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-secondary-default);
+}
+/* На жёлтой плитке подпись — предупреждающего цвета, а не серая */
+.action-tile-app--warning .action-tile-app__note { color: var(--text-warning-default); }
+
+/* Недоступное действие: гасится только заголовок, подпись остаётся читаемой —
+   она объясняет, почему недоступно */
+.action-tile-app--disabled { cursor: default; }
+.action-tile-app--disabled:active { opacity: 1; }
+.action-tile-app--disabled .action-tile-app__title { color: var(--text-main-disabled); }
+
+.action-tile-app__help {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.action-tile-app__help img { display: block; width: 16px; height: 16px; }
+
+/* --- Статистика ---
+ * Один ряд с переносом: просмотры, избранное, заявки, звонки, охват.
+ * Прирост («+1», «+5») — тот же кегль, отличается цветом.
+ */
+.stats-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit2);
+}
+.stats-app__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--unit2) var(--unit3);
+}
+.stats-app__item {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+}
+.stats-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.stats-app__icon img { display: block; }
+
+/* Экспорты из макета разной геометрии — общим правилом их растянет */
+.stats-app__icon--views img    { width: 16px; height: 12px; }
+.stats-app__icon--likes        { padding-top: 1px; overflow: hidden; }
+.stats-app__icon--likes img    { width: 16px; height: 15px; }
+.stats-app__icon--requests img { width: 14px; height: 13px; }
+.stats-app__icon--phone        { width: 12px; height: 12px; }
+.stats-app__icon--phone img    { width: 12px; height: 12px; }
+
+.stats-app__value,
+.stats-app__delta {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+.stats-app__value { color: var(--text-primary-default); }
+.stats-app__delta { color: var(--text-secondary-default); }
+
+/* Охват выбивается из ряда: подпись набрана Heading4 (16), а значение — Body2 (14).
+   Так в макете; выглядит намеренно — подпись весомее числа. */
+.stats-app__reach-label {
+  margin: 0;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-secondary-default);
+}
+
+/* Строка платной услуги под статистикой — «Топ + 245 ₽» */
+.stats-app__vas {
+  margin: 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--decorative-deep-orange-vas);
+}

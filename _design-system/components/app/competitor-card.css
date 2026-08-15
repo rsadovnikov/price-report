@@ -1,0 +1,295 @@
+/* === КАРТОЧКА КОНКУРЕНТА, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 563:68768.
+ * Экран «Конкуренты объекта» — развёрнутый список за строкой «N ближайших».
+ *
+ * В Figma компонент называется тем же именем `ad-03`, что и строка на 40px из
+ * cells.css, но это другой размер того же семейства: фото 56 вместо 36, плюс
+ * плашки-характеристики, цена «было → стало» и статистика. Держим отдельно —
+ * общего в них только имя.
+ *
+ * Плашки характеристик — компонент Badge (components/app/badge.css),
+ * сочетание ghost × secondary. Свой класс под них не заводим.
+ */
+
+.competitor-card-app {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit3);
+  padding: var(--unit5);
+  background: var(--background-primary);
+  border-radius: var(--radius-xxl);
+}
+
+/* Обводка у фото — не разделитель, а именно рамка карточки объекта: в макете это
+   1px цветом --shadow-default. Нужна, чтобы светлое фото не сливалось с белым фоном. */
+.competitor-card-app__photo {
+  display: block;
+  flex: none;
+  width: 56px; height: 56px;
+  border: 1px solid var(--shadow-default);
+  border-radius: var(--radius-l);
+  object-fit: cover;
+}
+
+/* Две вложенные колонки, и зазоры у них разные — это не дублирование:
+ *   __body    (16) — содержимое и кнопка под ним;
+ *   __content (12) — «шапка + плашки» и блок цифр.
+ * На экране «Конкуренты объекта» кнопки нет, __body остаётся с одним ребёнком, и
+ * его 16 в раскладке не участвуют. Отсюда моя первая запись «зазор 12, а не 16»:
+ * она верна для того экрана, но неверна как описание компонента. Подборка (393:82222)
+ * показала оба уровня сразу и развела их. */
+.competitor-card-app__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit4);
+  flex: 1;
+  min-width: 0;
+}
+.competitor-card-app__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit3);
+}
+.competitor-card-app__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit3);
+}
+.competitor-card-app__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit3);
+}
+.competitor-card-app__titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+  flex: 1;
+  min-width: 0;
+}
+.competitor-card-app__title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Гео: метро и адрес --- */
+.competitor-card-app__geo {
+  display: flex;
+  flex-direction: column;
+}
+.competitor-card-app__metro-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit2);
+}
+.competitor-card-app__metro,
+.competitor-card-app__walk {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+}
+.competitor-card-app__metro { color: var(--text-primary-default); }
+.competitor-card-app__walk  { color: var(--text-secondary-default); }
+.competitor-card-app__metro p,
+.competitor-card-app__walk p {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+/* Иконка ветки метро — инлайновый SVG на currentColor, а не <img>: цвет линии
+   приходит из данных. В экспорте из Figma он запечён (#4aaf4f), поэтому берём
+   геометрию, а красим классами .metro-* из base.css, как в вебе. */
+.metro-icon-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.metro-icon-app svg { display: block; width: 15px; height: 10.646px; }
+.metro-icon-app path { fill: currentColor; }
+
+.walk-icon-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.walk-icon-app img { display: block; width: 10.394px; height: 14.006px; }
+
+.competitor-card-app__addr {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Кнопка «убрать» ---
+ * Это Button приложения в размере small (36) с красной вторичной заливкой,
+ * но без текста — поэтому квадрат по min-width. Отдельный класс, а не .btn-app:
+ * у той нет иконочного варианта, и натягивать её здесь — врать про API.
+ */
+.competitor-card-app__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px; height: 36px;
+  padding: 0 var(--unit3);
+  border: 0;
+  border-radius: var(--radius-l);
+  background: var(--control-negative-secondary-default);
+  cursor: pointer;
+}
+.competitor-card-app__remove:active { opacity: 0.6; }
+.competitor-card-app__remove img { display: block; width: 14px; height: 16px; }
+
+/* --- Плашки характеристик --- */
+.competitor-card-app__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--unit1);
+}
+
+/* --- Цифры: цена и статистика --- */
+.competitor-card-app__figures {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit2);
+}
+
+/* Цена «было → стало». Если цена не менялась, остаётся только текущая и иконки нет. */
+.price-row-app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--unit2);
+}
+.price-row-app__values {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit1);
+  white-space: nowrap;
+}
+.price-row-app__old,
+.price-row-app__new {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.price-row-app__old { color: var(--text-secondary-default); }
+.price-row-app__new { color: var(--text-primary-default); }
+.price-row-app__sum {
+  margin: 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+}
+.price-row-app__per-m {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+}
+/* Стрелка между ценами — текстовый символ, а не иконка: так в макете */
+.price-row-app__arrow {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: 20px;                  /* в макете у стрелки свой интерлиньяж */
+  color: var(--text-secondary-default);
+}
+/* Иконка динамики: 36×36, экспорт из макета — фон, столбики и стрелка в одном файле */
+.price-row-app__icon { display: block; flex: none; width: 36px; height: 36px; }
+
+/* Статистика: срок размещения и просмотры */
+.stats-row-app {
+  display: flex;
+  flex-direction: column;
+}
+/* Плашка «Снято с публикации» встаёт над строками статистики и отбита на 8.
+   Отступ полем, а не зазором колонки: между самими строками зазора нет, и общий
+   gap развёл бы и их тоже. */
+.stats-row-app__status {
+  align-self: flex-start;
+  margin-bottom: var(--unit2);
+}
+.stats-row-app__age {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+  white-space: nowrap;
+}
+.stats-row-app__days {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-primary-default);
+}
+.stats-row-app__date {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}
+.stats-row-app__views {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit1);
+}
+.stats-row-app__eye {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.stats-row-app__eye img { display: block; width: 16px; height: 12px; }
+/* Пары «число + период» переносятся целиком, поэтому обёртка, а не сплошной текст */
+.stats-row-app__counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--unit1);
+  flex: 1;
+  min-width: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+.stats-row-app__pair {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+  white-space: nowrap;
+}
+.stats-row-app__count { color: var(--text-primary-default); }
+.stats-row-app__period { color: var(--text-secondary-default); }

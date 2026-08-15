@@ -1,0 +1,297 @@
+/* === MAGENTUM INPUTS === */
+/* Подключать после tokens.css: <link rel="stylesheet" href="inputs.css"> */
+/* Инпуты — форм-элементы и фильтр-селекты (не кнопки, не чипы) */
+
+/* ==========================================
+   FILTER SELECT — фильтр с дропдауном
+   Применяется: строка фильтров в report.html
+   ========================================== */
+
+.filter-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  font-family: var(--font-base);
+  font-size: var(--type-body2-size);
+  font-weight: 400;
+  line-height: var(--type-body2-lh);
+  color: var(--text-primary);
+  background: var(--background-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Hover */
+.filter-select:hover {
+  border-color: var(--control-primary);
+}
+
+/* Open / Active (дропдаун открыт) */
+.filter-select.open,
+.filter-select[aria-expanded="true"] {
+  border-color: var(--control-primary);
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 0;
+}
+
+/* Focus с клавиатуры — в проде кольцо даёт box-shadow токеном */
+.filter-select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--stroke-control-focused);
+  border-color: var(--stroke-control-focused);
+}
+
+/* Filled (значение выбрано, фильтр применён) */
+.filter-select.filled {
+  border-color: var(--control-primary);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* Disabled — по прод-контракту: рамка и заливка одним серым */
+.filter-select:disabled,
+.filter-select[aria-disabled="true"] {
+  border-color: var(--surface-inverted-disabled);
+  color: var(--text-primary-disabled);
+  background: var(--surface-inverted-disabled);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Иконка — см. base.css .icon */
+.filter-select .icon {
+  color: var(--text-secondary);
+}
+
+
+/* ==========================================
+   INPUT — текстовое поле
+   Сверено с прод-китом @cian/ui-kit v7.84.0 (UI-Kit/Input/Input) 2026-08-12.
+   Прод: обёртка с рамкой + голый input внутри. Размеры XS (десктоп) и M (мобильный).
+
+   Разметка:
+     <span class="input">
+       <input class="input__control" type="text" placeholder="…">
+     </span>
+   Невалидное — aria-invalid="true" на .input__control.
+   ========================================== */
+
+.input {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;                 /* прод XS */
+  padding: 0 var(--unit2);
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  background: var(--surface-inverted-default);
+  cursor: text;
+}
+
+/* Размер M — прод мобильный */
+.input-m {
+  height: 44px;
+  padding: 0 var(--unit3);
+}
+
+.input__control {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  padding: 0;
+  background: transparent;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  font-weight: 400;
+  color: var(--text-primary-default);
+}
+.input-m .input__control {
+  /* Кастомный текстовый стиль, не роль из шкалы. За сменой поверхности не идёт:
+     в приложении здесь останутся вебовые числа, пока их не переопределит app-дельта. */
+
+  font-size: 16px;
+  line-height: 22px;
+}
+.input__control::placeholder { color: var(--text-secondary-default); }
+.input__control:disabled { color: var(--text-primary-disabled); }
+
+.input:hover { border-color: var(--stroke-control-hovered); }
+
+.input:focus-within {
+  border-color: var(--stroke-control-focused);
+  box-shadow: 0 0 0 1px var(--stroke-control-focused);
+}
+
+.input:has(.input__control[aria-invalid="true"]) {
+  border-color: var(--stroke-border-negative);
+}
+
+.input:has(.input__control:disabled) {
+  border-color: var(--surface-inverted-disabled);
+  background: var(--surface-inverted-disabled);
+  cursor: default;
+}
+
+/* Адорнменты — иконка/кнопка по краям поля (в проде 34×36) */
+.input__adornment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--icon-secondary-default);
+}
+.input__adornment:first-child { margin-right: var(--unit2); }
+.input__adornment:last-child { margin-left: var(--unit2); }
+
+
+/* ==========================================
+   SELECT — выбор из списка
+   Сверено с прод-китом @cian/ui-kit (UI-Kit/Select/Select) 2026-08-13.
+
+   Прод-Select собран ПОВЕРХ Input: тот же `input-wrapper` (36 / radius 8 /
+   рамка --stroke-control-default), внутри контент с `padding-left: 8px`
+   и правый адорнмент 34×36 с синим шевроном 16×16 (--icon-main-default).
+   Адорнмент выходит за рамку на 1px (`height: calc(100% + 2px); margin: -1px 0`),
+   чтобы скругление совпало с рамкой поля.
+
+     <select class="select">…</select>
+     <select class="select" aria-invalid="true">…</select>
+
+   ⚠️ Прод-Select — свой дропдаун с поповером, у нас нативный `<select>` под
+   `appearance: none`. Совпадает всё, кроме самой раскрывающейся панели: там у нас
+   список ОС. Осознанно: панель — хром браузера, а нативный контрол бесплатно даёт
+   клавиатуру и доступность. Заводить поповер — только если понадобится
+   мультивыбор или своя разметка пунктов.
+   ========================================== */
+
+.select {
+  box-sizing: border-box;
+  height: 36px;                             /* прод XS, как у .input */
+  /* справа — место под адорнмент со стрелкой (34), слева — контентный отступ (8) */
+  padding: 0 34px 0 var(--unit2);
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  background-color: var(--surface-inverted-default);
+  /* Шеврон прод-Select: 16×16, --icon-main-default. Внутри адорнмента 34px он
+     центрируется, отсюда отступ (34 − 16) / 2 = 9 от правого края. */
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cpath%20fill='%23006cfd'%20fill-rule='evenodd'%20d='m12.707%206.354-1.414-1.415L8%208.232%204.707%204.94%203.293%206.354%208%2011.06z'%20clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  font-weight: 400;
+  color: var(--text-primary-default);
+  cursor: pointer;
+  outline: none;
+}
+
+.select:hover:not(:disabled) { border-color: var(--stroke-control-hovered); }
+
+.select:focus-visible {
+  border-color: var(--stroke-control-focused);
+  box-shadow: 0 0 0 1px var(--stroke-control-focused);
+}
+
+.select[aria-invalid="true"] { border-color: var(--stroke-border-negative); }
+
+/* Disabled — рамка и заливка одним серым, шеврон гаснет в --icon-main-disabled */
+.select:disabled {
+  border-color: var(--surface-inverted-disabled);
+  background-color: var(--surface-inverted-disabled);
+  color: var(--text-primary-disabled);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%3E%3Cpath%20fill='%23b1bad2'%20fill-rule='evenodd'%20d='m12.707%206.354-1.414-1.415L8%208.232%204.707%204.94%203.293%206.354%208%2011.06z'%20clip-rule='evenodd'/%3E%3C/svg%3E");
+  cursor: default;
+}
+
+
+/* ==========================================
+   TEXTAREA — многострочное поле
+   Сверено с прод-китом @cian/ui-kit (UI-Kit/Input/Textarea) 2026-08-13.
+   Прод-пропы: invalid, size (XS десктоп / M мобильный), width, minRows, maxRows, hasCounter.
+   Здесь заведён размер XS — десктопный; M не снимался (прототип десктопный).
+
+   Разметка:
+     <label class="textarea">
+       <textarea class="textarea__control" rows="2" placeholder="…"></textarea>
+     </label>
+   Со счётчиком (прод `hasCounter`) — добавить span; padding снизу подставится сам:
+     <label class="textarea">
+       <textarea class="textarea__control" maxlength="300" data-min-rows="5"></textarea>
+       <span class="textarea__counter"></span>
+     </label>
+   Невалидное — aria-invalid="true" на .textarea__control.
+   Авторазмер и счётчик — textarea.js (прод растит поле между minRows и maxRows).
+   ========================================== */
+
+.textarea {
+  display: block;
+  position: relative;   /* якорь для счётчика — как прод .counterWrapper */
+  width: 100%;
+}
+
+.textarea__control {
+  display: block;       /* убирает baseline-щель под inline-textarea */
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--unit2);
+  border: 1px solid var(--stroke-control-default);
+  border-radius: var(--radius-l);
+  background: var(--surface-inverted-default);
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--text-primary-default);
+  resize: none;         /* прод растит поле сам, ручку не даёт */
+  overflow-y: hidden;   /* textarea.js включает скролл на maxRows */
+  outline: none;
+}
+
+.textarea__control::placeholder { color: var(--text-primary-disabled); }
+
+/* Счётчик занимает нижнюю полосу поля — прод добавляет 12px к нижнему padding */
+.textarea:has(.textarea__counter) .textarea__control { padding-bottom: var(--unit5); }
+
+.textarea__counter {
+  position: absolute;
+  right: var(--unit2);
+  bottom: var(--unit1);
+  font-family: var(--font-base, 'Lato', sans-serif);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  font-weight: 400;
+  color: var(--text-secondary-default);
+  pointer-events: none;
+}
+
+.textarea__control:hover:not(:disabled) { border-color: var(--stroke-control-hovered); }
+
+/* ⚠️ Фокус — НАШЕ добавление, в проде его нет.
+   Замер 2026-08-13: у прод-Textarea на фокусе не меняется ничего (ни рамка, ни outline,
+   ни тень) — поле вообще не показывает, что в нём каретка. При этом Input того же кита
+   даёт `box-shadow: 0 0 0 1px --stroke-control-focused`. Это дефект прода, а не решение:
+   ведём по семье компонентов, как с letter-spacing у кнопок (см. prod-parity.md). */
+.textarea__control:focus {
+  border-color: var(--stroke-control-focused);
+  box-shadow: 0 0 0 1px var(--stroke-control-focused);
+}
+
+.textarea__control[aria-invalid="true"] { border-color: var(--stroke-border-negative); }
+
+/* Disabled — рамка и заливка одним серым; цвет текста прод НЕ гасит */
+.textarea__control:disabled {
+  border-color: var(--surface-inverted-disabled);
+  background: var(--surface-inverted-disabled);
+  cursor: not-allowed;
+}

@@ -1,0 +1,92 @@
+/* === ENTRY POINT ROW, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Контрол №11 «Entry Points» из группы Controls (см. surface-app.md) — в инвентаре
+ * он стоял с пометкой «непонятно, что это». Оказалось: строка-вход в раздел.
+ * Картинка слева, заголовок, шеврон справа, серая подложка со скруглением 8.
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 667:20021.
+ *
+ * Вебового аналога нет. Ближайшее по смыслу — промо-баннер, но у него другая
+ * конструкция: там заголовок с описанием и кнопка, здесь одна строка-ссылка.
+ *
+ * Высота 72 не задаётся: 16 + 40 (картинка) + 16. Текстовый блок держит
+ * min-height 52, чтобы строка не схлопывалась, если картинки нет.
+ */
+
+.entry-point-app {
+  display: flex;
+  align-items: center;
+  gap: var(--unit4);
+  padding-left: var(--unit4);
+  background: var(--surface-neutral-default);
+  border-radius: var(--radius-l);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.entry-point-app:active { opacity: 0.6; }
+
+.entry-point-app__image {
+  display: flex;
+  align-items: flex-start;
+  flex: none;
+  padding: var(--unit4) 0;
+  overflow: hidden;
+}
+.entry-point-app__image img {
+  display: block;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-m);
+  object-fit: cover;
+}
+
+.entry-point-app__body {
+  display: flex;
+  align-items: center;
+  gap: var(--unit4);
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding-right: var(--unit4);
+}
+.entry-point-app__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--unit1);
+  flex: 1;
+  min-width: 0;
+  padding: var(--unit4) 0;
+}
+.entry-point-app__title {
+  margin: 0;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+.entry-point-app__note {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}
+
+/* Шеврон 16. Экспорт из макета — это «шеврон вверх»; вправо он смотрит поворотом,
+   ровно как в самом Figma (там -90° со отражением, что то же самое, что +90°).
+   Файл не перерисовываем — крутим в CSS. */
+.entry-point-app__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.entry-point-app__action img {
+  display: block;
+  width: 15.414px; height: 9.121px;
+  transform: rotate(90deg);
+}

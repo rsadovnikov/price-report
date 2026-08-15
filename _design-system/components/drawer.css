@@ -1,0 +1,60 @@
+/* === DRAWER (шторка) — правая выезжающая панель в формате модального окна ===
+   Подключать после tokens.css, base.css.
+   Управление и сборка DOM — components/drawer.js (openDrawer).
+   Формат: затемняющий overlay + панель у правого края, выезжает по X.
+   Закрытие: крестик, клик по затемнению, Esc. На время показа скролл body блокируется. */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--overlay-default);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.drawer-overlay.is-open { opacity: 1; }
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 30vw;                /* 30% ширины вьюпорта; переопределяется config.width */
+  background: var(--background-primary);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+.drawer-overlay.is-open .drawer { transform: translateX(0); }
+
+/* Тело шторки — на этом этапе пустое; наполняется через config.content. */
+.drawer__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Круглая кнопка закрытия — единый паттерн с promo-modal. */
+.drawer__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--background-primary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  color: var(--icon-secondary-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+.drawer__close:hover { background: var(--stroke-divider-neutral); }
+.drawer__close svg { pointer-events: none; display: block; }

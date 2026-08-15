@@ -1,0 +1,56 @@
+/* === TABS CONTROL, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Контрол №4 из группы Controls (см. surface-app.md).
+ * Геометрия из Figma, node 563:68198 «Counter Container».
+ *
+ * Чем отличается от вебового components/tabs.css:
+ *   — веб: подчёркивание активного таба, общая линия-разделитель под рядом;
+ *     — приложение: заливка активного таба (--surface-neutral-default) и радиус 4,
+ *     никакой линии под рядом нет;
+ *   — веб: счётчик — отдельный визуальный элемент (.tab-counter);
+ *     — приложение: счётчик просто вторая строка текста того же кегля, отличается цветом;
+ *   — активный таб в приложении шире неактивного: паддинг 16 против 8. Ряд при
+ *     переключении «дышит» — это поведение макета, а не наша вольность.
+ *
+ * Ряд горизонтально прокручивается: в макете четыре таба (510px) не влезают в 375.
+ */
+
+.tabs-app {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 var(--unit5);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.tabs-app::-webkit-scrollbar { display: none; }
+
+.tab-app {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+  flex: none;
+  min-height: 40px;                   /* в макете высота таба зафиксирована 40 */
+  padding: 9px var(--unit2);          /* 9 — не из шкалы отступов, число из макета */
+  border: 0;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+.tab-app:active { opacity: 0.6; }
+
+/* Счётчик — тот же кегль и вес, отличается только цветом */
+.tab-app__count { color: var(--text-secondary-default); }
+
+.tab-app--active {
+  padding-left: var(--unit4);
+  padding-right: var(--unit4);
+  background: var(--surface-neutral-default);
+  border-radius: var(--radius-m);
+}

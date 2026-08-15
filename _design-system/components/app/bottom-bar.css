@@ -1,0 +1,50 @@
+/* === НИЖНЯЯ ПЛАШКА С ДЕЙСТВИЕМ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 563:68772.
+ * Тёмная плашка, прибитая к низу экрана: текст слева, залитая кнопка справа.
+ *
+ * ⚠️ ПЕРЕИМЕНОВАНО 2026-08-15. Раньше файл назывался `snackbar.css`, а класс —
+ * `.snackbar-app`: в макете фрейм подписан «Snackbar». Но это **не** компонент
+ * кита: у `563:68772` дети идут обычными узлами, а не как у инстанса, gap 16
+ * вместо 8, текст Heading5 вместо Body1 и залитая кнопка вместо ссылки с
+ * разделителем. Автор макета собрал плашку руками и назвал знакомым словом.
+ * Настоящий Snackbar из библиотеки iOS (19135:34320) — это всплывающее
+ * уведомление, и имя `snackbar.css` теперь занято им.
+ *
+ * Отличие по сути, а не по виду: эта плашка **постоянная** и несёт CTA, а
+ * снекбар всплывает, живёт несколько секунд и сам уходит.
+ */
+
+.bottom-bar-app {
+  position: fixed;
+  left: var(--unit2);
+  right: var(--unit2);
+  bottom: calc(var(--unit2) + env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: var(--unit4);
+  max-width: 404px;                   /* 420 экрана минус отступы по 8 */
+  margin: 0 auto;
+  padding: var(--unit3);
+  background: var(--solid-gray1100);
+  border-radius: var(--radius-l);
+}
+
+.bottom-bar-app__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-inverted-default);
+}
+
+/* Кнопка внутри — обычная .btn-app, но на тёмном фоне кит берёт светлую ступень
+   синего (--solid-blue300) вместо основной. Это тёмный Colors Mode; про то, как
+   он устроен, — комментарий в snackbar.css. */
+.bottom-bar-app .btn-app--primary.btn-app--main {
+  background: var(--solid-blue300);
+}

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ru" data-surface="app">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover — чтобы работали env(safe-area-inset-*) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
+       и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
+       при котором уже написанный CSS вообще включается. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
+  <title>Мои объявления — приложение</title>
+
+  <!-- Палитра, отступы, радиусы — общие с вебом -->
+  <link rel="stylesheet" href="../_design-system/tokens.css">
+  <!-- Поверхность приложения: SF Pro и своя шкала типографики. Только после tokens.css -->
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
+  <!-- Общая база обеих поверхностей: reset и типографика. web.css здесь не нужен -->
+  <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css">
+  <link rel="stylesheet" href="../_design-system/components/app/snippet.css">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css">
+
+  <style>
+    /* Страница экрана. Рамки устройства нет: смотрим либо с телефона, либо узким
+       окном на маке. На широком экране лист центрируется — не растягиваем сниппеты
+       на всю ширину монитора, они спроектированы под 375.
+       Reset, шрифт и типографика приезжают из base.css — здесь только своё. */
+    body {
+      background: var(--background-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .screen-app {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      max-width: 420px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      background: var(--background-secondary);
+    }
+    .listing-app {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body>
+
+<div class="screen-app">
+
+  <!-- ===== Шапка ===== -->
+  <header class="appbar">
+
+    <!-- Мок статус-бара: виден в браузере, прячется, если экран добавлен на домашний -->
+    <div class="statusbar-app" aria-hidden="true">
+      <img class="statusbar-app__time" src="../_design-system/assets/icons/statusbar-time.svg" alt="">
+      <div class="statusbar-app__island"></div>
+      <img class="statusbar-app__indicators" src="../_design-system/assets/icons/statusbar-indicators.svg" alt="">
+    </div>
+
+    <nav class="navbar-app">
+      <button class="navbar-app__icon navbar-app__icon--back" type="button" aria-label="Назад">
+        <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
+      </button>
+      <div class="navbar-app__icons">
+        <button class="navbar-app__icon navbar-app__icon--search" type="button" aria-label="Поиск">
+          <img src="../_design-system/assets/icons/search-24.svg" alt="">
+        </button>
+        <button class="navbar-app__icon navbar-app__icon--filter" type="button" aria-label="Фильтры">
+          <img src="../_design-system/assets/icons/filter-24.svg" alt="">
+        </button>
+        <button class="navbar-app__icon navbar-app__icon--bell" type="button" aria-label="Уведомления">
+          <img src="../_design-system/assets/icons/notification-24.svg" alt="">
+        </button>
+      </div>
+    </nav>
+
+    <div class="appbar__filters">
+      <div class="cell-app-title">
+        <h1 class="cell-app-title__text">Мои объявления</h1>
+      </div>
+
+      <div class="tabs-app" role="tablist">
+        <button class="tab-app" type="button" role="tab" aria-selected="false">
+          Аренда <span class="tab-app__count">291</span>
+        </button>
+        <button class="tab-app tab-app--active" type="button" role="tab" aria-selected="true">
+          Продажа <span class="tab-app__count">50</span>
+        </button>
+        <button class="tab-app" type="button" role="tab" aria-selected="false">
+          Неактивные <span class="tab-app__count">84</span>
+        </button>
+        <button class="tab-app" type="button" role="tab" aria-selected="false">
+          Архив <span class="tab-app__count">84</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Лента объявлений ===== -->
+  <main class="listing-app">
+
+    <!-- --- Сниппет 1: продвижение активно, рассылка доступна, обновлений нет --- -->
+    <article class="snippet-app">
+      <div class="snippet-app__info">
+        <img class="snippet-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
+        <div class="snippet-app__body">
+          <div class="snippet-app__head">
+            <div class="snippet-app__titles">
+              <p class="snippet-app__price">11 600 000 ₽</p>
+              <p class="snippet-app__params">3-комн. кв., 45 м², 4/9 этаж</p>
+            </div>
+            <button class="snippet-app__more" type="button" aria-label="Ещё">
+              <img src="../_design-system/assets/icons/more-16.svg" alt="">
+            </button>
+          </div>
+          <p class="snippet-app__addr">м. Селигерская, Москва, Дмитровское шоссе, 123к4</p>
+        </div>
+      </div>
+
+      <div class="snippet-app__footer">
+        <div class="snippet-app__actions">
+          <div class="action-block-app">
+            <div class="action-block-app__body">
+              <div class="promo-app">
+                <p class="promo-app__bid">Ставка 10 ₽</p>
+                <div class="promo-app__rank-box">
+                  <p class="promo-app__rank">Выше 70%</p>
+                  <img class="promo-app__rank-icon" src="../_design-system/assets/icons/arrow-up-16.svg" alt="">
+                </div>
+              </div>
+              <p class="action-block-app__note">Осталось 980 ₽ из 1 000 ₽</p>
+            </div>
+            <button class="action-block-app__link" type="button">Продвинуть</button>
+          </div>
+
+          <div class="action-row-app">
+            <a class="action-tile-app" href="report-app.html?n=4" data-action="competitors">
+              <span class="action-tile-app__title">4 конкурента</span>
+            </a>
+            <a class="action-tile-app action-tile-app--wide" href="#">
+              <span class="action-tile-app__title">Отправить рассылку</span>
+              <span class="action-tile-app__note">74 получателя</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="stats-app">
+          <div class="stats-app__row">
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--views">
+                <img src="../_design-system/assets/icons/views-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">3854</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--likes">
+                <img src="../_design-system/assets/icons/likes-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">54</p>
+              <p class="stats-app__delta">+1</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--requests">
+                <img src="../_design-system/assets/icons/requests-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">8</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--phone">
+                <img src="../_design-system/assets/icons/phone-12.svg" alt="">
+              </span>
+              <p class="stats-app__value">16</p>
+              <p class="stats-app__delta">+5</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- --- Сниппет 2: есть обновления у конкурентов, рассылка недоступна --- -->
+    <article class="snippet-app" data-updates="3">
+      <div class="snippet-app__info">
+        <img class="snippet-app__photo" src="../photos/mo/mo4-1.jpg" alt="">
+        <div class="snippet-app__body">
+          <div class="snippet-app__head">
+            <div class="snippet-app__titles">
+              <p class="snippet-app__price">15 300 000 ₽</p>
+              <p class="snippet-app__params">3-комн. кв., 45 м², 5/7 этаж</p>
+            </div>
+            <button class="snippet-app__more" type="button" aria-label="Ещё">
+              <img src="../_design-system/assets/icons/more-16.svg" alt="">
+            </button>
+          </div>
+          <p class="snippet-app__addr">м. Селигерская, Москва, Дмитровское шоссе, 123к4</p>
+        </div>
+      </div>
+
+      <div class="snippet-app__footer">
+        <div class="snippet-app__actions">
+          <div class="action-block-app">
+            <div class="action-block-app__body">
+              <div class="promo-app">
+                <p class="promo-app__bid">Ставка 10 ₽</p>
+                <div class="promo-app__rank-box">
+                  <p class="promo-app__rank">Выше 70%</p>
+                  <img class="promo-app__rank-icon" src="../_design-system/assets/icons/arrow-up-16.svg" alt="">
+                </div>
+              </div>
+              <p class="action-block-app__note">Осталось 980 ₽ из 1 000 ₽</p>
+            </div>
+            <button class="action-block-app__link" type="button">Продвинуть</button>
+          </div>
+
+          <div class="action-row-app">
+            <a class="action-tile-app action-tile-app--warning" href="report-app.html?n=5&amp;u=3" data-action="competitors">
+              <span class="action-tile-app__title">5 конкурентов</span>
+              <span class="action-tile-app__note">3 обновления</span>
+            </a>
+            <div class="action-tile-app action-tile-app--wide action-tile-app--split action-tile-app--disabled">
+              <span class="action-tile-app__stack">
+                <span class="action-tile-app__title">Рассылка недоступна</span>
+                <span class="action-tile-app__note">Нет получателей</span>
+              </span>
+              <span class="action-tile-app__help">
+                <img src="../_design-system/assets/icons/help-circle-16.svg" alt="Почему недоступно">
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-app">
+          <div class="stats-app__row">
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--views">
+                <img src="../_design-system/assets/icons/views-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">3854</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--likes">
+                <img src="../_design-system/assets/icons/likes-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">54</p>
+              <p class="stats-app__delta">+1</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--requests">
+                <img src="../_design-system/assets/icons/requests-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">8</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--phone">
+                <img src="../_design-system/assets/icons/phone-12.svg" alt="">
+              </span>
+              <p class="stats-app__value">16</p>
+              <p class="stats-app__delta">+5</p>
+            </div>
+            <div class="stats-app__item">
+              <p class="stats-app__reach-label">Охват</p>
+              <p class="stats-app__value">40%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- --- Сниппет 3: без ставки, куплен «Топ» --- -->
+    <article class="snippet-app">
+      <div class="snippet-app__info">
+        <img class="snippet-app__photo" src="../photos/mo/mo3-1.jpg" alt="">
+        <div class="snippet-app__body">
+          <div class="snippet-app__head">
+            <div class="snippet-app__titles">
+              <p class="snippet-app__price">15 300 000 ₽</p>
+              <p class="snippet-app__params">3-комн. кв., 45 м², 5/7 этаж</p>
+            </div>
+            <button class="snippet-app__more" type="button" aria-label="Ещё">
+              <img src="../_design-system/assets/icons/more-16.svg" alt="">
+            </button>
+          </div>
+          <p class="snippet-app__addr">м. Селигерская, Москва, Дмитровское шоссе, 123к4</p>
+        </div>
+      </div>
+
+      <div class="snippet-app__footer">
+        <div class="snippet-app__actions">
+          <div class="action-block-app">
+            <div class="action-block-app__body">
+              <p class="action-block-app__text">83 позиция по району</p>
+            </div>
+            <button class="action-block-app__link" type="button">Поднять</button>
+          </div>
+
+          <div class="action-row-app">
+            <a class="action-tile-app" href="report-app.html?n=7" data-action="competitors">
+              <span class="action-tile-app__title">7 конкурентов</span>
+            </a>
+            <a class="action-tile-app action-tile-app--wide" href="#">
+              <span class="action-tile-app__title">Отправить рассылку</span>
+              <span class="action-tile-app__note">74 получателя</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="stats-app">
+          <div class="stats-app__row">
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--views">
+                <img src="../_design-system/assets/icons/views-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">3854</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--likes">
+                <img src="../_design-system/assets/icons/likes-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">54</p>
+              <p class="stats-app__delta">+1</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--requests">
+                <img src="../_design-system/assets/icons/requests-16.svg" alt="">
+              </span>
+              <p class="stats-app__value">8</p>
+            </div>
+            <div class="stats-app__item">
+              <span class="stats-app__icon stats-app__icon--phone">
+                <img src="../_design-system/assets/icons/phone-12.svg" alt="">
+              </span>
+              <p class="stats-app__value">16</p>
+              <p class="stats-app__delta">+5</p>
+            </div>
+            <div class="stats-app__item">
+              <p class="stats-app__reach-label">Охват</p>
+              <p class="stats-app__value">40%</p>
+            </div>
+          </div>
+          <p class="stats-app__vas">Топ + 245 ₽</p>
+        </div>
+      </div>
+    </article>
+
+  </main>
+</div>
+
+<!-- Шторка снизу — компонент дизайн-системы, состав меню — в mo-app.js -->
+<script src="../_design-system/components/app/sheet.js"></script>
+<script src="mo-app.js"></script>
+</body>
+</html>

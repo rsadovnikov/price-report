@@ -1,0 +1,88 @@
+/* === BADGE, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «☎️ Badge», набор вариантов 2:7340. Описание компонента — #Apps.
+ * Снято 2026-08-14.
+ *
+ * НЕ путать с вебовым Label из components/badges.css. Похожи (пилюля 24, Body2,
+ * может нести иконку), но это разные компоненты:
+ *   — у Label цвет — свободный параметр, у Badge перечислен осью ColorType;
+ *   — Label по горизонтали 8, Badge 8 + 2 у текстового контейнера = 10;
+ *   — у Badge два слота иконок (слева и справа), у Label один.
+ * Поэтому не сливаем и не подменяем одно другим.
+ *
+ * Две независимые оси, как у кнопки приложения:
+ *   ColorType: main / warning / negative / positive / ghost / произвольный
+ *   Style:     primary (заливка) / secondary (светлая подложка) / tertiary (на белом)
+ * Цвет задаёт пару переменных, стиль решает, как их применить, — поэтому правил
+ * 6 + 3, а не 18.
+ *
+ * Чего здесь нет: состояние Enabled=False. В наборе оно есть, но по рендеру от
+ * включённого не отличается — что именно там гаснет, не выяснено. Не выдумываем.
+ */
+
+.badge-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;                            /* 2 — не из шкалы отступов, число из макета */
+  box-sizing: border-box;
+  height: 24px;
+  padding: 0 var(--unit2);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  font-family: var(--font-base);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+
+/* Текстовый контейнер добирает по 2 с каждой стороны — итого 10 до края пилюли */
+.badge-app__text { padding: 0 2px; }
+
+.badge-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.badge-app__icon img { display: block; }
+
+/* --- ColorType: задаёт пару «акцент / светлая подложка» --- */
+.badge-app--main     { --badge-app-accent: var(--accent-main-primary);     --badge-app-soft: var(--accent-main-secondary); }
+.badge-app--warning  { --badge-app-accent: var(--accent-warning-primary);  --badge-app-soft: var(--accent-warning-secondary); }
+.badge-app--negative { --badge-app-accent: var(--accent-negative-primary); --badge-app-soft: var(--accent-negative-secondary); }
+.badge-app--positive { --badge-app-accent: var(--accent-positive-primary); --badge-app-soft: var(--accent-positive-secondary); }
+.badge-app--ghost    { --badge-app-accent: var(--accent-ghost-primary);    --badge-app-soft: var(--accent-ghost-secondary); }
+
+/* ColorType=Custom из макета: пару переменных задают снаружи, стиль работает как обычно.
+   <span class="badge-app badge-app--custom badge-app--primary"
+         style="--badge-app-accent: var(--decorative-purple); --badge-app-soft: var(--decorative-lavender)"> */
+.badge-app--custom   { --badge-app-accent: var(--accent-main-primary);     --badge-app-soft: var(--accent-main-secondary); }
+
+/* --- Style: как применить пару --- */
+.badge-app--primary {
+  background: var(--badge-app-accent);
+  color: var(--text-inverted-default);
+}
+.badge-app--secondary {
+  background: var(--badge-app-soft);
+  color: var(--badge-app-accent);
+}
+.badge-app--tertiary {
+  background: var(--surface-inverted-default);
+  color: var(--badge-app-accent);
+}
+
+/* --- Модификаторы --- */
+
+/* Text=False: только иконка, пилюля схлопывается в круг 24 */
+.badge-app--empty { width: 24px; padding: 0; }
+
+/* fontType=Bold — отдельная ось в наборе, вес берём заголовочный той же ступени */
+.badge-app--bold { font-weight: var(--type-h5-weight); }
+
+/* shadowStyle=Main — тень 0/4/4 из макета. Цвет сошёлся с нашим --shadow-default
+   (#0000001a), поэтому ведём токеном, а не числом. */
+.badge-app--shadow { box-shadow: 0 4px 4px var(--shadow-default); }

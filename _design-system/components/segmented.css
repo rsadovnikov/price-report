@@ -1,0 +1,39 @@
+/* === SEGMENTED CONTROL ===
+   Открытый сегмент-переключатель (две и более кнопки в ряд, бордеры смёрджены).
+   Дизайн: Figma «Tab» #Web (v2). Активный сегмент — светлый фон + тёмный бордер поверх.
+   Разметка:
+     <div class="segmented" role="group">
+       <button class="segmented-item is-active" type="button" data-value="...">Активные</button>
+       <button class="segmented-item" type="button" data-value="...">Архивные</button>
+     </div>
+   JS-хук — id/data-атрибут на контейнере; .is-active — только визуал. */
+.segmented {
+  display: inline-flex;
+}
+.segmented-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-family: var(--font-base, 'Lato', sans-serif);
+  /* Кастомный текстовый стиль, не роль из шкалы. За сменой поверхности не идёт:
+     в приложении здесь останутся вебовые числа, пока их не переопределит app-дельта. */
+
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--text-primary-default);
+  background: var(--background-primary);
+  border: 1px solid var(--stroke-control-default);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+.segmented-item + .segmented-item { margin-left: -1px; } /* мёрдж соседних бордеров */
+.segmented-item:first-child { border-radius: 4px 0 0 4px; }
+.segmented-item:last-child  { border-radius: 0 4px 4px 0; }
+.segmented-item.is-active {
+  background: var(--surface-neutral-default);
+  border-color: #35415e; /* Stroke/Selected — точного токена в нашей системе нет (Figma v2) */
+  z-index: 2;            /* тёмный бордер активного рисуется поверх соседнего */
+}

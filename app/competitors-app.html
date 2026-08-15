@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru" data-surface="app">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
+       и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
+       при котором уже написанный CSS вообще включается. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
+  <title>Конкуренты объекта — приложение</title>
+
+  <link rel="stylesheet" href="../_design-system/tokens.css">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
+  <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css">
+  <link rel="stylesheet" href="../_design-system/components/app/chips.css">
+  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css">
+  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css">
+
+  <style>
+    body {
+      background: var(--background-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    [hidden] { display: none !important; }
+    .screen-app {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      max-width: 420px;
+      min-height: 100dvh;
+      margin: 0 auto;
+    }
+    /* Ряд табов на этом экране несёт собственные отступы: заголовок над ним
+       уже отбит своим паддингом. */
+    .tabs-row { padding: var(--unit3) 0 var(--unit1); }
+    .competitors-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+    }
+    /* Место под нижнюю плашку — только там, где она есть (вкладка «Отслеживаются»):
+       75 плашка + отступы. */
+    .competitors-list--with-bottom-bar {
+      padding-bottom: calc(99px + env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body>
+
+<div class="screen-app">
+
+  <header class="appbar appbar--flush card-app--head">
+    <div class="statusbar-app" aria-hidden="true">
+      <img class="statusbar-app__time" src="../_design-system/assets/icons/statusbar-time.svg" alt="">
+      <div class="statusbar-app__island"></div>
+      <img class="statusbar-app__indicators" src="../_design-system/assets/icons/statusbar-indicators.svg" alt="">
+    </div>
+
+    <nav class="navbar-app">
+      <a class="navbar-app__icon navbar-app__icon--back" id="back" href="report-app.html" aria-label="Назад">
+        <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
+      </a>
+      <p class="navbar-app__title"></p>
+    </nav>
+
+    <div class="cell-app-title">
+      <h1 class="cell-app-title__text">Конкуренты объекта</h1>
+    </div>
+
+    <div class="tabs-row">
+      <div class="tabs-app" role="tablist">
+        <button class="tab-app tab-app--active" type="button" role="tab" aria-selected="true" data-tab="tracked">
+          Отслеживаются <span class="tab-app__count" id="tracked-count">0</span>
+        </button>
+        <button class="tab-app" type="button" role="tab" aria-selected="false" data-tab="selection">Подборка</button>
+        <button class="tab-app" type="button" role="tab" aria-selected="false" data-tab="archive">Архивные</button>
+      </div>
+    </div>
+
+    <!-- Фильтры. Скролл ОДИН на оба ряда: тянешь любой — едут оба вместе.
+         Виден только на «Подборке» и «Архивных» — как в вебовом отчёте, где это
+         тоже один общий ряд на две вкладки. -->
+    <div class="chips-scroll-app" id="filters" hidden>
+      <div class="chips-scroll-app__rows">
+        <div class="chips-scroll-app__row" id="filters-row-1"></div>
+        <div class="chips-scroll-app__row" id="filters-row-2"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="competitors-list competitors-list--with-bottom-bar" id="competitors"></main>
+</div>
+
+<div class="bottom-bar-app" id="bottom-bar" role="status">
+  <p class="bottom-bar-app__text">Создайте отчёт для собственника на основе этих данных</p>
+  <a class="btn-app btn-app--medium btn-app--primary btn-app--main" id="create-report" href="../report.html">Создать</a>
+</div>
+
+<script src="../_design-system/components/app/snackbar.js"></script>
+<script src="competitors-data.js"></script>
+<script src="competitors-app.js"></script>
+</body>
+</html>

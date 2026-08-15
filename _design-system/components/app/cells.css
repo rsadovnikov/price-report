@@ -1,0 +1,226 @@
+/* === ЯЧЕЙКИ СПИСКА, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 667:19930.
+ * Здесь то, из чего собираются экраны-списки: карточка-контейнер, заголовок
+ * секции, строка объявления, поясняющая плашка, разделитель.
+ *
+ * Заголовок Cells / Title раньше жил в navbar.css — перенесён сюда: он не про
+ * навигацию, а про ячейки, и встречается не только в шапке.
+ */
+
+/* --- Карточка ---
+ * Экран собран из белых карточек на сером фоне, зазор между ними 8 (задаёт экран).
+ * Верхняя прижата к краю экрана и скруглена только снизу.
+ */
+.card-app {
+  background: var(--background-primary);
+  border-radius: var(--radius-xxl);
+}
+.card-app--head {
+  border-radius: 0 0 var(--radius-xxl) var(--radius-xxl);
+}
+
+/* --- Cells / Title — заголовок раздела ---
+ * В макете встречается в двух кеглях: Heading2 у заголовка экрана и Heading3
+ * у заголовка карточки. Свойство ли это компонента в ките — не проверяли,
+ * поэтому модификатор назван по роли, а не по размеру.
+ *
+ * Из описания компонента в Figma: держать заголовок в пределах 47 символов
+ * с пробелами, иначе строка становится монструозной.
+ */
+.cell-app-title {
+  display: flex;
+  align-items: center;
+  padding: var(--unit2) var(--unit5);
+}
+.cell-app-title__text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-lh);
+  letter-spacing: var(--type-h2-ls);
+  font-weight: var(--type-h2-weight);
+  color: var(--text-primary-default);
+}
+.cell-app-title--h3 .cell-app-title__text {
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-lh);
+  letter-spacing: var(--type-h3-ls);
+  font-weight: var(--type-h3-weight);
+}
+
+/* --- Заголовок секции со стрелкой ---
+ * Heading3 слева, шеврон справа. Шеврон в отдельной обёртке с вертикальным
+ * паддингом 8 — так он попадает в тач-зону, не увеличивая строку.
+ */
+.section-head-app {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--unit3);
+}
+.section-head-app__title {
+  margin: 0;
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-lh);
+  letter-spacing: var(--type-h3-ls);
+  font-weight: var(--type-h3-weight);
+  color: var(--text-primary-default);
+}
+.section-head-app__chevron {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding: var(--unit2) 0;
+}
+
+/* --- Строка объявления (ad-03 в макете) ---
+ * Фото 36, две строки текста, опциональный шеврон. Одна и та же строка стоит
+ * и в шапке («Мой объект»), и в списке конкурентов — отличается только тем,
+ * есть ли справа шеврон.
+ */
+.ad-row-app {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  text-decoration: none;
+  color: inherit;
+}
+.ad-row-app:active { opacity: 0.6; }
+
+.ad-row-app__photo {
+  display: block;
+  flex: none;
+  width: 36px; height: 36px;
+  border-radius: var(--radius-l);
+  object-fit: cover;
+}
+/* Фото нет — серый квадрат с иконкой-плейсхолдером 14 в боксе 16 */
+.ad-row-app__photo--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-neutral-default);
+}
+.ad-row-app__photo--empty img { display: block; width: 14px; height: 14px; }
+
+.ad-row-app__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.ad-row-app__title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+.ad-row-app__price {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+/* Шеврон 12: обёртка с паддингом 8 по вертикали — тач-зона без роста строки */
+.ad-row-app__chevron {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding: var(--unit2) 0;
+}
+.ad-row-app__chevron img { display: block; width: 7.121px; height: 11.414px; }
+
+/* --- Список строк с разделителями ---
+ * Разделитель 0.5px начинается не от края, а от текста: 36 фото + 12 gap = 48.
+ * Цвет из макета (#d0d8e9) сошёлся с --stroke-divider-default.
+ */
+.ad-list-app {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--unit5);
+}
+.ad-list-app > .ad-row-app { padding: var(--unit2) 0; }
+.ad-list-app > .ad-row-app:first-child { padding-top: 0; }
+.ad-list-app > .ad-row-app:last-child { padding-bottom: 0; }
+.ad-list-app > .ad-row-app + .ad-row-app::before {
+  content: '';
+  position: absolute;
+  left: 48px; right: 0; top: 0;
+  border-top: 0.5px solid var(--stroke-divider-default);
+}
+
+/* --- Поясняющая плашка с иконкой ---
+ * Серая подложка, слева иконка в боксе 36, справа текст Body2.
+ * Иконка приглушена до 50% — так в макете.
+ */
+.hint-app {
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+  padding: var(--unit2) var(--unit3) var(--unit2) var(--unit1);
+  background: var(--surface-neutral-default);
+  border-radius: var(--radius-l);
+}
+.hint-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px; height: 36px;
+  opacity: 0.5;
+}
+.hint-app__icon img { display: block; width: 18px; height: 18px; }
+
+/* Радар крутится — как в вебовом баннере «Отслеживаются» (report.css,
+   .tracking-banner__radar), тот же оборот за 2.4s.
+   Крутим сам экспорт: в нём запечён угловой градиент, затухающий к хвосту, —
+   от вращения он и читается как развёртка луча. Дорисовывать ничего не нужно.
+   Модификатор, а не общее правило: неподвижной иконке в этой же плашке
+   вращение ни к чему. */
+.hint-app__icon--radar img {
+  transform-origin: center;
+  animation: radar-spin 2.4s linear infinite;
+}
+@keyframes radar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .hint-app__icon--radar img { animation: none; }
+}
+.hint-app__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Подпись над блоком («Мой объект») --- */
+.cell-app-label {
+  display: flex;
+  align-items: center;
+  padding: var(--unit2) var(--unit5);
+}
+.cell-app-label__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}

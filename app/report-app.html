@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru" data-surface="app">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
+       и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
+       при котором уже написанный CSS вообще включается. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
+  <title>Обзор конкурентов — приложение</title>
+
+  <link rel="stylesheet" href="../_design-system/tokens.css">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
+  <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css">
+
+  <style>
+    /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
+       сами ячейки, заголовки и строки живут в компонентах. */
+    body {
+      background: var(--background-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .screen-app {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      max-width: 420px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom));
+    }
+
+    /* Карточка конкурентов: шапка блока и список, между ними 20 */
+    .report-block {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit5);
+      padding: var(--unit5) 0;
+    }
+    .report-intro {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      padding: 0 var(--unit5);
+    }
+
+    /* Карточка «Отчёт для собственника» */
+    .report-cta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit4);
+      padding: var(--unit3) 0 var(--unit5);
+    }
+    .report-cta__lead { padding: 0 var(--unit5); margin: 0; }
+    .report-cta__entry { padding: 0 var(--unit5); }
+  </style>
+</head>
+<body>
+
+<div class="screen-app">
+
+  <!-- ===== Шапка с «Моим объектом» ===== -->
+  <header class="appbar card-app--head">
+
+    <div class="statusbar-app" aria-hidden="true">
+      <img class="statusbar-app__time" src="../_design-system/assets/icons/statusbar-time.svg" alt="">
+      <div class="statusbar-app__island"></div>
+      <img class="statusbar-app__indicators" src="../_design-system/assets/icons/statusbar-indicators.svg" alt="">
+    </div>
+
+    <nav class="navbar-app">
+      <a class="navbar-app__icon navbar-app__icon--back" href="index.html" aria-label="Назад">
+        <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
+      </a>
+      <p class="navbar-app__title"></p>
+      <a class="navbar-app__link" href="#">Что умеет сервис</a>
+    </nav>
+
+    <div class="appbar__filters appbar__filters--flat">
+      <div class="cell-app-title">
+        <h1 class="cell-app-title__text">Обзор конкурентов</h1>
+      </div>
+
+      <div class="cell-app-label">
+        <p class="cell-app-label__text">Мой объект</p>
+      </div>
+
+      <div class="ad-list-app">
+        <a class="ad-row-app" href="#" id="base-object">
+          <img class="ad-row-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
+          <span class="ad-row-app__body">
+            <span class="ad-row-app__title"></span>
+            <span class="ad-row-app__price"></span>
+          </span>
+          <span class="ad-row-app__chevron">
+            <img src="../_design-system/assets/icons/chevron-right-12.svg" alt="">
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Конкуренты ===== -->
+  <section class="card-app report-block">
+    <div class="report-intro">
+      <div class="section-head-app">
+        <h2 class="section-head-app__title" id="competitors-title">Ближайшие конкуренты</h2>
+        <a class="section-head-app__chevron" id="all-competitors" href="competitors-app.html" aria-label="Все конкуренты">
+          <img src="../_design-system/assets/icons/chevron-right-12.svg" alt="" width="7.121" height="11.414">
+        </a>
+      </div>
+
+      <div class="hint-app">
+        <span class="hint-app__icon hint-app__icon--radar">
+          <img src="../_design-system/assets/radar.png" alt="">
+        </span>
+        <p class="hint-app__text">
+          Следим, меняется ли у конкурентов цена, и отмечаем, если объявления уходят в архив
+        </p>
+      </div>
+    </div>
+
+    <div class="ad-list-app" id="competitors"></div>
+  </section>
+
+  <!-- ===== Вход в отчёт ===== -->
+  <section class="card-app report-cta">
+    <div>
+      <div class="cell-app-title cell-app-title--h3">
+        <h2 class="cell-app-title__text">Отчёт для собственника</h2>
+      </div>
+      <p class="report-cta__lead cell-app-label__text">
+        Показать клиенту конкурентов, цены, статистику — всё в одном PDF-отчёте.
+        Обсудить стоимость объекта.
+      </p>
+    </div>
+
+    <div class="report-cta__entry">
+      <a class="entry-point-app" id="report-entry" href="../report.html">
+        <span class="entry-point-app__image">
+          <img src="../MO/report-entry.png" alt="">
+        </span>
+        <span class="entry-point-app__body">
+          <span class="entry-point-app__text">
+            <span class="entry-point-app__title">Настроить и создать отчёт</span>
+          </span>
+          <span class="entry-point-app__action">
+            <img src="../_design-system/assets/icons/chevron-right-16.svg" alt="">
+          </span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script src="competitors-data.js"></script>
+<script src="report-app.js"></script>
+</body>
+</html>
