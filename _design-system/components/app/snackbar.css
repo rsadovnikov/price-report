@@ -47,7 +47,7 @@
   /* В макете низ плашки отбит на 14 — не по сетке; округляем к 16 (правило «шаг 4»).
      Поля по бокам — 20, как у остальных блоков экрана. */
   padding: 0 var(--unit5) calc(var(--unit4) + env(safe-area-inset-bottom));
-  max-width: 420px;
+  max-width: var(--screen-app-max);
   margin: 0 auto;
   pointer-events: none;              /* клики проходят сквозь пустую область */
 }

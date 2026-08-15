@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: var(--unit4);
-  max-width: 404px;                   /* 420 экрана минус отступы по 8 */
+  max-width: calc(var(--screen-app-max) - var(--unit4));   /* ширина экрана минус отступы по 8 */
   margin: 0 auto;
   padding: var(--unit3);
   background: var(--solid-gray1100);

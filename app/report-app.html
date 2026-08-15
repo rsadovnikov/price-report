@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../_design-system/tokens.css">
   <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
   <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css">
   <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
   <link rel="stylesheet" href="../_design-system/components/app/cells.css">
   <link rel="stylesheet" href="../_design-system/components/app/entry-point.css">
@@ -26,15 +27,9 @@
       background: var(--background-secondary);
       -webkit-font-smoothing: antialiased;
     }
-    .screen-app {
-      display: flex;
-      flex-direction: column;
-      gap: var(--unit2);
-      max-width: 420px;
-      min-height: 100dvh;
-      margin: 0 auto;
-      padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom));
-    }
+    /* Раскладка и диапазон ширин — в components/app/screen.css.
+       Здесь только то, что своё у этого экрана. */
+    .screen-app { padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom)); }
 
     /* Карточка конкурентов: шапка блока и список, между ними 20 */
     .report-block {

@@ -27,7 +27,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 420px;                    /* как у экрана: на широком мониторе не растягиваем */
+  max-width: var(--screen-app-max);    /* как у экрана: на широком мониторе не растягиваем */
   margin: 0 auto;
   background: var(--background-primary);
   border-radius: var(--radius-l) var(--radius-l) 0 0;

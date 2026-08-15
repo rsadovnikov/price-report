@@ -101,6 +101,22 @@
    Похоже, в приложении это свойство самого компонента — проверить. */
 .btn-app--block { display: flex; width: 100%; }
 
+/* --- Иконка внутри кнопки ---
+ * Коробка всегда 16, лист — свой у каждого глифа. Держим их раздельно: у галочки
+ * лист 12.414 × 9.121, и растянуть её до квадрата значило бы её исказить.
+ * Отступ до текста даёт gap самого размера (у small это unit1 = 4).
+ */
+.btn-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.btn-app__icon img { display: block; }
+.btn-app__icon--success img { width: 12.414px; height: 9.121px; }
+
 /* --- Style × Color --- */
 .btn-app--primary.btn-app--main      { background: var(--control-main-primary-default);     color: var(--text-inverted-default); }
 .btn-app--primary.btn-app--positive  { background: var(--control-positive-primary-default); color: var(--text-inverted-default); }

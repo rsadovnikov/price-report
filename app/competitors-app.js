@@ -5,9 +5,13 @@
  *
  * Три вкладки, макеты Figma:
  *   Отслеживаются — 563:68758, карточка с кнопкой «убрать»
- *   Подборка      — 393:82207, карточка с кнопкой «Добавить в отслеживаемые»
+ *   Подборка      — 393:82207, карточка с переключателем отслеживания
  *   Архивные      — своего макета нет; собрана из состояния «Снято с публикации»
  *                   той же карточки подборки (393:82223)
+ *
+ * Кнопка под карточкой — ПЕРЕКЛЮЧАТЕЛЬ (64:39388 — включено, 64:39461 — снято).
+ * Объявление при нажатии не исчезает: меняется только кнопка, а «отслеживается»
+ * живёт признаком объекта. Снятие подтверждается снекбаром с возвратом.
  *
  * Параметры URL:
  *   n — сколько конкурентов отслеживается (по умолчанию 12)
@@ -186,7 +190,22 @@
       + '</div>';
   }
 
-  /* mode: tracked — кнопка «убрать» в шапке; pick / archive — кнопка «Добавить»
+  /* Кнопка под карточкой — переключатель, а не действие в одну сторону (макеты
+     64:39388 и 64:39461). Не отслеживается: залитая синяя «Добавить в отслеживаемые».
+     Отслеживается: та же кнопка вторичным стилем — светлая подложка, синий текст,
+     галочка. Объявление при этом остаётся на месте, меняется только кнопка. */
+  function trackButton(on) {
+    if (!on) {
+      return '<button class="btn-app btn-app--small btn-app--primary btn-app--main btn-app--block"'
+        + ' type="button" data-action="track" aria-pressed="false">Добавить в отслеживаемые</button>';
+    }
+    return '<button class="btn-app btn-app--small btn-app--secondary btn-app--main btn-app--block"'
+      + ' type="button" data-action="track" aria-pressed="true">'
+      + '<span class="btn-app__icon btn-app__icon--success"><img src="' + ICONS + 'check-16.svg" alt=""></span>'
+      + 'Отслеживается</button>';
+  }
+
+  /* mode: tracked — кнопка «убрать» в шапке; pick / archive — переключатель
      под содержимым. Карточка одна и та же, различается только действием. */
   function card(c, idx, mode) {
     var archived = mode === 'archive';
@@ -202,10 +221,7 @@
              он нейтрального цвета. Цвет в экспорте запечён, поэтому файла два. */
           + '<img src="' + ICONS + 'trash-negative-16.svg" alt=""></button>'
       : '';
-    var footer = mode === 'tracked'
-      ? ''
-      : '<button class="btn-app btn-app--small btn-app--primary btn-app--main btn-app--block"'
-        + ' type="button" data-action="track">Добавить в отслеживаемые</button>';
+    var footer = mode === 'tracked' ? '' : trackButton(tracked.has(idx));
 
     return '<article class="competitor-card-app" data-idx="' + idx + '">'
       + '<img class="competitor-card-app__photo" src="' + esc((c.photos && c.photos[0]) || '') + '" alt="">'
@@ -254,17 +270,25 @@
   if (!(n > 0)) n = 12;
   n = Math.min(n, total);
 
-  /* Отслеживаемые — первые n, как и раньше. Остальные делятся по статусу:
-     активные идут в подборку, снятые — в архив. Это правило вебового отчёта
-     (report.js: «Подборка — только активные; Архивные — только снятые»),
-     поэтому один и тот же объект в двух вкладках не появится.
-     В макете подборки одна из карточек показана снятой — там это демонстрация
-     состояния карточки; правило вкладок сильнее, состояние живёт в архиве. */
-  var tracked = [], selection = [], archive = [];
+  /* «Отслеживается» — ПРИЗНАК объекта, а не принадлежность к вкладке. Раньше три
+     вкладки были тремя непересекающимися списками, и добавление означало переезд
+     между ними: карточка исчезала из подборки. По макетам 64:39388 / 64:39461 это
+     неверно — объявление остаётся на месте, меняется только кнопка. Поэтому:
+
+       SELECTION / ARCHIVE — фиксируются один раз и не меняются;
+       tracked             — множество, которое ходит независимо от них.
+
+     Вкладка «Отслеживаются» показывает содержимое множества, две другие — свои
+     постоянные списки, а кнопка на карточке читает признак. Один объект может быть
+     и в подборке, и в отслеживаемых одновременно — это и есть смысл правки.
+
+     Деление подборка/архив прежнее, из вебового отчёта (report.js: «Подборка —
+     только активные; Архивные — только снятые»). */
+  var SELECTION = [], ARCHIVE = [];
+  var tracked = new Set();
   ALL_COMPETITORS.forEach(function (c, i) {
-    if (i < n) tracked.push(i);
-    else if (c.removed) archive.push(i);
-    else selection.push(i);
+    if (i < n) { tracked.add(i); return; }
+    (c.removed ? ARCHIVE : SELECTION).push(i);
   });
 
   var listEl = document.getElementById('competitors');
@@ -284,11 +308,11 @@
   var createEl = document.getElementById('create-report');
 
   function render() {
-    var ids = current === 'tracked' ? tracked : current === 'selection' ? selection : archive;
-    listEl.innerHTML = ids.map(function (i) {
-      return card(ALL_COMPETITORS[i], i, current === 'tracked' ? 'tracked' : current === 'archive' ? 'archive' : 'pick');
-    }).join('');
-    countEl.textContent = tracked.length;
+    var ids = current === 'tracked' ? [...tracked].sort(function (a, b) { return a - b; })
+            : current === 'archive' ? ARCHIVE : SELECTION;
+    var mode = current === 'tracked' ? 'tracked' : current === 'archive' ? 'archive' : 'pick';
+    listEl.innerHTML = ids.map(function (i) { return card(ALL_COMPETITORS[i], i, mode); }).join('');
+    syncCount();
 
     var onTracked = current === 'tracked';
     filtersEl.hidden = onTracked;
@@ -298,10 +322,16 @@
        сбрасывало бы выбранные чипсы вместе со списком. */
     if (!onTracked && filtersFor !== current) { renderFilters(current); filtersFor = current; }
 
+  }
+
+  /* Счётчик в табе и обе ссылки читают одно число — размер множества. Вынесено
+     отдельно, потому что переключение кнопки список не перерисовывает. */
+  function syncCount() {
+    countEl.textContent = tracked.size;
     var backQs = new URLSearchParams(pass);
-    backQs.set('n', tracked.length);
+    backQs.set('n', tracked.size);
     backEl.setAttribute('href', 'report-app.html?' + backQs);
-    createEl.setAttribute('href', '../report.html?n=' + tracked.length);
+    createEl.setAttribute('href', '../report.html?n=' + tracked.size);
   }
 
   document.querySelector('.tabs-app').addEventListener('click', function (e) {
@@ -316,25 +346,41 @@
     render();
   });
 
-  /* Живая механика: объект переезжает между «Отслеживаются» и той вкладкой,
-     откуда пришёл. Счётчик в табе идёт следом. */
+  /* Переключение признака. Список НЕ перерисовываем — меняем кнопку на месте:
+     иначе карточка мигает, а на вкладке «Отслеживаются» ещё и уезжает под курсором. */
+  function setTracked(idx, on, cardEl) {
+    if (on) tracked.add(idx); else tracked.delete(idx);
+    if (cardEl) {
+      var btn = cardEl.querySelector('[data-action="track"]');
+      if (btn) btn.outerHTML = trackButton(on);
+    }
+    syncCount();
+  }
+
   listEl.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-action]');
     if (!btn) return;
-    var idx = parseInt(btn.closest('.competitor-card-app').dataset.idx, 10);
-    var back = ALL_COMPETITORS[idx].removed ? archive : selection;
+    var cardEl = btn.closest('.competitor-card-app');
+    var idx = parseInt(cardEl.dataset.idx, 10);
 
+    /* Корзина на вкладке «Отслеживаются»: там показано само множество, поэтому
+       карточке там больше не место и она уходит. Это не то же, что переключатель. */
     if (btn.dataset.action === 'untrack') {
-      tracked.splice(tracked.indexOf(idx), 1);
-      back.push(idx);
-    } else {
-      back.splice(back.indexOf(idx), 1);
-      tracked.push(idx);
-      /* Снекбар подтверждает добавление — макет 64:39388. Обратного (на «убрать»)
-         в макете нет, поэтому и здесь его не выдумываем. */
-      showSnackbarApp('Начали отслеживать');
+      setTracked(idx, false, null);
+      cardEl.remove();
+      return;
     }
-    render();
+
+    var on = !tracked.has(idx);
+    setTracked(idx, on, cardEl);
+    if (on) {
+      showSnackbarApp('Начали отслеживать');
+    } else {
+      /* Снятие подтверждается снекбаром с возвратом — макет 64:39461 */
+      showSnackbarApp('Перестали отслеживать', {
+        action: { title: 'Вернуть', onClick: function () { setTracked(idx, true, cardEl); } },
+      });
+    }
   });
 
   render();

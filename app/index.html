@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
   <!-- Общая база обеих поверхностей: reset и типографика. web.css здесь не нужен -->
   <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css">
   <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
   <link rel="stylesheet" href="../_design-system/components/app/cells.css">
   <link rel="stylesheet" href="../_design-system/components/app/tabs.css">
@@ -35,15 +36,9 @@
       background: var(--background-secondary);
       -webkit-font-smoothing: antialiased;
     }
-    .screen-app {
-      display: flex;
-      flex-direction: column;
-      gap: var(--unit2);
-      max-width: 420px;
-      min-height: 100dvh;
-      margin: 0 auto;
-      background: var(--background-secondary);
-    }
+    /* Раскладка и диапазон ширин — в components/app/screen.css.
+       Здесь только то, что своё у этого экрана. */
+    .screen-app { background: var(--background-secondary); }
     .listing-app {
       display: flex;
       flex-direction: column;

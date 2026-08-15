@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../_design-system/tokens.css">
   <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
   <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css">
   <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
   <link rel="stylesheet" href="../_design-system/components/app/cells.css">
   <link rel="stylesheet" href="../_design-system/components/app/tabs.css">
@@ -31,14 +32,7 @@
       -webkit-font-smoothing: antialiased;
     }
     [hidden] { display: none !important; }
-    .screen-app {
-      display: flex;
-      flex-direction: column;
-      gap: var(--unit2);
-      max-width: 420px;
-      min-height: 100dvh;
-      margin: 0 auto;
-    }
+    /* Раскладка и диапазон ширин — в components/app/screen.css */
     /* Ряд табов на этом экране несёт собственные отступы: заголовок над ним
        уже отбит своим паддингом. */
     .tabs-row { padding: var(--unit3) 0 var(--unit1); }
