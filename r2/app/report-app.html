@@ -18,7 +18,9 @@
   <link rel="stylesheet" href="../_design-system/components/app/screen.css">
   <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
   <link rel="stylesheet" href="../_design-system/components/app/cells.css">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css">
   <link rel="stylesheet" href="../_design-system/components/app/entry-point.css">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css">
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -44,6 +46,9 @@
       gap: var(--unit2);
       padding: 0 var(--unit5);
     }
+    /* Строка-предложение стоит отдельным ребёнком карточки — значит и зазор до
+       списка берёт от неё (20), а не от списка (8). Поля свои, как у списка. */
+    .report-block__suggest { padding: 0 var(--unit5); }
 
     /* Карточка «Отчёт для собственника» */
     .report-cta {
@@ -52,8 +57,11 @@
       gap: var(--unit4);
       padding: var(--unit3) 0 var(--unit5);
     }
-    .report-cta__lead { padding: 0 var(--unit5); margin: 0; }
+    /* Лид в макете набран основным цветом, а не вторичным (было
+       cell-app-label__text). Роль Body2. */
+    .report-cta__lead { padding: 0 var(--unit5); margin: 0; color: var(--text-primary-default); }
     .report-cta__entry { padding: 0 var(--unit5); }
+    .report-cta__facts { padding: 0 var(--unit5); }
   </style>
 </head>
 <body>
@@ -87,16 +95,13 @@
       </div>
 
       <div class="ad-list-app">
-        <a class="ad-row-app" href="#" id="base-object">
+        <div class="ad-row-app" id="base-object">
           <img class="ad-row-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
           <span class="ad-row-app__body">
             <span class="ad-row-app__title"></span>
             <span class="ad-row-app__price"></span>
           </span>
-          <span class="ad-row-app__chevron">
-            <img src="../_design-system/assets/icons/chevron-right-12.svg" alt="">
-          </span>
-        </a>
+        </div>
       </div>
     </div>
   </header>
@@ -115,13 +120,34 @@
         <span class="hint-app__icon hint-app__icon--radar">
           <img src="../_design-system/assets/radar.png" alt="">
         </span>
-        <p class="hint-app__text">
+        <!-- Текст меняется, когда у конкурентов есть апдейты (?u=): вместо
+             «что мы делаем» — «что изменилось». Подставляется в report-app.js. -->
+        <p class="hint-app__text" id="tracking-hint">
           Следим, меняется ли у конкурентов цена, и отмечаем, если объявления уходят в архив
         </p>
       </div>
     </div>
 
     <div class="ad-list-app" id="competitors"></div>
+
+    <!-- Новый возможный конкурент из подборки — последний апдейт из ?u=.
+         Показывается только когда апдейтов больше, чем бейджей на строках. -->
+    <div class="report-block__suggest" id="suggest-row" hidden>
+      <a class="ad-row-app ad-row-app--suggest" id="suggest-link" href="competitors-app.html?tab=selection">
+        <!-- src подставляется в JS: у пустого src браузер всё равно идёт за
+             документом, а без атрибута запроса нет вовсе. -->
+        <img class="ad-row-app__photo" alt="">
+        <span class="ad-row-app__body">
+          <span class="badge-app badge-app--warning badge-app--secondary ad-row-app__badge">
+            <span class="badge-app__text" id="suggest-badge">Новый возможный конкурент</span>
+          </span>
+          <span class="ad-row-app__note">Посмотрите, если подходит, начните отслеживать</span>
+        </span>
+        <span class="ad-row-app__chevron">
+          <img src="../_design-system/assets/icons/chevron-right-12.svg" alt="" width="7.121" height="11.414">
+        </span>
+      </a>
+    </div>
   </section>
 
   <!-- ===== Вход в отчёт ===== -->
@@ -130,26 +156,50 @@
       <div class="cell-app-title cell-app-title--h3">
         <h2 class="cell-app-title__text">Отчёт для собственника</h2>
       </div>
-      <p class="report-cta__lead cell-app-label__text">
+      <p class="report-cta__lead body2">
         Показать клиенту конкурентов, цены, статистику — всё в одном PDF-отчёте.
         Обсудить стоимость объекта.
       </p>
     </div>
 
     <div class="report-cta__entry">
-      <a class="entry-point-app" id="report-entry" href="../report.html">
-        <span class="entry-point-app__image">
-          <img src="../MO/report-entry.png" alt="">
+      <a class="entry-point-app entry-point-app--main" id="report-entry" href="owner-report-app.html">
+        <span class="entry-point-app__image entry-point-app__image--glyph">
+          <img src="../_design-system/assets/icons/report-entry-26.svg" alt="">
         </span>
         <span class="entry-point-app__body">
           <span class="entry-point-app__text">
             <span class="entry-point-app__title">Настроить и создать отчёт</span>
           </span>
           <span class="entry-point-app__action">
-            <img src="../_design-system/assets/icons/chevron-right-16.svg" alt="">
+            <img src="../_design-system/assets/icons/chevron-right-16-inverted.svg" alt="">
           </span>
         </span>
       </a>
+    </div>
+
+    <div class="report-cta__facts">
+      <div class="facts-app">
+        <p class="facts-app__label">Чем полезен отчёт уже сейчас:</p>
+        <div class="facts-app__list">
+          <div class="fact-app">
+            <div class="fact-app__body">
+              <p class="fact-app__title">77% агентов</p>
+              <p class="fact-app__text">отметили, что раздел помогает обсуждать цену с собственником</p>
+            </div>
+            <span class="fact-app__pic"><img src="../MO/fact-plane.png" alt=""></span>
+          </div>
+          <div class="fact-app fact-app--top">
+            <div class="fact-app__body">
+              <!-- Перенос в макете стоит после «пересматривают»: там заголовок
+                   в две строки, и естественный перенос ломал бы его иначе. -->
+              <p class="fact-app__title">Цену пересматривают<br>в два раза чаще</p>
+              <p class="fact-app__text">если по объявлению сделали отчёт</p>
+            </div>
+            <span class="fact-app__pic fact-app__pic--sm"><img src="../MO/fact-delight.png" alt=""></span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

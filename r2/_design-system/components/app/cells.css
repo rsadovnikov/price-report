@@ -124,13 +124,38 @@
   font-weight: var(--type-h4-weight);
   color: var(--text-primary-default);
 }
+/* Цена — Body2, а не Body1. У нас тут стояло 16/20, и каждая строка выходила на
+   3px выше макета: 40 вместо 37 (20 заголовок + 17 цена). На пяти строках это
+   давало карточку 427 против 412 и шапку 233 против 230. Проверено на обоих
+   состояниях экрана — 667:19930 и 696:24081, строка в обоих 37. */
 .ad-row-app__price {
   margin: 0;
   white-space: nowrap;
-  font-size: var(--type-body1-size);
-  line-height: var(--type-body1-lh);
-  letter-spacing: var(--type-body1-ls);
-  font-weight: var(--type-body1-weight);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+
+/* Бейдж-апдейт третьей строкой: «Цена изменилась», «Сняли с публикации 5.07».
+   Отступ 4 от цены; фото при этом прижимается к верху, иначе оно повисает
+   по центру выросшей строки. */
+.ad-row-app--badged { align-items: flex-start; }
+.ad-row-app__badge { align-self: flex-start; }
+.ad-row-app--badged .ad-row-app__badge { margin-top: var(--unit1); }
+
+/* Строка-предложение («Новый возможный конкурент»): бейдж сверху, под ним
+   пояснение в две строки. Фото у верха, а шеврон остаётся по центру строки —
+   так в макете (696:24160). */
+.ad-row-app--suggest .ad-row-app__photo { align-self: flex-start; }
+.ad-row-app--suggest .ad-row-app__body { gap: var(--unit1); }
+.ad-row-app__note {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
   color: var(--text-primary-default);
 }
 /* Шеврон 12: обёртка с паддингом 8 по вертикали — тач-зона без роста строки */
@@ -145,6 +170,11 @@
 /* --- Список строк с разделителями ---
  * Разделитель 0.5px начинается не от края, а от текста: 36 фото + 12 gap = 48.
  * Цвет из макета (#d0d8e9) сошёлся с --stroke-divider-default.
+ *
+ * Справа он, наоборот, доходит до края карточки, а не до поля списка: в макете
+ * это 307 при x=68, то есть 68…375 при контейнере 375. Отсюда отрицательный
+ * right — вылет ровно на поле списка. Раньше стояло `right: 0`, и линия
+ * не добирала 20px.
  */
 .ad-list-app {
   display: flex;
@@ -157,7 +187,17 @@
 .ad-list-app > .ad-row-app + .ad-row-app::before {
   content: '';
   position: absolute;
-  left: 48px; right: 0; top: 0;
+  left: 48px; right: calc(-1 * var(--unit5)); top: 0;
+  border-top: 0.5px solid var(--stroke-divider-default);
+}
+
+/* Список, закрытый разделителем снизу: под ним в карточке идёт ещё один блок
+   (строка-предложение), и отделяется он так же, как строки друг от друга. */
+.ad-list-app--closed > .ad-row-app:last-child { padding-bottom: var(--unit2); }
+.ad-list-app--closed::after {
+  content: '';
+  margin-left: 48px;
+  margin-right: calc(-1 * var(--unit5));
   border-top: 0.5px solid var(--stroke-divider-default);
 }
 
@@ -207,6 +247,8 @@
   font-weight: var(--type-body2-weight);
   color: var(--text-primary-default);
 }
+/* Хвост фразы вторичным цветом — «…с вашего прошлого визита, 2 дня назад» */
+.hint-app__muted { color: var(--text-secondary-default); }
 
 /* --- Подпись над блоком («Мой объект») --- */
 .cell-app-label {

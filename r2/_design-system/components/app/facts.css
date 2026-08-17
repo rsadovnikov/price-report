@@ -1,0 +1,96 @@
+/* === ФАКТЫ О ПОЛЬЗЕ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 698:76356
+ * (блок «Чем полезен отчёт уже сейчас:» на экране «Обзор конкурентов»).
+ * Снято 2026-08-15. Компонента в ките нет — узлы макета.
+ *
+ * Устройство: подпись сверху и стопка карточек с обводкой. Карточки состыкованы
+ * через `margin-bottom: -1px`, поэтому на шве получается одна линия, а не две;
+ * скругления только внешние — у первой сверху, у последней снизу.
+ *
+ * Цифра набрана `--text-main-default` (синим) и кеглем Heading4 — то есть она
+ * акцент, а не заголовок карточки. Пояснение под ней — Body2 основным цветом.
+ */
+
+.facts-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}
+
+.facts-app__label {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}
+
+.facts-app__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fact-app {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  padding: var(--unit3) var(--unit4);
+  border: 1px solid var(--stroke-divider-default);
+  /* Шов: минус пиксель убирает двойную линию между карточками. */
+  margin-bottom: -1px;
+}
+.fact-app:last-child { margin-bottom: 0; }
+.fact-app:first-child { border-radius: var(--radius-l) var(--radius-l) 0 0; }
+.fact-app:last-child  { border-radius: 0 0 var(--radius-l) var(--radius-l); }
+.fact-app:only-child  { border-radius: var(--radius-l); }
+
+/* Во второй карточке макета текст прижат к верху: заголовок там в две строки,
+   и по центру картинка уезжала бы вниз. */
+.fact-app--top { align-items: flex-start; }
+
+.fact-app__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.fact-app__title {
+  margin: 0;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-main-default);
+}
+
+.fact-app__text {
+  margin: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+
+/* Картинка-иллюстрация. Боксы 58 и 48 — собственные размеры рисунков, не сетка;
+   в макете второй 47.48, округлён до 48 по правилу кратности. */
+.fact-app__pic {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: none;
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+}
+.fact-app__pic--sm { width: 48px; height: 48px; }
+.fact-app__pic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

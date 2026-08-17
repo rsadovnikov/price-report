@@ -295,13 +295,17 @@
   var filtersEl = document.getElementById('filters');
   var bottomBarEl = document.getElementById("bottom-bar");
   var countEl = document.getElementById('tracked-count');
-  var current = 'tracked';
+  /* Вкладку можно открыть сразу нужной: строка «Новый возможный конкурент» на
+     обзоре ведёт в «Подборку» — там кандидат и лежит, среди отслеживаемых его нет. */
+  var TABS = ['tracked', 'selection', 'archive'];
+  var current = TABS.indexOf(params.get('tab')) >= 0 ? params.get('tab') : 'tracked';
   var filtersFor = null;              // для какой вкладки сейчас отрисован ряд фильтров
 
-  /* «Создать» и «назад» несут тот же набор параметров: объект и число конкурентов
-     не должны теряться при переходах. Число живое — оно меняется вместе со списком. */
+  /* «Создать» и «назад» несут тот же набор параметров: объект, число конкурентов и
+     апдейты не должны теряться при переходах. Число живое — оно меняется вместе
+     со списком. Без `u` возврат на обзор сбрасывал бы его в «изменений нет». */
   var pass = new URLSearchParams();
-  ['desc', 'price', 'photo'].forEach(function (k) {
+  ['desc', 'price', 'photo', 'u'].forEach(function (k) {
     if (params.get(k)) pass.set(k, params.get(k));
   });
   var backEl = document.getElementById('back');
@@ -337,15 +341,19 @@
     createEl.setAttribute('href', 'owner-report-app.html?' + backQs);
   }
 
+  function markActiveTab() {
+    document.querySelectorAll('.tab-app').forEach(function (t) {
+      var on = t.dataset.tab === current;
+      t.classList.toggle('tab-app--active', on);
+      t.setAttribute('aria-selected', String(on));
+    });
+  }
+
   document.querySelector('.tabs-app').addEventListener('click', function (e) {
     var tab = e.target.closest('.tab-app');
     if (!tab || tab.dataset.tab === current) return;
     current = tab.dataset.tab;
-    document.querySelectorAll('.tab-app').forEach(function (t) {
-      var on = t === tab;
-      t.classList.toggle('tab-app--active', on);
-      t.setAttribute('aria-selected', String(on));
-    });
+    markActiveTab();
     render();
   });
 
@@ -386,5 +394,6 @@
     }
   });
 
+  markActiveTab();
   render();
 })();
