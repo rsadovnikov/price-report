@@ -1,0 +1,80 @@
+/* === ПЕРЕКЛЮЧАТЕЛЬ (SWITCH), ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Компонент библиотеки «🍏 iOS», набор Switch/Toggle:
+ *   64:23990 — Enabled=On, Selected=Off, Animating=Off, Error=Off
+ *   64:23988 — Enabled=On, Selected=On,  Animating=Off, Error=Off
+ * Снято 2026-08-15 с экрана настройки отчёта (563:69622), где стоит 8 инстансов.
+ *
+ * Геометрия из компонента: бокс 52×32 (min = max, то есть не тянется),
+ * паддинг 4, радиус Full; кнопка-ручка 24×24 того же радиуса с тенью
+ * Shadow/Default. Положение ручки задаётся выравниванием во флексе, а не
+ * трансформом — так в макете.
+ *
+ * ⚠️ Выключенное состояние — НЕ серое. Заливка `--surface-main-default`
+ * (#e6f0ff, голубая), а не нейтральная. Это отличие от системного iOS-свитча,
+ * где off серый; проверено по обоим вариантам набора. Серым тут выглядит
+ * только disabled, которого в наборе нет.
+ */
+
+.switch-app {
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  padding: var(--unit1);
+  border: 0;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--surface-main-default);
+  cursor: pointer;
+  /* Переход только на цвет и положение — ручка едет вместе с justify-content,
+     поэтому анимируем её собственным transform, см. ниже. */
+  transition: background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.switch-app__knob {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--icon-inverted-default, #fff);
+  box-shadow: 0 4px 4px 0 var(--shadow-default, rgba(0, 0, 0, 0.1));
+  transition: transform 0.2s ease;
+}
+
+/* Включено. Состояние держим на aria-checked, а не на классе: это кнопка-тумблер,
+   и доступное состояние обязано быть в атрибуте. Класс был бы вторым источником
+   правды, который рассинхронизируется. */
+.switch-app[aria-checked="true"] {
+  background: var(--control-main-primary-default);
+}
+.switch-app[aria-checked="true"] .switch-app__knob {
+  /* 52 − 4·2 − 24 = 20 */
+  transform: translateX(20px);
+}
+
+.switch-app:disabled {
+  background: var(--surface-neutral-default);
+  cursor: default;
+}
+.switch-app:disabled .switch-app__knob {
+  box-shadow: none;
+}
+
+.switch-app:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-app,
+  .switch-app__knob { transition: none; }
+}

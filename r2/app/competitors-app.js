@@ -331,7 +331,10 @@
     var backQs = new URLSearchParams(pass);
     backQs.set('n', tracked.size);
     backEl.setAttribute('href', 'report-app.html?' + backQs);
-    createEl.setAttribute('href', '../report.html?n=' + tracked.size);
+    /* «Создать» ведёт в настройку отчёта на этой же поверхности (2026-08-15);
+       до появления owner-report-app.html ссылка уходила в вебовый report.html.
+       Объект тащим целиком — на настройке он нужен для полосы цены. */
+    createEl.setAttribute('href', 'owner-report-app.html?' + backQs);
   }
 
   document.querySelector('.tabs-app').addEventListener('click', function (e) {

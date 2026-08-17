@@ -1,0 +1,61 @@
+/* === СЕГМЕНТНЫЙ КОНТРОЛ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Компонент библиотеки «🍏 iOS»: `Segment Control` (75:63990), внутри `.option`
+ * (75:63983). В описании компонента ссылка на Apple HIG по segmented controls.
+ * Снято 2026-08-15 с экрана настройки отчёта (563:69622), вариант «2 Options,
+ * Selected=Left» (75:63992, подписан «Struct Picker»).
+ *
+ * Чем отличается от вебового `components/segmented.css`: там высота и радиусы
+ * свои, здесь — метрики компонента приложения. Роли те же, значения разные —
+ * ровно тот случай, для которого и заводится app-дельта.
+ *
+ * ⚠️ Радиусы 8.91 и 6.93 — НЕ округляем до сетки 4. Правило «всё кратно 4»
+ * из скилла cian-layout прямо исключает собственные размеры библиотечных
+ * компонентов, а это они: так задано в мастере. Дробь тут от того, что iOS
+ * рисует непрерывный угол, и Figma подбирает обычную дугу под него.
+ */
+
+.segmented-app {
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 32px;
+  padding: 2px;
+  border-radius: 8.91px;
+  overflow: hidden;
+  background: var(--surface-neutral-default);
+}
+
+.segmented-app__option {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--unit2);
+  border: 0;
+  border-radius: 6.93px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Выбранный сегмент. Цвет текста НЕ меняется — в макете оба варианта
+   `--text/primary/default`, отличается только подложка с тенью. */
+.segmented-app__option--active {
+  background: var(--background-primary);
+  box-shadow: 0 4px 2px var(--shadow-default, rgba(0, 0, 0, 0.1));
+}
+
+.segmented-app__option:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: -2px;
+}

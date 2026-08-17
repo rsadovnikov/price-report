@@ -1,0 +1,327 @@
+/* === ЭКРАН «ОТЧЁТ ДЛЯ СОБСТВЕННИКА» — СОБСТВЕННЫЕ БЛОКИ, ПОВЕРХНОСТЬ iOS ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 563:69622
+ * (в макете фрейм подписан `msg-distr-report`). Снято 2026-08-15.
+ *
+ * Здесь только то, чего нет в библиотеке: узлы макета, собранные автором из
+ * примитивов. Настоящие компоненты кита живут отдельно — switch.css,
+ * segmented.css, inputs.css, screen-footer.css, buttons.css.
+ *
+ * Состав: шаг с номером, разделители (сплошной и пунктирный), строка с тумблером,
+ * строка метрики с двумя колонками и полоса положения цены на рынке.
+ */
+
+/* --- Карточка-блок экрана ------------------------------------------------
+ * Белая карточка с паддингом 20. Фон и радиус приходят из `.card-app`
+ * (cells.css), здесь только внутренний отступ и раскладка. */
+.report-block-app {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit8);
+  padding: var(--unit5);
+}
+.report-block-app--tight { gap: var(--unit4); }
+
+/* --- Шаг с номером -------------------------------------------------------
+ * В макете `.stepper` — узел, а не компонент: кружок 20×20 с цифрой.
+ * Радиус 16 при габарите 20 — то есть фактически круг; оставляю как в макете. */
+.report-step-app {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit2);
+}
+.report-step-app--center { align-items: center; }
+
+.report-step-app__body {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit4);
+}
+.report-step-app__body--tight { gap: var(--unit1); }
+
+.stepper-app {
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-xxl);
+  background: var(--icon-primary-default);
+  color: var(--text-inverted-default);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Разделители ---------------------------------------------------------
+ * Компонент `Divider` 🍏 iOS: линия обводкой 0.5 цветом Stroke/Divider.
+ * Пунктирный вариант (нода 1:147) — тот же цвет с шагом 6/4. CSS `dashed`
+ * шаг не задаёт, поэтому пунктир рисуем градиентом: он даёт ровно 6 на 4. */
+.divider-app {
+  height: 0.5px;
+  background: var(--stroke-divider-default);
+}
+.divider-app--dashed {
+  background: repeating-linear-gradient(
+    to right,
+    var(--stroke-divider-default) 0 6px,
+    transparent 6px 10px
+  );
+}
+
+/* --- Строка с тумблером «Показывать … в отчёте» -------------------------- */
+.toggle-row-app {
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  padding: var(--unit2) 0;
+  border-radius: var(--radius-l);
+}
+.toggle-row-app__label {
+  flex: 1 0 0;
+  min-width: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+
+/* --- Строки метрик -------------------------------------------------------
+ * Две колонки чисел фиксированной ширины (70 и 90) — чтобы разряды стояли
+ * друг под другом. Заголовки колонок сдвинуты вправо на ширину тумблера с
+ * гэпом: 52 + 20 = 72, отсюда `padding-right` у шапки. */
+.metric-cols-app {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--unit2);
+  padding-right: 72px;
+  text-align: right;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-secondary-default);
+}
+.metric-cols-app__col { flex: none; }
+.metric-cols-app__col--wide { width: 90px; }
+
+.metric-row-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}
+.metric-row-app__main {
+  display: flex;
+  align-items: center;
+  gap: var(--unit5);
+  padding: var(--unit2) 0;
+}
+.metric-row-app__text {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: var(--text-primary-default);
+}
+.metric-row-app__name {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  white-space: nowrap;
+}
+.metric-row-app__values {
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+  text-align: right;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  font-variant-numeric: tabular-nums;
+}
+.metric-row-app__value { flex: none; width: 70px; }
+.metric-row-app__value--wide { width: 90px; }
+/* Ноль — тусклый: в макете у «Отклики» за 10 дней стоит `text/primary/disabled`.
+   Это не отключённая строка, а именно нулевое значение. */
+.metric-row-app__value--zero { color: var(--text-primary-disabled); }
+
+/* Выключенная метрика: гаснет вся строка, тумблер остаётся активным. */
+.metric-row-app--off .metric-row-app__text { color: var(--text-primary-disabled); }
+.metric-row-app--off .metric-row-app__value--zero { color: var(--text-primary-disabled); }
+
+/* --- Полоса положения цены на рынке -------------------------------------
+ * В макете `.market-range` / `.market-range-bar`. Три зоны равной ширины с
+ * зазором 2, под каждым стыком — шип из двух половин цвета соседних зон.
+ *
+ * ⚠️ Отступы шипов и подписей границ в макете заданы числами (gap 92,
+ * padding-left 172) — это годится только для фиксированных 342. У нас экран
+ * тянется 360…412, поэтому и шипы, и подписи привязаны к границам зон в
+ * процентах. Замысел тот же, число другое, и это осознанно.
+ */
+.market-range-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+}
+
+/* Маркер «Ваше объявление» */
+.market-range-app__marker {
+  position: relative;
+  height: 47px; /* пузырь 41 + острие 6 */
+}
+.market-range-app__bubble-wrap {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+}
+.market-range-app__bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--unit1) var(--unit2);
+  border-radius: var(--radius-m);
+  background: var(--icon-primary-default);
+  white-space: nowrap;
+}
+.market-range-app__bubble-label {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-inverted-disabled, #b1bad2);
+}
+.market-range-app__bubble-value {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-inverted-default);
+  font-variant-numeric: tabular-nums;
+}
+.market-range-app__caret {
+  display: block;
+  width: 8px;
+  height: 5.984px;
+}
+
+/* Полоса зон */
+.market-range-app__bar {
+  display: flex;
+  gap: 2px;
+}
+.market-range-app__zone {
+  position: relative;
+  flex: 1 0 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--unit2);
+  text-align: center;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+.market-range-app__zone:first-child  { border-radius: var(--radius-m) 0 0 var(--radius-m); }
+.market-range-app__zone:last-child   { border-radius: 0 var(--radius-m) var(--radius-m) 0; }
+
+.market-range-app__zone--lower  { background: var(--surface-main-default);     color: var(--text-secondary-default); }
+.market-range-app__zone--good   { background: var(--surface-positive-default); color: var(--text-positive-default); }
+.market-range-app__zone--higher { background: var(--surface-negative-default); color: var(--text-negative-default); }
+
+/* Шипы под стыками зон. Форма — экспортированный путь из макета, поданный
+   маской: один файл на три цвета, потому что цвет шипа равен заливке своей
+   зоны. Иначе пришлось бы держать три копии одной кривой. */
+.market-range-app__zone::before,
+.market-range-app__zone::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  width: 5px;
+  height: 6.765px;
+  background: inherit;
+  -webkit-mask: url("../../assets/icons/range-tail-5.svg") no-repeat center / 100% 100%;
+  mask: url("../../assets/icons/range-tail-5.svg") no-repeat center / 100% 100%;
+}
+/* Левая половина шипа принадлежит зоне слева и сужается вправо-вниз. */
+.market-range-app__zone::after  { right: 0; transform: scaleX(-1); }
+/* Правая половина принадлежит зоне справа и сужается влево-вниз. */
+.market-range-app__zone::before { left: 0; }
+/* У крайних зон наружных шипов нет. */
+.market-range-app__zone:first-child::before,
+.market-range-app__zone:last-child::after { content: none; }
+
+/* Подписи границ — под стыками, а не по центру строки */
+.market-range-app__bounds {
+  position: relative;
+  height: 36px;
+  margin-top: var(--unit1);
+}
+.market-range-app__bound {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.market-range-app__bound:nth-child(1) { left: 33.333%; }
+.market-range-app__bound:nth-child(2) { left: 66.667%; }
+.market-range-app__bound-value {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+.market-range-app__bound-sub {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-secondary-default);
+}
+
+/* --- Сводка цен у конкурентов (за раскрывающейся ссылкой) ---------------- */
+.price-summary-app {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit3);
+}
+.price-summary-app__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  white-space: nowrap;
+}
+.price-summary-app__label { color: var(--text-secondary-default); }
+.price-summary-app__value { color: var(--text-primary-default); font-variant-numeric: tabular-nums; }
+.price-summary-app__divider {
+  flex: none;
+  align-self: center;
+  width: 0.5px;
+  height: 35px;
+  background: var(--stroke-divider-default);
+}

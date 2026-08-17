@@ -1,0 +1,119 @@
+/* === ПОЛЯ ВВОДА, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Компоненты библиотеки «🍏 iOS»:
+ *   Input    — 64:23889 (#iOS #BDUI)
+ *   Textarea — 64:23951 (#iOS #BDUI)
+ * Снято 2026-08-15 с экрана настройки отчёта (563:69622).
+ *
+ * Отличие от вебовых `inputs.css` / `textarea.js`: в приложении поле лежит на
+ * заливке `--surface-neutral-default` и **без обводки** — граница не рисуется
+ * вовсе, поле отделяется от белой карточки только фоном. В вебе наоборот:
+ * белое поле с `--stroke-control-default`. Роль одна, устройство разное.
+ */
+
+/* --- Input: одна строка -------------------------------------------------- */
+
+.input-app {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background: var(--surface-neutral-default);
+}
+
+.input-app__control {
+  flex: 1 0 0;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--unit3) 0 var(--unit3) var(--unit3);
+  border: 0;
+  background: none;
+  font-family: var(--font-base);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+.input-app__control::placeholder {
+  color: var(--text-secondary-default);
+}
+.input-app__control:focus { outline: none; }
+
+/* Правый слот: единица измерения, «₽». Не иконка и не кнопка — просто текст. */
+.input-app__suffix {
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 10px var(--unit3) 10px 0;
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+
+.input-app:focus-within {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: -2px;
+}
+
+/* --- Textarea: много строк + счётчик ------------------------------------- */
+
+.textarea-app {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit2);
+  width: 100%;
+  /* 200 — значение с экрана настройки отчёта. Компонент растягивается,
+     так что экран может задать своё. */
+  min-height: 200px;
+  padding: var(--unit2) var(--unit3);
+  border-radius: var(--radius-l);
+  background: var(--surface-neutral-default);
+}
+
+.textarea-app__control {
+  flex: 1 0 0;
+  min-height: 75px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  background: none;
+  resize: none;
+  font-family: var(--font-base);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+.textarea-app__control::placeholder {
+  color: var(--text-secondary-default);
+}
+.textarea-app__control:focus { outline: none; }
+
+/* Счётчик прижат вниз-вправо. Цвет — `--text/primary/disabled`, то есть он
+   намеренно тусклее вторичного текста: это служебная цифра, не подпись. */
+.textarea-app__counter {
+  flex: none;
+  text-align: right;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  font-weight: var(--type-caption-weight);
+  color: var(--text-primary-disabled, var(--text-secondary-default));
+}
+
+.textarea-app:focus-within {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: -2px;
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru" data-surface="app">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
+       и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
+       при котором уже написанный CSS вообще включается. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
+  <title>Отчёт для собственника — приложение</title>
+
+  <link rel="stylesheet" href="../_design-system/tokens.css">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css">
+  <link rel="stylesheet" href="../_design-system/base.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css">
+  <link rel="stylesheet" href="../_design-system/components/app/switch.css">
+  <link rel="stylesheet" href="../_design-system/components/app/segmented.css">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css">
+  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css">
+
+  <style>
+    /* Раскладка и диапазон ширин — в components/app/screen.css.
+       Здесь только то, что своё у этого экрана. */
+    body {
+      background: var(--background-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .screen-app { padding-bottom: calc(var(--unit2) + env(safe-area-inset-bottom)); }
+
+    /* Шапка: у этого экрана под навбаром только крупный заголовок,
+       поэтому снизу 12, как в макете. */
+    .appbar__filters--flat { padding-bottom: var(--unit3); }
+
+    /* Группа внутри шага 2: цена и оценка от Циана — два блока по 16 внутри,
+       32 между собой (это gap самой карточки). */
+    .report-group { display: flex; flex-direction: column; gap: var(--unit4); }
+
+    /* Пара полей «от / до». `[hidden]` обязан выигрывать, поэтому display
+       задаётся классом, а не инлайном. */
+    .price-fields-app { display: flex; gap: var(--unit2); }
+    .price-fields-app[hidden] { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="screen-app">
+
+  <!-- ===== Шапка ===== -->
+  <header class="appbar card-app--head">
+
+    <div class="statusbar-app" aria-hidden="true">
+      <img class="statusbar-app__time" src="../_design-system/assets/icons/statusbar-time.svg" alt="">
+      <div class="statusbar-app__island"></div>
+      <img class="statusbar-app__indicators" src="../_design-system/assets/icons/statusbar-indicators.svg" alt="">
+    </div>
+
+    <nav class="navbar-app">
+      <a class="navbar-app__icon navbar-app__icon--back" id="back-link" href="report-app.html" aria-label="Назад">
+        <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
+      </a>
+      <p class="navbar-app__title"></p>
+      <a class="navbar-app__link" href="#">Чем полезен</a>
+    </nav>
+
+    <div class="appbar__filters appbar__filters--flat">
+      <div class="cell-app-title">
+        <h1 class="cell-app-title__text">Отчёт для собственника</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Шаг 1 — конкуренты ===== -->
+  <section class="card-app report-block-app report-block-app--tight">
+    <div class="report-step-app">
+      <span class="stepper-app">1</span>
+      <div class="report-step-app__body">
+        <p class="heading4" id="step-competitors">Выбрано 6 конкурентов</p>
+        <a class="btn-app btn-app--large btn-app--secondary btn-app--main btn-app--block btn-app--stacked"
+           id="comments-link" href="competitors-app.html">
+          <span class="btn-app__label">Добавить комментарии</span>
+          <span class="btn-app__subtitle">их увидит собственник в отчёте</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Шаг 2 — цена ===== -->
+  <section class="card-app report-block-app">
+
+    <div class="report-group">
+      <div class="report-step-app">
+        <span class="stepper-app">2</span>
+        <p class="heading4">Рекомендация по цене</p>
+      </div>
+
+      <!-- Режим и поле ввода -->
+      <div class="report-group">
+        <div class="segmented-app" role="tablist" aria-label="Вид рекомендации">
+          <button class="segmented-app__option segmented-app__option--active"
+                  type="button" role="tab" aria-selected="true" data-mode="exact">Точная сумма</button>
+          <button class="segmented-app__option"
+                  type="button" role="tab" aria-selected="false" data-mode="range">Диапазон</button>
+        </div>
+
+        <div id="price-exact">
+          <label class="input-app">
+            <input class="input-app__control" type="text" inputmode="numeric" placeholder="Введите сумму" aria-label="Сумма">
+            <span class="input-app__suffix">₽</span>
+          </label>
+        </div>
+
+        <!-- Второй режим сегментного контрола. В макете нарисован только первый,
+             но у контрола две опции, и вторая обязана что-то показывать; беру
+             пару «от / до» — так это уже сделано в вебовом отчёте.
+             Раскладка классом, а не инлайном: инлайновый display перебивает
+             [hidden], и оба режима показывались разом. -->
+        <div class="price-fields-app" id="price-range" hidden>
+          <label class="input-app">
+            <input class="input-app__control" type="text" inputmode="numeric" placeholder="от" aria-label="Цена от">
+            <span class="input-app__suffix">₽</span>
+          </label>
+          <label class="input-app">
+            <input class="input-app__control" type="text" inputmode="numeric" placeholder="до" aria-label="Цена до">
+            <span class="input-app__suffix">₽</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Цены у конкурентов, за раскрывающейся ссылкой -->
+      <div>
+        <button class="btn-app-link" id="prices-toggle" type="button" aria-expanded="true" aria-controls="prices-summary">
+          Цены у выбранных конкурентов
+          <span class="btn-app-link__icon icon">
+            <img src="../_design-system/assets/icons/chevron-down-small-16.svg" alt="">
+          </span>
+        </button>
+        <div class="price-summary-app" id="prices-summary">
+          <div class="price-summary-app__item">
+            <span class="price-summary-app__label">Минимум</span>
+            <span class="price-summary-app__value" id="price-min">—</span>
+          </div>
+          <span class="price-summary-app__divider"></span>
+          <div class="price-summary-app__item">
+            <span class="price-summary-app__label">Средняя цена</span>
+            <span class="price-summary-app__value" id="price-avg">—</span>
+          </div>
+          <span class="price-summary-app__divider"></span>
+          <div class="price-summary-app__item">
+            <span class="price-summary-app__label">Максимум</span>
+            <span class="price-summary-app__value" id="price-max">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Оценка от Циана -->
+    <div class="report-group">
+      <div>
+        <p class="heading4">Оценка от Циана</p>
+        <p class="body2" style="margin-top:var(--unit2)">
+          Дополним отчёт инфографикой на основе данных из Росреестра о сделках по похожим объектам
+        </p>
+      </div>
+
+      <div>
+        <div class="divider-app"></div>
+        <div class="toggle-row-app">
+          <span class="toggle-row-app__label" id="cian-toggle-label">Показывать оценку от Циана в отчёте</span>
+          <button class="switch-app" type="button" role="switch" aria-checked="true"
+                  id="cian-switch" aria-labelledby="cian-toggle-label">
+            <span class="switch-app__knob"></span>
+          </button>
+        </div>
+
+        <div class="market-range-app" id="market-range">
+          <div class="market-range-app__marker">
+            <div class="market-range-app__bubble-wrap" id="range-marker">
+              <div class="market-range-app__bubble">
+                <span class="market-range-app__bubble-label">Ваше объявление</span>
+                <span class="market-range-app__bubble-value" id="range-own">19 130 000 ₽</span>
+              </div>
+              <img class="market-range-app__caret" src="../_design-system/assets/icons/tooltip-caret-8.svg" alt="">
+            </div>
+          </div>
+
+          <div class="market-range-app__bar">
+            <div class="market-range-app__zone market-range-app__zone--lower">Ниже рынка</div>
+            <div class="market-range-app__zone market-range-app__zone--good">Хорошая цена</div>
+            <div class="market-range-app__zone market-range-app__zone--higher">Выше рынка</div>
+          </div>
+
+          <div class="market-range-app__bounds">
+            <div class="market-range-app__bound">
+              <span class="market-range-app__bound-value">14 900 000 ₽</span>
+              <span class="market-range-app__bound-sub">278 000 ₽/м²</span>
+            </div>
+            <div class="market-range-app__bound">
+              <span class="market-range-app__bound-value">17 500 000 ₽</span>
+              <span class="market-range-app__bound-sub">324 000 ₽/м²</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Шаг 3 — статистика ===== -->
+  <section class="card-app report-block-app report-block-app--tight">
+    <div class="report-step-app">
+      <span class="stepper-app">3</span>
+      <div class="report-step-app__body report-step-app__body--tight">
+        <p class="heading4">Статистика по объявлению собственника</p>
+        <p class="body2">Так будет проще сопоставить ситуацию на рынке с активностью по объекту</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="divider-app"></div>
+      <div class="toggle-row-app">
+        <span class="toggle-row-app__label" id="stats-toggle-label">Показывать статистику в отчёте</span>
+        <button class="switch-app" type="button" role="switch" aria-checked="true"
+                id="stats-switch" aria-labelledby="stats-toggle-label">
+          <span class="switch-app__knob"></span>
+        </button>
+      </div>
+
+      <div id="stats-body">
+        <div class="metric-cols-app">
+          <span class="metric-cols-app__col">за 10 дней</span>
+          <span class="metric-cols-app__col metric-cols-app__col--wide">за всё время</span>
+        </div>
+        <div id="metrics"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Шаг 4 — комментарий ===== -->
+  <section class="card-app report-block-app report-block-app--tight">
+    <div class="report-step-app report-step-app--center">
+      <span class="stepper-app">4</span>
+      <p class="heading4">Общий комментарий</p>
+    </div>
+
+    <label class="textarea-app">
+      <textarea class="textarea-app__control" id="comment" maxlength="300"
+                placeholder="Какая ситуация на рынке, как лучше поступить с ценой, сколько конкурентных предложений рядом и т. д."
+                aria-label="Общий комментарий"></textarea>
+      <span class="textarea-app__counter" id="comment-counter">0/300</span>
+    </label>
+  </section>
+
+  <!-- ===== Кнопки ===== -->
+  <section class="card-app screen-footer-app">
+    <div class="screen-footer-app__buttons">
+      <a class="btn-app btn-app--medium btn-app--primary btn-app--main btn-app--block"
+         id="create-pdf" href="../report.html">Создать PDF-отчёт</a>
+      <a class="btn-app btn-app--medium btn-app--secondary btn-app--main btn-app--block"
+         id="save-exit" href="report-app.html">Сохранить и выйти</a>
+    </div>
+  </section>
+
+</div>
+
+<script src="competitors-data.js"></script>
+<script src="owner-report-app.js"></script>
+</body>
+</html>

@@ -68,13 +68,16 @@
       + '</a>';
   }).join('');
 
-  /* Вход в отчёт несёт то же число: настройка и PDF живут в вебовой версии,
-     здесь экран — точка входа, а не сам отчёт. */
-  var entry = document.getElementById('report-entry');
-  entry.setAttribute('href', '../report.html?n=' + n);
-
-  /* Стрелка у заголовка ведёт в развёрнутый список и тащит с собой объект,
-     чтобы с него можно было вернуться назад без потери контекста. */
+  /* Объект едет по ссылкам целиком, чтобы с любого экрана можно было вернуться
+     назад без потери контекста. */
   var qs = new URLSearchParams({ n: n, desc: base.desc, price: base.price, photo: base.photo });
+
+  /* Вход в отчёт ведёт в настройку на этой же поверхности (2026-08-15).
+     Раньше он уходил в вебовый report.html — настройки для приложения просто
+     не было. Сам PDF по-прежнему собирается в вебовой версии, кнопка на него
+     стоит в конце настройки. */
+  document.getElementById('report-entry').setAttribute('href', 'owner-report-app.html?' + qs);
+
+  /* Стрелка у заголовка ведёт в развёрнутый список конкурентов. */
   document.getElementById('all-competitors').setAttribute('href', 'competitors-app.html?' + qs);
 })();
