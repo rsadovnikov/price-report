@@ -74,6 +74,17 @@
   baseRow.querySelector('.ad-row-app__price').textContent = base.price + ' ₽';
   baseRow.querySelector('.ad-row-app__photo').src = base.photo;
 
+  /* Объект едет по ссылкам целиком, чтобы с любого экрана можно было вернуться
+     назад без потери контекста. Апдейты — тоже: иначе заход в список конкурентов
+     и обратно сбрасывал бы экран в состояние «изменений нет». */
+  var qs = new URLSearchParams({ n: n, desc: base.desc, price: base.price, photo: base.photo });
+  if (u > 0) qs.set('u', u);
+
+  /* Вся секция конкурентов ведёт в список отслеживаемых: и заголовок, и плашка,
+     и каждая строка. Отдельного экрана под одного конкурента нет, поэтому адрес
+     у всех один (просьба Романа, 2026-08-18). */
+  var listHref = 'competitors-app.html?' + qs;
+
   /* --- Апдейты: кому какой бейдж ---
      Кандидатов выбирают сами данные: цена — первому с непустым priceDelta, снятие —
      первому со признаком removed. Остаток апдейтов уходит в строку-предложение. */
@@ -108,7 +119,8 @@
     var mark = i === priceIdx ? 'Цена изменилась'
              : i === removedIdx ? 'Сняли с публикации ' + removedDate(c)
              : null;
-    return '<a class="ad-row-app' + (mark ? ' ad-row-app--badged' : '') + '" href="#">'
+    return '<a class="ad-row-app' + (mark ? ' ad-row-app--badged' : '') + '"'
+      + ' href="' + esc(listHref) + '">'
       + (photo
         ? '<img class="ad-row-app__photo" src="' + esc(photo) + '" alt="">'
         : '<span class="ad-row-app__photo ad-row-app__photo--empty"><img src="' + PLACEHOLDER + '" alt=""></span>')
@@ -147,24 +159,71 @@
     }
   }
 
-  /* Объект едет по ссылкам целиком, чтобы с любого экрана можно было вернуться
-     назад без потери контекста. Апдейты — тоже: иначе заход в список конкурентов
-     и обратно сбрасывал бы экран в состояние «изменений нет». */
-  var qs = new URLSearchParams({ n: n, desc: base.desc, price: base.price, photo: base.photo });
-  if (u > 0) qs.set('u', u);
-
   /* Вход в отчёт ведёт в настройку на этой же поверхности (2026-08-15).
      Раньше он уходил в вебовый report.html — настройки для приложения просто
      не было. Сам PDF по-прежнему собирается в вебовой версии, кнопка на него
      стоит в конце настройки. */
   document.getElementById('report-entry').setAttribute('href', 'owner-report-app.html?' + qs);
 
-  /* Стрелка у заголовка ведёт в развёрнутый список конкурентов. */
-  document.getElementById('all-competitors').setAttribute('href', 'competitors-app.html?' + qs);
+  /* Заголовок секции и плашка над списком — те же ворота в список конкурентов. */
+  document.getElementById('all-competitors').setAttribute('href', listHref);
+  document.getElementById('tracking-hint-link').setAttribute('href', listHref);
 
   /* А строка-предложение — сразу на вкладку «Подборка»: новый конкурент живёт там,
      а не среди отслеживаемых. */
   var suggestQs = new URLSearchParams(qs);
   suggestQs.set('tab', 'selection');
   document.getElementById('suggest-link').setAttribute('href', 'competitors-app.html?' + suggestQs);
+
+  /* --- Плавающая копия входа в отчёт ---
+     Ведёт себя как `position: sticky`: пока место кнопки ниже прижатого положения,
+     копия висит у нижнего края; как только место поднялось — копия отдаёт эстафету
+     настоящей кнопке ровно в той точке, где та встала. В этот момент обе позиции
+     совпадают, поэтому переключения не видно: кнопка не уезжает и не гаснет, а
+     приземляется на своё место. Назад — так же, зеркально.
+
+     Нативным `sticky` этого не сделать: он не выходит за пределы родителя, а
+     родитель кнопки — карточка отчёта, которой на первом экране ещё нет.
+
+     Считаем на прокрутке, а не наблюдателем: наблюдатель отвечает «пересеклись или
+     нет», а нам нужно сравнить две координаты. Пересчёт прижат к кадру через
+     requestAnimationFrame — на инерционном скролле событий больше, чем кадров. */
+  var floatBar = document.getElementById('report-float');
+  var floatLink = document.getElementById('report-float-link');
+  var realEntry = document.getElementById('report-entry');
+  floatLink.setAttribute('href', 'owner-report-app.html?' + qs);
+
+  var landed = null;
+  function place() {
+    /* Копию не двигаем, поэтому её собственный бокс и есть прижатое положение —
+       вместе с вырезом под home-индикатор, считать его отдельно не нужно.
+       `visibility: hidden` бокс не убирает, так что измерение работает и в
+       приземлённом состоянии. */
+    var pinned = floatLink.getBoundingClientRect().top;
+    var home = realEntry.getBoundingClientRect().top;
+    var now = home <= pinned + 0.5;
+    if (now === landed) return;
+    landed = now;
+    floatBar.classList.toggle('screen-footer-app--landed', now);
+    floatBar.inert = now;
+  }
+
+  var scheduled = false;
+  function onScroll() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(function () { scheduled = false; place(); });
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  /* Фото приезжают своими размерами, но подстраховаться дешевле, чем ловить
+     сдвиг раскладки после загрузки. */
+  addEventListener('load', onScroll);
+
+  place();
+  /* Между первым состоянием и включением анимации — принудительный пересчёт:
+     без него браузер видит оба изменения в одном кадре и всё равно анимирует.
+     Не rAF: тот отдаёт следующему кадру, а зафиксировать надо сейчас. */
+  void floatBar.offsetHeight;
+  floatBar.classList.add('screen-footer-app--animated');
 })();

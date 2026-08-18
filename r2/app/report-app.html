@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../_design-system/components/app/badge.css">
   <link rel="stylesheet" href="../_design-system/components/app/entry-point.css">
   <link rel="stylesheet" href="../_design-system/components/app/facts.css">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css">
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -109,14 +110,16 @@
   <!-- ===== Конкуренты ===== -->
   <section class="card-app report-block">
     <div class="report-intro">
-      <div class="section-head-app">
+      <!-- Ссылкой стал весь заголовок, а не шеврон 12px: секция целиком ведёт
+           в список отслеживаемых конкурентов (просьба Романа, 2026-08-18). -->
+      <a class="section-head-app" id="all-competitors" href="competitors-app.html">
         <h2 class="section-head-app__title" id="competitors-title">Ближайшие конкуренты</h2>
-        <a class="section-head-app__chevron" id="all-competitors" href="competitors-app.html" aria-label="Все конкуренты">
+        <span class="section-head-app__chevron">
           <img src="../_design-system/assets/icons/chevron-right-12.svg" alt="" width="7.121" height="11.414">
-        </a>
-      </div>
+        </span>
+      </a>
 
-      <div class="hint-app">
+      <a class="hint-app" id="tracking-hint-link" href="competitors-app.html">
         <span class="hint-app__icon hint-app__icon--radar">
           <img src="../_design-system/assets/radar.png" alt="">
         </span>
@@ -125,7 +128,7 @@
         <p class="hint-app__text" id="tracking-hint">
           Следим, меняется ли у конкурентов цена, и отмечаем, если объявления уходят в архив
         </p>
-      </div>
+      </a>
     </div>
 
     <div class="ad-list-app" id="competitors"></div>
@@ -163,10 +166,9 @@
     </div>
 
     <div class="report-cta__entry">
+      <!-- Картинки слева больше нет (макет 713:77123, 2026-08-18): строка стала
+           52 высотой — 16 + 20 + 16, высоту держит min-height текстового блока. -->
       <a class="entry-point-app entry-point-app--main" id="report-entry" href="owner-report-app.html">
-        <span class="entry-point-app__image entry-point-app__image--glyph">
-          <img src="../_design-system/assets/icons/report-entry-26.svg" alt="">
-        </span>
         <span class="entry-point-app__body">
           <span class="entry-point-app__text">
             <span class="entry-point-app__title">Настроить и создать отчёт</span>
@@ -183,23 +185,49 @@
         <p class="facts-app__label">Чем полезен отчёт уже сейчас:</p>
         <div class="facts-app__list">
           <div class="fact-app">
+            <span class="fact-app__icon">
+              <img src="../_design-system/assets/icons/message-line-19.svg" alt=""
+                   width="18.667" height="17.889">
+            </span>
             <div class="fact-app__body">
-              <p class="fact-app__title">77% агентов</p>
-              <p class="fact-app__text">отметили, что раздел помогает обсуждать цену с собственником</p>
+              <p class="fact-app__title"><span class="fact-app__accent">77% агентов</span> отметили:</p>
+              <p class="fact-app__text">раздел помогает обсуждать цену с собственником</p>
             </div>
-            <span class="fact-app__pic"><img src="../MO/fact-plane.png" alt=""></span>
           </div>
-          <div class="fact-app fact-app--top">
+          <div class="fact-app">
+            <span class="fact-app__icon">
+              <img src="../_design-system/assets/icons/price-pictogram-22.svg" alt=""
+                   width="21.94" height="22.322">
+            </span>
             <div class="fact-app__body">
-              <!-- Перенос в макете стоит после «пересматривают»: там заголовок
-                   в две строки, и естественный перенос ломал бы его иначе. -->
-              <p class="fact-app__title">Цену пересматривают<br>в два раза чаще</p>
+              <p class="fact-app__title">Цену пересматривают <span class="fact-app__accent">в два раза чаще</span></p>
               <p class="fact-app__text">если по объявлению сделали отчёт</p>
             </div>
-            <span class="fact-app__pic fact-app__pic--sm"><img src="../MO/fact-delight.png" alt=""></span>
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== Плавающая копия входа в отчёт =====
+       Держится у нижнего края, пока настоящая кнопка не доехала до своего места
+       (просьба Романа, 2026-08-18: главное действие должно быть под рукой с первого
+       экрана). Внутри — тот же контрол, что и в карточке, а не «похожая кнопка»:
+       разойтись им нельзя, это одно и то же действие. Стартует приземлённой и без
+       анимации — состояние выставит report-app.js первым же замером. -->
+  <section class="screen-footer-app screen-footer-app--floating screen-footer-app--landed"
+           id="report-float" inert>
+    <div class="screen-footer-app__buttons">
+      <a class="entry-point-app entry-point-app--main" id="report-float-link" href="owner-report-app.html">
+        <span class="entry-point-app__body">
+          <span class="entry-point-app__text">
+            <span class="entry-point-app__title">Настроить и создать отчёт</span>
+          </span>
+          <span class="entry-point-app__action">
+            <img src="../_design-system/assets/icons/chevron-right-16-inverted.svg" alt="">
+          </span>
+        </span>
+      </a>
     </div>
   </section>
 

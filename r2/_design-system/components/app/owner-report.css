@@ -300,11 +300,33 @@
   color: var(--text-secondary-default);
 }
 
-/* --- Сводка цен у конкурентов (за раскрывающейся ссылкой) ---------------- */
+/* --- Сводка цен у конкурентов (за раскрывающейся ссылкой) ----------------
+ *
+ * Выезжает, а не появляется рывком. Три вещи, из которых это собрано:
+ *
+ * 1. Прячем НЕ атрибутом `hidden`. `display: none` не анимируется, а `[hidden]`
+ *    в base.css принудительно его ставит — значит для раскрывающегося блока
+ *    атрибут не годится вовсе. Здесь состояние держит модификатор `--collapsed`,
+ *    а из а11y-дерева и обхода табом блок убирает `inert` (его JS ставит вместе
+ *    с классом).
+ * 2. Высоту в пикселях ставит JS перед переходом: у `height` нет интерполяции
+ *    к `auto`, а зашить число нельзя — сводка на 360 может стать в две строки.
+ *    После раскрытия JS высоту отпускает, чтобы содержимое могло меняться.
+ * 3. `overflow: hidden` — иначе содержимое вылезает из схлопнутой коробки.
+ */
 .price-summary-app {
   display: flex;
   align-items: flex-start;
   gap: var(--unit3);
+  overflow: hidden;
+  transition: height 0.2s ease, opacity 0.2s ease;
+}
+.price-summary-app--collapsed {
+  height: 0;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .price-summary-app { transition: none; }
 }
 .price-summary-app__item {
   display: flex;

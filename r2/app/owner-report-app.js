@@ -104,15 +104,57 @@
     });
   });
 
-  /* Ссылка «Цены у выбранных конкурентов» сворачивает сводку.
-     Поворот шеврона висит на [aria-expanded] в base.css, поэтому здесь
-     переключается только атрибут. */
+  /* Ссылка «Цены у выбранных конкурентов» сворачивает сводку — с выездом.
+     Поворот шеврона висит на [aria-expanded] в base.css, поэтому его тут не трогаем.
+
+     Почему высота считается в JS: `height` не интерполируется к `auto`, а зашить
+     число нельзя — на 360 сводка может встать в две строки. Поэтому перед каждым
+     переходом ставим измеренную высоту, а после раскрытия отпускаем обратно в
+     `auto`, чтобы блок жил своей высотой, если содержимое поменяется.
+
+     Атрибут `hidden` тут не используется намеренно: `display: none` не анимируется.
+     Из а11y-дерева и обхода табом блок убирает `inert`. */
   var pricesToggle = document.getElementById('prices-toggle');
   var pricesSummary = document.getElementById('prices-summary');
+
+  function animates(el) {
+    return getComputedStyle(el).transitionDuration !== '0s';
+  }
+
+  pricesSummary.addEventListener('transitionend', function (e) {
+    /* Раскрылись — снимаем фиксированную высоту. На схлопывании она обязана
+       остаться нулевой, поэтому условие по классу. */
+    if (e.propertyName === 'height' && !pricesSummary.classList.contains('price-summary-app--collapsed')) {
+      pricesSummary.style.height = '';
+    }
+  });
+
   pricesToggle.addEventListener('click', function () {
     var open = pricesToggle.getAttribute('aria-expanded') === 'true';
     pricesToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
-    pricesSummary.hidden = open;
+
+    /* Отсчёт всегда от измеренной высоты: и когда схлопываем (от неё к нулю),
+       и когда раскрываем (от нуля к ней). */
+    var full = pricesSummary.scrollHeight;
+
+    if (open) {
+      pricesSummary.style.height = full + 'px';
+      pricesSummary.inert = true;
+      /* Принудительный пересчёт между «зафиксировали высоту» и «поехали к нулю»:
+         без него браузер склеит оба значения в одно и перехода не будет. Чтение
+         offsetHeight, а не requestAnimationFrame, — чтобы всё случилось в этом же
+         обработчике: отложенный кадр при двойном клике добавлял бы класс уже после
+         того, как блок снова раскрыли. */
+      void pricesSummary.offsetHeight;
+      pricesSummary.classList.add('price-summary-app--collapsed');
+      pricesSummary.style.height = '0px';
+    } else {
+      pricesSummary.inert = false;
+      pricesSummary.classList.remove('price-summary-app--collapsed');
+      pricesSummary.style.height = full + 'px';
+      /* Переход выключен (reduced-motion) — transitionend не придёт, отпускаем сразу. */
+      if (!animates(pricesSummary)) pricesSummary.style.height = '';
+    }
   });
 
   /* --- Полоса положения цены --------------------------------------------- */

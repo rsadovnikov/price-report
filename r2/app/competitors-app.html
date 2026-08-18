@@ -31,7 +31,9 @@
       background: var(--background-secondary);
       -webkit-font-smoothing: antialiased;
     }
-    [hidden] { display: none !important; }
+    /* `[hidden] { display: none !important }` переехал в base.css — он нужен всем
+       страницам, а стоял только здесь. Из-за этого на экране настройки сводка цен
+       и полоса цены не прятались. */
     /* Раскладка и диапазон ширин — в components/app/screen.css */
     /* Ряд табов на этом экране несёт собственные отступы: заголовок над ним
        уже отбит своим паддингом. */

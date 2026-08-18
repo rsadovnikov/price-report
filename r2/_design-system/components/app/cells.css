@@ -54,13 +54,20 @@
 /* --- Заголовок секции со стрелкой ---
  * Heading3 слева, шеврон справа. Шеврон в отдельной обёртке с вертикальным
  * паддингом 8 — так он попадает в тач-зону, не увеличивая строку.
+ *
+ * Заголовок бывает и ссылкой целиком (обзор конкурентов, 2026-08-18): тапать
+ * положено не в шеврон 12px, а в строку. Поэтому здесь сразу сняты подчёркивание
+ * и цвет ссылки, а нажатие подсвечивается так же, как у строки объявления.
  */
 .section-head-app {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--unit3);
+  text-decoration: none;
+  color: inherit;
 }
+a.section-head-app:active { opacity: 0.6; }
 .section-head-app__title {
   margin: 0;
   font-size: var(--type-h3-size);
@@ -212,7 +219,11 @@
   padding: var(--unit2) var(--unit3) var(--unit2) var(--unit1);
   background: var(--surface-neutral-default);
   border-radius: var(--radius-l);
+  text-decoration: none;
+  color: inherit;
 }
+/* Плашка тоже бывает ссылкой — тогда она ведёт туда же, куда вся секция */
+a.hint-app:active { opacity: 0.6; }
 .hint-app__icon {
   display: flex;
   align-items: center;

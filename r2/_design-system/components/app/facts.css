@@ -1,15 +1,19 @@
 /* === ФАКТЫ О ПОЛЬЗЕ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
  *
- * Источник: Figma «Доработки отчёта о цене и конкурентах», node 698:76356
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», node 713:76649
  * (блок «Чем полезен отчёт уже сейчас:» на экране «Обзор конкурентов»).
- * Снято 2026-08-15. Компонента в ките нет — узлы макета.
+ * Компонента в ките нет — узлы макета.
  *
- * Устройство: подпись сверху и стопка карточек с обводкой. Карточки состыкованы
- * через `margin-bottom: -1px`, поэтому на шве получается одна линия, а не две;
- * скругления только внешние — у первой сверху, у последней снизу.
+ * ⚠️ ПЕРЕСОБРАН 2026-08-18 по узлу 713:76743. Было: белые карточки с обводкой,
+ * состыкованные через `margin-bottom: -1px`, крупная цифра Heading4 синим и
+ * картинка-иллюстрация 58/48 справа. Стало: серые карточки с зазором 1px,
+ * иконка 36 слева, и акцент не цветом всей строки, а зелёным фрагментом внутри
+ * заголовка. Прежний вид — в истории, здесь не дублируем.
  *
- * Цифра набрана `--text-main-default` (синим) и кеглем Heading4 — то есть она
- * акцент, а не заголовок карточки. Пояснение под ней — Body2 основным цветом.
+ * Геометрия карточки — ровно как у `hint-app` в cells.css: паддинг 8/12/8/4,
+ * зазор 8, бокс иконки 36, поэтому текст обоих блоков начинается на 48.
+ * В макете у первой карточки паддинг слева 8, а зазор 4 — та же сумма, разложенная
+ * иначе; берём одну раскладку на обе, чтобы текст стоял по линии.
  */
 
 .facts-app {
@@ -27,45 +31,60 @@
   color: var(--text-secondary-default);
 }
 
+/* Зазор 1px: карточки серые на белом, и белая нить между ними их и разделяет.
+   Раньше карточки были с обводкой и наезжали друг на друга на пиксель — тут
+   наоборот, расходятся на пиксель. */
 .facts-app__list {
   display: flex;
   flex-direction: column;
+  gap: 1px;
 }
 
 .fact-app {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--unit3);
-  padding: var(--unit3) var(--unit4);
-  border: 1px solid var(--stroke-divider-default);
-  /* Шов: минус пиксель убирает двойную линию между карточками. */
-  margin-bottom: -1px;
+  gap: var(--unit2);
+  padding: var(--unit2) var(--unit3) var(--unit2) var(--unit1);
+  background: var(--surface-neutral-default);
 }
-.fact-app:last-child { margin-bottom: 0; }
 .fact-app:first-child { border-radius: var(--radius-l) var(--radius-l) 0 0; }
 .fact-app:last-child  { border-radius: 0 0 var(--radius-l) var(--radius-l); }
 .fact-app:only-child  { border-radius: var(--radius-l); }
 
-/* Во второй карточке макета текст прижат к верху: заголовок там в две строки,
-   и по центру картинка уезжала бы вниз. */
-.fact-app--top { align-items: flex-start; }
+/* Бокс иконки всегда 36, лист — свой у каждого глифа: растянуть его до квадрата
+   значило бы исказить рисунок. Тот же приём, что у `.btn-app__icon`. */
+.fact-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+.fact-app__icon img { display: block; }
 
 .fact-app__body {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   flex: 1;
   min-width: 0;
 }
 
+/* Заголовок — Heading5, а не Heading4: в новом виде он не «крупная цифра», а
+   обычная строка, в которой выделен фрагмент. */
 .fact-app__title {
   margin: 0;
-  font-size: var(--type-h4-size);
-  line-height: var(--type-h4-lh);
-  letter-spacing: var(--type-h4-ls);
-  font-weight: var(--type-h4-weight);
-  color: var(--text-main-default);
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+  color: var(--text-primary-default);
 }
+/* Акцент внутри заголовка. Зелёный, а не синий: это не ссылка, а «хорошая
+   новость» — роль positive. */
+.fact-app__accent { color: var(--text-positive-default); }
 
 .fact-app__text {
   margin: 0;
@@ -74,23 +93,4 @@
   letter-spacing: var(--type-body2-ls);
   font-weight: var(--type-body2-weight);
   color: var(--text-primary-default);
-}
-
-/* Картинка-иллюстрация. Боксы 58 и 48 — собственные размеры рисунков, не сетка;
-   в макете второй 47.48, округлён до 48 по правилу кратности. */
-.fact-app__pic {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex: none;
-  width: 58px;
-  height: 58px;
-  overflow: hidden;
-}
-.fact-app__pic--sm { width: 48px; height: 48px; }
-.fact-app__pic img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }

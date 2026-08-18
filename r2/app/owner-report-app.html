@@ -32,7 +32,10 @@
       background: var(--background-secondary);
       -webkit-font-smoothing: antialiased;
     }
-    .screen-app { padding-bottom: calc(var(--unit2) + env(safe-area-inset-bottom)); }
+    /* Нижнего поля у экрана нет: последний блок — прибитая панель кнопок, она
+       прижата к краю (`bottom: 0`) и вырез добирает своим паддингом. Поле здесь
+       означало бы полоску под панелью, в которую подглядывает контент. */
+    .screen-app { padding-bottom: 0; }
 
     /* Шапка: у этого экрана под навбаром только крупный заголовок,
        поэтому снизу 12, как в макете. */
@@ -42,10 +45,11 @@
        32 между собой (это gap самой карточки). */
     .report-group { display: flex; flex-direction: column; gap: var(--unit4); }
 
-    /* Пара полей «от / до». `[hidden]` обязан выигрывать, поэтому display
-       задаётся классом, а не инлайном. */
+    /* Пара полей «от / до». Прячется атрибутом `hidden`, и выигрывает он теперь
+       не здесь, а в base.css — правило `[hidden] { display: none !important }`
+       одно на всю систему. Раньше подпорка стояла в этом файле, а другие
+       компоненты того же экрана оставались с той же дырой. */
     .price-fields-app { display: flex; gap: var(--unit2); }
-    .price-fields-app[hidden] { display: none; }
   </style>
 </head>
 <body>
@@ -135,10 +139,20 @@
 
       <!-- Цены у конкурентов, за раскрывающейся ссылкой -->
       <div>
-        <button class="btn-app-link" id="prices-toggle" type="button" aria-expanded="true" aria-controls="prices-summary">
+        <!-- --flush: гасит собственный паддинг кнопки, чтобы надпись встала на ту же
+             линию 20, что поле ввода, «Минимум» и «Оценка от Циана». -->
+        <button class="btn-app-link btn-app-link--flush" id="prices-toggle" type="button"
+                aria-expanded="true" aria-controls="prices-summary">
           Цены у выбранных конкурентов
           <span class="btn-app-link__icon icon">
-            <img src="../_design-system/assets/icons/chevron-down-small-16.svg" alt="">
+            <!-- Инлайном, а не <img>: в экспорте цвет запечён (#212C46), и шеврон
+                 выходил тёмным при синем тексте. Путь один и заливка одна, значит
+                 currentColor закрывает вопрос без второго файла в ките — тот же
+                 приём, что у глифов снекбара. Поворот на 180° висит на .icon. -->
+            <svg viewBox="0 0 9.41421 6.12132" width="9.414" height="6.121" fill="none" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"
+                    d="M0 1.41421L1.41421 0L4.70711 3.29289L8 0L9.41421 1.41421L4.70711 6.12132L0 1.41421Z"/>
+            </svg>
           </span>
         </button>
         <div class="price-summary-app" id="prices-summary">
@@ -257,7 +271,10 @@
   </section>
 
   <!-- ===== Кнопки ===== -->
-  <section class="card-app screen-footer-app">
+  <!-- Прибиты к низу (2026-08-18): форма длинная, а кнопки должны быть видны
+       с первого экрана. Отступ снизу у панели тот же, что у .screen-app, —
+       иначе в конце прокрутки она дёрнется. -->
+  <section class="card-app screen-footer-app screen-footer-app--sticky">
     <div class="screen-footer-app__buttons">
       <a class="btn-app btn-app--medium btn-app--primary btn-app--main btn-app--block"
          id="create-pdf" href="../report.html">Создать PDF-отчёт</a>
