@@ -261,6 +261,36 @@ a.hint-app:active { opacity: 0.6; }
 /* Хвост фразы вторичным цветом — «…с вашего прошлого визита, 2 дня назад» */
 .hint-app__muted { color: var(--text-secondary-default); }
 
+/* --- Пояснение под заголовком экрана ---
+ * Иконка 16 и строка Body2 вторичным цветом («Собственник увидит ваши комментарии»,
+ * 818:83931). От `cell-app-label` отличается иконкой и зазором 4: это не подпись
+ * блока, а сноска к заголовку экрана.
+ */
+.cell-app-note {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+  padding: 0 var(--unit5);
+}
+.cell-app-note__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px; height: 16px;
+}
+.cell-app-note__icon img { display: block; width: 16px; height: 12px; }
+.cell-app-note__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}
+
 /* --- Подпись над блоком («Мой объект») --- */
 .cell-app-label {
   display: flex;

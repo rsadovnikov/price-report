@@ -17,6 +17,19 @@
  *   onClose: function(){}
  * }) -> { close, el }
  *
+ * Второй режим — шторка-диалог: вместо списка действий произвольное содержимое.
+ *
+ *   openSheet({
+ *     barTitle: 'Комментарий',                       // заголовок В шапке (Heading4)
+ *     barAction: { title: 'Удалить', tone: 'negative', onClick: fn },  // справа в шапке
+ *     content: '<div class="textarea-app">…</div>',  // тело шторки, поля 20
+ *     footer:  '<div class="screen-footer-app">…</div>'
+ *   })
+ *
+ * `items` и `content` — разные способы наполнить шторку, вместе не используются.
+ * Заголовков тоже два: `title` — строкой под шапкой (меню действий), `barTitle` —
+ * в самой шапке (диалог). Так нарисовано в макетах, и это не одно и то же место.
+ *
  * Закрытие: крестик, тап по затемнению, Esc, свайп вниз за шапку. На время показа
  * блокируется скролл body.
  *
@@ -67,17 +80,27 @@ function openSheet(config) {
       + '</' + tag + '>';
   }).join('');
 
+  var barAction = config.barAction;
   var overlay = document.createElement('div');
   overlay.className = 'sheet-app-overlay';
   overlay.innerHTML =
     '<div class="sheet-app" role="dialog" aria-modal="true"'
       + (config.ariaLabel ? ' aria-label="' + esc(config.ariaLabel) + '"' : '') + '>'
-      + '<div class="sheet-app__bar">'
+      + '<div class="sheet-app__bar' + (barAction ? ' sheet-app__bar--action' : '') + '">'
         + '<button class="sheet-app__close" type="button" data-action="close" aria-label="Закрыть">'
           + '<img src="' + icons + 'close-24.svg" alt=""></button>'
+        + (config.barTitle ? '<h2 class="sheet-app__bar-title">' + esc(config.barTitle) + '</h2>' : '')
+        + (barAction
+          ? '<button class="sheet-app__bar-action'
+            + (barAction.tone ? ' sheet-app__bar-action--' + esc(barAction.tone) : '')
+            + '" type="button" data-action="bar-action">' + esc(barAction.title) + '</button>'
+          : '')
       + '</div>'
       + (config.title ? '<h2 class="sheet-app__title">' + esc(config.title) + '</h2>' : '')
-      + '<div class="sheet-app__list">' + rows + '</div>'
+      + (config.content
+        ? '<div class="sheet-app__content">' + config.content + '</div>'
+        : '<div class="sheet-app__list">' + rows + '</div>')
+      + (config.footer || '')
       + '<div class="sheet-app__home" aria-hidden="true"></div>'
     + '</div>';
 
@@ -101,7 +124,9 @@ function openSheet(config) {
       if (typeof config.onClose === 'function') config.onClose();
     }
     panel.addEventListener('transitionend', remove, { once: true });
-    setTimeout(remove, 400);
+    /* Страховка длиннее самой анимации (0.35s): раньше стояло 400мс — впритык,
+       и после удлинения выезда узел успевал бы исчезнуть, не доехав. */
+    setTimeout(remove, 600);
   }
 
   function onKey(e) { if (e.key === 'Escape') close(); }
@@ -109,6 +134,12 @@ function openSheet(config) {
   overlay.addEventListener('click', function (e) {
     if (e.target === overlay) close();
     else if (e.target.closest('[data-action="close"]')) close();
+    else if (e.target.closest('[data-action="bar-action"]')) {
+      /* Закрываем сами, а не полагаемся на обработчик: действие в шапке —
+         «Удалить», после него шторке нечего показывать. */
+      if (barAction && typeof barAction.onClick === 'function') barAction.onClick();
+      close();
+    }
   });
 
   // Выбор строки: сначала отдаём обработчик, потом закрываем. Ссылку не перехватываем —

@@ -1,0 +1,71 @@
+/* === ПЕРЕХОД МЕЖДУ ЭКРАНАМИ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Push как в UINavigationController: новый экран въезжает справа ПОВЕРХ старого,
+ * старый уезжает влево на треть и притемняется. Назад — то же зеркально.
+ *
+ * Анимирует браузер, а не мы: cross-document View Transitions. Обе страницы
+ * объявляют `@view-transition`, дальше движок сам снимает кадр уходящей страницы,
+ * держит его поверх настоящего документа и анимирует псевдоэлементами. Поэтому
+ * не нужен ни роутер, ни перехват ссылок, ни подгрузка страниц фетчем: навигация
+ * остаётся обычной, история и «назад» браузера работают сами.
+ *
+ * Где не поддерживается — переход просто не проигрывается, страницы меняются как
+ * раньше. Деградация тихая, ломать нечего.
+ *
+ * Направление ставит page-transition.js атрибутом `data-nav` на <html>: браузер
+ * не знает, что «назад» у нас — такая же обычная ссылка на предыдущий экран.
+ */
+
+@view-transition { navigation: auto; }
+
+/* 0.35s и эта кривая — приближение стандартного пуша iOS. Кривая не ease-out из
+   набора: у системной анимации почти нет «разгона», зато длинный выкат. */
+:root {
+  --nav-app-duration: 0.35s;
+  --nav-app-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Вперёд: новый экран поверх, старый — под ним. z-index обязателен: по умолчанию
+   кадры лежат в порядке old → new, но «поверх» здесь несёт смысл, а не порядок. */
+::view-transition-old(root) {
+  animation: nav-app-push-out var(--nav-app-duration) var(--nav-app-ease) both;
+  z-index: 0;
+}
+::view-transition-new(root) {
+  animation: nav-app-push-in var(--nav-app-duration) var(--nav-app-ease) both;
+  z-index: 1;
+  /* Тень под левым краем въезжающего экрана — как у системного пуша: без неё
+     два белых экрана едут друг по другу без границы. */
+  box-shadow: -8px 0 24px var(--shadow-default);
+}
+
+/* Уходящий экран смещается на треть ширины, а не на всю: это параллакс, по нему
+   и читается, что старый экран остался лежать под новым. */
+@keyframes nav-app-push-in  { from { transform: translateX(100%); } }
+@keyframes nav-app-push-out { to   { transform: translateX(-30%); filter: brightness(0.9); } }
+
+/* Назад: зеркально. Теперь поверх — уходящий экран, он съезжает вправо, а из-под
+   него выходит предыдущий. */
+:root[data-nav="back"]::view-transition-old(root) {
+  animation: nav-app-pop-out var(--nav-app-duration) var(--nav-app-ease) both;
+  z-index: 1;
+  box-shadow: -8px 0 24px var(--shadow-default);
+}
+:root[data-nav="back"]::view-transition-new(root) {
+  animation: nav-app-pop-in var(--nav-app-duration) var(--nav-app-ease) both;
+  z-index: 0;
+  box-shadow: none;
+}
+@keyframes nav-app-pop-out { to   { transform: translateX(100%); } }
+@keyframes nav-app-pop-in  { from { transform: translateX(-30%); filter: brightness(0.9); } }
+
+/* Выключенные анимации: отключаем не анимацию, а сам переход. Экран во всю ширину,
+   уезжающий вбок, — ровно то, ради чего эту настройку и включают; оставлять переход
+   «мгновенным» смысла нет, а лишний кадр он всё равно стоит.
+   Этим же выключателем пользуется тестовый прогон: браузер под автоматизацией
+   уходит в cross-document переход и не отрисовывает пришедшую страницу вовсе
+   (проверено на сборке Playwright, headless и с окном; в обычном Chrome всё
+   работает). Тесты запускаются с `--force-prefers-reduced-motion` — см. tests/config.js. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}

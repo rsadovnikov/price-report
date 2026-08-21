@@ -72,7 +72,9 @@
     'Выбрано ' + n + ' ' + plural(n, 'конкурент', 'конкурента', 'конкурентов');
 
   var qs = new URLSearchParams({ n: n, desc: base.desc, price: base.price, photo: base.photo });
-  document.getElementById('comments-link').setAttribute('href', 'competitors-app.html?' + qs);
+  /* «Добавить комментарии» ведёт на свой экран (2026-08-18), а не в общий список
+     конкурентов: там выбор объектов, здесь приписки к уже выбранным. */
+  document.getElementById('comments-link').setAttribute('href', 'comments-app.html?' + qs);
   document.getElementById('back-link').setAttribute('href', 'report-app.html?' + qs);
   document.getElementById('save-exit').setAttribute('href', 'report-app.html?' + qs);
   /* PDF по-прежнему собирается в вебовой версии — экран приложения довёл

@@ -11,6 +11,16 @@
  * но это кит ЦИАН, а не системный контрол.
  */
 
+/* --- Появление ---
+ * Нативный iOS: модалка выезжает снизу дольше, чем уходит, и по кривой, которая
+ * быстро стартует и мягко тормозит. Это та же cubic-bezier(0.32, 0.72, 0, 1),
+ * что у перехода между экранами (page-transition.css) — один и тот же жест
+ * системы, разными кривыми им расходиться незачем.
+ *
+ * Числа: 0.5s на показ, 0.35s на скрытие. Симметричная анимация выдаёт себя
+ * сразу — уход воспринимается вялым, потому что смотреть в нём уже не на что.
+ * Длительность закрытия берётся из базового правила, показа — из `.is-open`.
+ */
 .sheet-app-overlay {
   position: fixed;
   inset: 0;
@@ -19,9 +29,14 @@
   align-items: flex-end;
   background: var(--overlay-default);
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
-.sheet-app-overlay.is-open { opacity: 1; }
+.sheet-app-overlay.is-open {
+  opacity: 1;
+  /* Фон темнеет чуть быстрее, чем доезжает панель: так он успевает отделить
+     модалку от экрана к моменту, когда она встала на место. */
+  transition-duration: 0.4s;
+}
 
 .sheet-app {
   display: flex;
@@ -32,15 +47,24 @@
   background: var(--background-primary);
   border-radius: var(--radius-l) var(--radius-l) 0 0;
   transform: translateY(100%);
-  transition: transform 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   /* Шторка не должна перерастать экран: список внутри прокручивается */
   max-height: 92dvh;
 }
-.sheet-app-overlay.is-open .sheet-app { transform: translateY(0); }
+.sheet-app-overlay.is-open .sheet-app {
+  transform: translateY(0);
+  transition-duration: 0.5s;
+}
 
+/* Селекторы здесь длиннее, чем кажется нужным, — это не педантизм: длительность
+   показа задана на `.is-open` (0,3,0), и коротким `.sheet-app` (0,1,0) её не
+   перебить. С обычными селекторами отказ от анимации молча переставал работать
+   ровно на открытии — то есть на самом заметном движении. */
 @media (prefers-reduced-motion: reduce) {
   .sheet-app-overlay,
-  .sheet-app { transition-duration: 0.01ms; }
+  .sheet-app-overlay.is-open,
+  .sheet-app,
+  .sheet-app-overlay.is-open .sheet-app { transition-duration: 0.01ms; }
 }
 
 /* --- Шапка шторки ---
@@ -76,6 +100,58 @@
 }
 .sheet-app__close:active { opacity: 0.6; }
 .sheet-app__close img { display: block; width: 14px; height: 14px; }
+
+/* --- Заголовок в самой шапке (NavigationBar / iOS) ---
+ * Второй способ озаглавить шторку, не замена первому. В меню действий заголовок
+ * идёт отдельной строкой (Cells / Title, Heading3) — там он часть содержимого.
+ * В шторке-диалоге («Комментарий», 818:83082) заголовок стоит в навбаре: Heading4
+ * по центру, слева крестик, справа — необязательное действие.
+ *
+ * Правый отступ 56 держит симметрию с крестиком, пока справа пусто. Появилось
+ * действие — отступ становится обычным, иначе оно вжимается в край.
+ */
+.sheet-app__bar-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+.sheet-app__bar--action { padding-right: var(--unit4); }
+.sheet-app__bar-action {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-main-default);
+}
+.sheet-app__bar-action--negative { color: var(--text-negative-default); }
+.sheet-app__bar-action:active { opacity: 0.6; }
+
+/* --- Произвольное содержимое ---
+ * Поля 20 — те же, что у списка действий: всё, что кладут в шторку, стоит по
+ * одной вертикали. Прокрутка тоже здесь: шторка не растёт выше 92dvh.
+ */
+.sheet-app__content {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--unit5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 
 /* --- Заголовок (Cells / Title) ---
  * Heading3. В макете слой отрисован вебовым режимом переменных (Roboto 22/28) —

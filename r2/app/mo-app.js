@@ -51,6 +51,28 @@
   }
   enrichCompetitorLinks();
 
+  /* Верхнее объявление — сценарий первого входа в раздел (решение Романа 2026-08-22).
+     Пока мониторинг не включён, на кнопке нет числа: конкурентов ещё не искали.
+     Вернулись после активации — подпись встаёт в общий ряд, «N конкурентов», и
+     повторный заход идёт уже без поиска и онбординга.
+
+     Число берём из самой ссылки (`?n=`), чтобы подпись и раздел не разошлись.
+     Подпись «Конкуренты» без числа — та же, что у неактивированного объявления
+     в вебовых «Моих объявлениях» (index.html). */
+  function pluralCompetitors(n) {
+    var t = n % 10, h = n % 100;
+    if (t === 1 && h !== 11) return n + ' конкурент';
+    if (t >= 2 && t <= 4 && (h < 12 || h > 14)) return n + ' конкурента';
+    return n + ' конкурентов';
+  }
+
+  var firstTile = document.getElementById('competitors-first');
+  if (firstTile && sessionStorage.getItem('monitoring-on')) {
+    var n = parseInt(new URL(firstTile.getAttribute('href'), location.href)
+                       .searchParams.get('n') || '5', 10);
+    firstTile.querySelector('.action-tile-app__title').textContent = pluralCompetitors(n);
+  }
+
   document.addEventListener('click', function (e) {
     var more = e.target.closest('.snippet-app__more');
     if (!more) return;

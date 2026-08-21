@@ -226,4 +226,77 @@
      Не rAF: тот отдаёт следующему кадру, а зафиксировать надо сейчас. */
   void floatBar.offsetHeight;
   floatBar.classList.add('screen-footer-app--animated');
+
+  /* ------------------------------------------------------------------ *
+   *  Первый заход: поиск конкурентов и онбординг                        *
+   * ------------------------------------------------------------------ */
+
+  /* Сценарий (решение Романа 2026-08-22): у верхнего объявления в «Моих
+     объявлениях» мониторинг ещё не включён, и кнопка там без числа — просто
+     «Конкуренты». Тап включает мониторинг, и раздел открывается пустым: список
+     ищется 4 секунды. Через полсекунды поверх поднимается онбординг — агент
+     читает три экрана, а конкуренты в это время «находятся».
+
+     Дальше онбординг сам не появляется никогда: только по «Что умеет сервис».
+
+     Флаг мониторинга живёт в sessionStorage, а не в localStorage: прототип
+     показывают, и сценарий первого входа должен возвращаться с новой вкладкой.
+     Принудительно вызвать онбординг — `?onb=1`.
+
+     Параметр тот же, что в вебе (`index.html` → `report.html`): там неактивированное
+     объявление тоже открывает отчёт через `?activate=1` и трёхсекундный лоадер.
+     Второй конвенции для приложения не заводим. Секунд здесь четыре — под онбординг
+     (просьба Романа 2026-08-22), и это расхождение с вебом. */
+  var STORE_TRACKING = 'monitoring-on';
+  var STEPS = [
+    { title: 'Обзор конкурентов объекта',
+      note: 'Все похожие объекты в одном месте: выбирайте подходящие и сравнивайте по важным для вас параметрам',
+      button: 'И это ещё не всё' },
+    { title: 'Изменения в онлайн-режиме',
+      note: 'Отслеживайте конкурентов в динамике: покажем, если у них изменилась цена, их продали или сняли с публикации',
+      button: 'А что ещё есть?' },
+    { title: 'Отчёт для собственника',
+      note: 'Соберите PDF-отчёт, который поможет обосновать изменение стоимости для клиента',
+      button: 'Будем разбираться' }
+  ];
+
+  function showOnboarding() {
+    return openOnboarding({ base: '../_design-system/', steps: STEPS });
+  }
+
+  document.getElementById('onboarding-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    showOnboarding();
+  });
+
+  var loadingEl = document.getElementById('report-loading');
+  var blockEl = document.getElementById('report-block');
+  var ctaEl = document.getElementById('report-cta');
+
+  function finishSearch() {
+    loadingEl.hidden = true;
+    blockEl.hidden = false;
+    ctaEl.hidden = false;
+    floatBar.hidden = false;
+    /* Пока шёл поиск, мерить было нечего: настоящей кнопки на экране не было,
+       и копия осталась бы приземлённой навсегда. */
+    place();
+  }
+
+  var isNew = params.get('activate') === '1' && !sessionStorage.getItem(STORE_TRACKING);
+
+  if (isNew) {
+    try { sessionStorage.setItem(STORE_TRACKING, '1'); } catch (_) {}
+    loadingEl.hidden = false;
+    blockEl.hidden = true;
+    ctaEl.hidden = true;
+    floatBar.hidden = true;
+    /* Поиск идёт своим ходом и не зависит от того, дочитали ли онбординг:
+       закрыть его на первом шаге — значит вернуться к радару (решение Романа).
+       Иначе выходило бы, что загрузка была декорацией к онбордингу. */
+    setTimeout(finishSearch, 4000);
+    setTimeout(showOnboarding, 500);
+  } else if (params.get('onb') === '1') {
+    showOnboarding();
+  }
 })();

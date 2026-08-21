@@ -12,18 +12,22 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Отчёт для собственника — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608181429">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608220132">
+  <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
+       приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
+  <script src="../_design-system/components/app/page-transition.js?v=202608220132"></script>
 
   <style>
     /* Раскладка и диапазон ширин — в components/app/screen.css.
@@ -87,7 +91,7 @@
       <div class="report-step-app__body">
         <p class="heading4" id="step-competitors">Выбрано 6 конкурентов</p>
         <a class="btn-app btn-app--large btn-app--secondary btn-app--main btn-app--block btn-app--stacked"
-           id="comments-link" href="competitors-app.html">
+           id="comments-link" href="comments-app.html">
           <span class="btn-app__label">Добавить комментарии</span>
           <span class="btn-app__subtitle">их увидит собственник в отчёте</span>
         </a>
@@ -274,18 +278,20 @@
   <!-- Прибиты к низу (2026-08-18): форма длинная, а кнопки должны быть видны
        с первого экрана. Отступ снизу у панели тот же, что у .screen-app, —
        иначе в конце прокрутки она дёрнется. -->
-  <section class="card-app screen-footer-app screen-footer-app--sticky">
+  <section class="screen-footer-app screen-footer-app--sticky">
     <div class="screen-footer-app__buttons">
       <a class="btn-app btn-app--medium btn-app--primary btn-app--main btn-app--block"
          id="create-pdf" href="../report.html">Создать PDF-отчёт</a>
       <a class="btn-app btn-app--medium btn-app--secondary btn-app--main btn-app--block"
-         id="save-exit" href="report-app.html">Сохранить и выйти</a>
+         id="save-exit" data-nav="back" href="report-app.html">Сохранить и выйти</a>
     </div>
   </section>
 
 </div>
 
-<script src="competitors-data.js?v=202608181429"></script>
-<script src="owner-report-app.js?v=202608181429"></script>
+<script src="competitors-data.js?v=202608220132"></script>
+<script src="owner-report-app.js?v=202608220132"></script>
+<!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
+<script src="dev-reset.js?v=202608220132"></script>
 </body>
 </html>

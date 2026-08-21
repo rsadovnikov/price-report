@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru" data-surface="app">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
+  <title>Конкуренты в отчёте — приложение</title>
+
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608220132">
+  <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
+       приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
+  <script src="../_design-system/components/app/page-transition.js?v=202608220132"></script>
+
+  <style>
+    body {
+      background: var(--background-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Раскладка и диапазон ширин — в components/app/screen.css */
+    /* Шапка собрана вплотную (--flush): полосы без зазоров, как на «Конкурентах
+       объекта». Но там под табами сразу лента, а здесь карточка кончается
+       сноской — и без отступа текст лежит на самом срезе. В макете (818:83927)
+       шапка 169 при сноске, кончающейся на 157, то есть под ней 12. */
+    .comments-head { padding-bottom: var(--unit3); }
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom));
+    }
+    /* Поле комментария в шторке ниже, чем на экране настройки: там это большой
+       «Общий комментарий» на 200, здесь — короткая приписка к объекту (139 в макете
+       818:83084). Компонент растягивается, экран задаёт своё. */
+    .comment-sheet-app__field { min-height: 139px; }
+  </style>
+</head>
+<body>
+
+<div class="screen-app">
+
+  <header class="appbar appbar--flush comments-head card-app--head">
+    <div class="statusbar-app" aria-hidden="true">
+      <img class="statusbar-app__time" src="../_design-system/assets/icons/statusbar-time.svg" alt="">
+      <div class="statusbar-app__island"></div>
+      <img class="statusbar-app__indicators" src="../_design-system/assets/icons/statusbar-indicators.svg" alt="">
+    </div>
+
+    <nav class="navbar-app">
+      <a class="navbar-app__icon navbar-app__icon--back" id="back" href="owner-report-app.html" aria-label="Назад">
+        <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
+      </a>
+      <p class="navbar-app__title"></p>
+    </nav>
+
+    <div class="cell-app-title">
+      <h1 class="cell-app-title__text">Конкуренты в отчёте</h1>
+    </div>
+
+    <!-- Сноска к заголовку: комментарии пишутся не «в стол», их увидит собственник.
+         Иконка — тот же глаз, что у просмотров в карточке. -->
+    <div class="cell-app-note">
+      <span class="cell-app-note__icon">
+        <img src="../_design-system/assets/icons/views-16.svg" alt="">
+      </span>
+      <p class="cell-app-note__text">Собственник увидит ваши комментарии</p>
+    </div>
+  </header>
+
+  <main class="comments-list" id="cards"></main>
+</div>
+
+<script src="../_design-system/components/app/sheet.js?v=202608220132"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608220132"></script>
+<script src="competitors-data.js?v=202608220132"></script>
+<script src="competitor-card-app.js?v=202608220132"></script>
+<script src="comments-app.js?v=202608220132"></script>
+<!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
+<script src="dev-reset.js?v=202608220132"></script>
+</body>
+</html>

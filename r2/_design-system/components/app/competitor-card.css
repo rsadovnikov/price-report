@@ -161,6 +161,33 @@
 .competitor-card-app__remove:active { opacity: 0.6; }
 .competitor-card-app__remove img { display: block; width: 14px; height: 16px; }
 
+/* --- Комментарий агента (818:83211) ---
+ * Оранжевая подложка, та же роль, что у предупреждающих плашек: это не статус
+ * объекта, а приписка от себя — собственник увидит её в отчёте.
+ * Переносится по словам: комментарий пишет человек, длина непредсказуема.
+ */
+.competitor-card-app__comment {
+  margin: 0;
+  padding: var(--unit2);
+  border-radius: var(--radius-l);
+  background: var(--surface-warning-default);
+  overflow-wrap: anywhere;
+  text-align: left;
+  font-family: var(--font-base);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-primary-default);
+}
+/* Комментарий бывает кнопкой — тапом по нему открывается редактирование */
+button.competitor-card-app__comment {
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+}
+button.competitor-card-app__comment:active { opacity: 0.6; }
+
 /* --- Плашки характеристик --- */
 .competitor-card-app__chips {
   display: flex;

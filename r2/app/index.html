@@ -14,18 +14,22 @@
   <title>Мои объявления — приложение</title>
 
   <!-- Палитра, отступы, радиусы — общие с вебом -->
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608181429">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608220132">
   <!-- Поверхность приложения: SF Pro и своя шкала типографики. Только после tokens.css -->
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608181429">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608220132">
   <!-- Общая база обеих поверхностей: reset и типографика. web.css здесь не нужен -->
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608181429">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608220132">
+  <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
+       приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
+  <script src="../_design-system/components/app/page-transition.js?v=202608220132"></script>
 
   <style>
     /* Страница экрана. Рамки устройства нет: смотрим либо с телефона, либо узким
@@ -138,8 +142,13 @@
           </div>
 
           <div class="action-row-app">
-            <a class="action-tile-app" href="report-app.html?n=4" data-action="competitors">
-              <span class="action-tile-app__title">4 конкурента</span>
+            <!-- Мониторинг по этому объявлению ещё не включён: поэтому кнопка без
+                 числа — считать нечего. Тап включает его и открывает раздел пустым
+                 (report-app.html подхватит `activate=1` — тот же параметр, что в вебе). После активации подпись здесь
+                 становится обычной, «N конкурентов», — это делает mo-app.js. -->
+            <a class="action-tile-app" href="report-app.html?n=5&amp;activate=1"
+               id="competitors-first" data-action="competitors">
+              <span class="action-tile-app__title">Конкуренты</span>
             </a>
             <a class="action-tile-app action-tile-app--wide" href="#">
               <span class="action-tile-app__title">Отправить рассылку</span>
@@ -349,7 +358,9 @@
 </div>
 
 <!-- Шторка снизу — компонент дизайн-системы, состав меню — в mo-app.js -->
-<script src="../_design-system/components/app/sheet.js?v=202608181429"></script>
-<script src="mo-app.js?v=202608181429"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608220132"></script>
+<script src="mo-app.js?v=202608220132"></script>
+<!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
+<script src="dev-reset.js?v=202608220132"></script>
 </body>
 </html>

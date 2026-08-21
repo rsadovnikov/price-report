@@ -12,16 +12,25 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608181429">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608181429">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608220132">
+  <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
+       на этом экране их раньше не было, все действия шли entry-point'ами. -->
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608220132">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608220132">
+  <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
+       приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
+  <script src="../_design-system/components/app/page-transition.js?v=202608220132"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -50,6 +59,43 @@
     /* Строка-предложение стоит отдельным ребёнком карточки — значит и зазор до
        списка берёт от неё (20), а не от списка (8). Поля свои, как у списка. */
     .report-block__suggest { padding: 0 var(--unit5); }
+
+    /* Карточка поиска конкурентов (первый заход).
+       В макете 845:26491 она 423 высотой при контенте 383 — держим паддингами
+       20, а высоту задаём контейнеру: карточка должна занимать место списка,
+       иначе экран схлопнется и «поиск» будет выглядеть как пустая полоска. */
+    .report-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--unit4);
+      min-height: 383px;
+      padding: var(--unit5);
+    }
+    /* Радар 48 с иконкой 28 внутри — как в макете (845:77934). Вращение то же,
+       что у радара в подсказке: 2.4s, и оно же выключается reduced-motion. */
+    .report-loading__radar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px; height: 48px;
+    }
+    .report-loading__radar img {
+      display: block;
+      width: 28px; height: 28px;
+      animation: radar-spin 2.4s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .report-loading__radar img { animation: none; }
+    }
+    .report-loading__text {
+      margin: 0;
+      font-size: var(--type-body1-size);
+      line-height: var(--type-body1-lh);
+      letter-spacing: var(--type-body1-ls);
+      color: var(--text-secondary-default);
+    }
 
     /* Карточка «Отчёт для собственника» */
     .report-cta {
@@ -83,7 +129,7 @@
         <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
       </a>
       <p class="navbar-app__title"></p>
-      <a class="navbar-app__link" href="#">Что умеет сервис</a>
+      <a class="navbar-app__link" id="onboarding-link" href="#">Что умеет сервис</a>
     </nav>
 
     <div class="appbar__filters appbar__filters--flat">
@@ -107,8 +153,20 @@
     </div>
   </header>
 
+  <!-- ===== Поиск конкурентов =====
+       Первый заход в раздел: мониторинг только что включили, и списка ещё нет.
+       Макет 845:26491 — шапка остаётся на месте, на месте всего остального одна
+       карточка с радаром. Поверх неё через полсекунды поднимается онбординг:
+       пока агент его читает, конкуренты успевают «найтись». -->
+  <section class="card-app report-loading" id="report-loading" hidden>
+    <span class="report-loading__radar" aria-hidden="true">
+      <img src="../_design-system/assets/radar.png" alt="">
+    </span>
+    <p class="report-loading__text" role="status">Ищем конкурентов…</p>
+  </section>
+
   <!-- ===== Конкуренты ===== -->
-  <section class="card-app report-block">
+  <section class="card-app report-block" id="report-block">
     <div class="report-intro">
       <!-- Ссылкой стал весь заголовок, а не шеврон 12px: секция целиком ведёт
            в список отслеживаемых конкурентов (просьба Романа, 2026-08-18). -->
@@ -154,7 +212,7 @@
   </section>
 
   <!-- ===== Вход в отчёт ===== -->
-  <section class="card-app report-cta">
+  <section class="card-app report-cta" id="report-cta">
     <div>
       <div class="cell-app-title cell-app-title--h3">
         <h2 class="cell-app-title__text">Отчёт для собственника</h2>
@@ -233,7 +291,11 @@
 
 </div>
 
-<script src="competitors-data.js?v=202608181429"></script>
-<script src="report-app.js?v=202608181429"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608220132"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202608220132"></script>
+<script src="competitors-data.js?v=202608220132"></script>
+<script src="report-app.js?v=202608220132"></script>
+<!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
+<script src="dev-reset.js?v=202608220132"></script>
 </body>
 </html>

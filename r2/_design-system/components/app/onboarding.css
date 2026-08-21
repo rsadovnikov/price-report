@@ -1,0 +1,116 @@
+/* === ОНБОРДИНГ-КАРУСЕЛЬ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», секция 846:77955.
+ * Три шага: картинка, заголовок, пояснение, точки, кнопка внизу.
+ *
+ * Живёт внутри шторки (sheet.css) — она уже умеет затемнение, выезд снизу,
+ * закрытие крестиком, Esc, тапом и свайпом. Здесь только наполнение шага и
+ * модификатор самой шторки: свой радиус, тень и фиксированная высота.
+ *
+ * Модификатор лежит тут, а не в sheet.css, намеренно: он нужен ровно этому
+ * наполнению, и когда онбординг уйдёт — уйдёт вместе с ним.
+ */
+
+/* --- Шторка под онбординг ---
+ * Высота 572 — из макета (830:89439). Числом, а не долей экрана: доля давала 568
+ * на 812 и разъезжалась дальше. Потолок 92dvh оставляем от шторки: на низком
+ * экране лучше ужать картинку, чем упереться в статус-бар.
+ * Радиус 16 и тень — оттуда же; у обычной шторки действий радиус 8 и тени нет,
+ * поэтому это модификатор, а не правка компонента.
+ */
+.sheet-app--onboarding {
+  height: 572px;
+  max-height: 92dvh;
+  border-radius: var(--radius-xxl) var(--radius-xxl) 0 0;
+  box-shadow: 0 -2px 8px var(--shadow-default);
+}
+
+/* Шапка онбординга — только крестик: заголовок шага стоит в теле, под картинкой,
+   а не в навбаре. Поэтому место справа под симметрию не держим. */
+.sheet-app--onboarding .sheet-app__bar { padding-right: var(--unit4); }
+
+/* Поля даёт сам шаг, а не шторка: у неё они 20 по бокам, и вместе вышло бы 40.
+   Прокрутку тоже снимаем — шаг обязан помещаться целиком. */
+.sheet-app--onboarding .sheet-app__content {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Тело шага. Паддинги 8/20/16 и зазор 20 — из макета. Прокрутки нет: шаг обязан
+   помещаться целиком, иначе точки и кнопка уедут за экран. */
+.onboarding-app {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--unit5);
+  padding: var(--unit2) var(--unit5) var(--unit4);
+  text-align: center;
+}
+
+/* Картинка забирает всё свободное место: на низком экране ужимается она, а не
+   текст. В макете на 812 выходит 335×251. */
+.onboarding-app__image {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+}
+.onboarding-app__image img {
+  display: block;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* Пока иллюстраций нет, в макете стоит серый шахматный плейсхолдер — повторяем
+   его, чтобы место было занято честно, а не пустотой. Заменить на картинку —
+   одна строка в данных шага. */
+.onboarding-app__image--placeholder {
+  background:
+    repeating-conic-gradient(var(--surface-neutral-default) 0% 25%, var(--background-primary) 0% 50%)
+    0 0 / 32px 32px;
+}
+
+.onboarding-app__text {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--unit3);
+  width: 100%;
+}
+.onboarding-app__title {
+  margin: 0;
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-lh);
+  letter-spacing: var(--type-h3-ls);
+  font-weight: var(--type-h3-weight);
+  color: var(--text-primary-default);
+  overflow-wrap: anywhere;
+}
+.onboarding-app__note {
+  margin: 0;
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  color: var(--text-secondary-default);
+}
+
+/* --- Точки ---
+ * Три точки по 8 с зазором 4 — ряд 32. Активная и пройденные различаются только
+ * цветом: в макете это Icon/Secondary/Default против Icon/Secondary/Disabled.
+ */
+.onboarding-app__dots {
+  display: flex;
+  flex: none;
+  gap: var(--unit1);
+}
+.onboarding-app__dot {
+  width: 8px; height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--icon-secondary-disabled);
+}
+.onboarding-app__dot--active { background: var(--icon-secondary-default); }
