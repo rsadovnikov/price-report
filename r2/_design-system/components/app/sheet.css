@@ -67,6 +67,34 @@
   .sheet-app-overlay.is-open .sheet-app { transition-duration: 0.01ms; }
 }
 
+/* --- Полноэкранный режим (809:74592) ---
+ * Та же поверхность и тот же выезд снизу, только во весь экран: iOS-модалка
+ * fullScreen вместо pageSheet. Так открывается просмотр PDF.
+ *
+ * `100dvh`, а не `100vh`: на телефоне адресная строка съедает разницу, и часть
+ * содержимого оказалась бы под ней. Скругления нет — панель доходит до верха
+ * экрана, скруглять там нечего.
+ */
+.sheet-app--fullscreen {
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+}
+/* Статус-бар и шапка не сжимаются, содержимое забирает остаток и прокручивается */
+.sheet-app--fullscreen .statusbar-app { flex: none; }
+.sheet-app--fullscreen .sheet-app__content {
+  flex: 1;
+  min-height: 0;
+  /* Поля 20 у обычной шторки — для текста. Здесь содержимое во всю ширину
+     (страница отчёта), поэтому их нет, а снизу добираем вырез под home-индикатор. */
+  padding: 0 0 env(safe-area-inset-bottom);
+}
+/* Отбивка под шапкой — 12 из макета (809:74593). Отступом, а не паддингом: сам
+   навбар обязан остаться 44 (10 + глиф 24 + 10), это его собственная высота. */
+.sheet-app--fullscreen .sheet-app__bar { margin-bottom: var(--unit3); }
+/* Крестик здесь крупнее: в макете глиф 16 в коробке 24, у шторки-диалога — 14 */
+.sheet-app--fullscreen .sheet-app__close img { width: 16px; height: 16px; }
+
 /* --- Шапка шторки ---
  * В макете это тот же NavigationBar / iOS: крестик слева, заголовок по центру.
  * Заголовок здесь пустой (белый текст-плейсхолдер), настоящий — строкой ниже,
@@ -136,10 +164,18 @@
   background: none;
   cursor: pointer;
   font-family: var(--font-base);
-  font-size: var(--type-body1-size);
-  line-height: var(--type-body1-lh);
-  letter-spacing: var(--type-body1-ls);
-  font-weight: var(--type-body1-weight);
+  /* Heading4, а не Body1 (правка 2026-08-22, замечено Романом: «неправильная
+     толщина»). Роли в этой шкале различаются ТОЛЬКО весом — 16/20/−0.32 у обеих, —
+     поэтому ошибка не читалась ни в размере, ни в раскладке, а рендер отличался на
+     400 против 600. Проверено по трём инстансам: «Сбросить» (64:39719), «Отправить»
+     (809:74595), и раньше того же вида «Что умеет сервис» на экране — все собраны
+     на `❌ Link Button | Depricated` и все Semibold. У `.navbar-app__link`, куда мы
+     переносили тот же контрол, Heading4 стоял с самого начала: разошлись два места
+     одного и того же. */
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
   color: var(--text-main-default);
 }
 .sheet-app__bar-action--negative { color: var(--text-negative-default); }

@@ -26,9 +26,18 @@
  *     footer:  '<div class="screen-footer-app">…</div>'
  *   })
  *
- * Действие в шапке закрывает шторку — и «Удалить», и «Сбросить» в фильтрах: оба
- * движения в один тап, после которых показывать нечего. Есть оно или нет, решается
- * при открытии; по ходу работы шторки не меняется.
+ * Действие в шапке по умолчанию закрывает шторку — и «Удалить», и «Сбросить» в
+ * фильтрах: оба движения в один тап, после которых показывать нечего. Есть оно или
+ * нет, решается при открытии; по ходу работы шторки не меняется.
+ *
+ * `keepOpen: true` — для действий, которые шторку не заканчивают («Отправить» в
+ * просмотре PDF: системная панель шаринга поднимается ПОВЕРХ, и убирать из-под неё
+ * сам просмотр незачем).
+ *
+ * Третий режим — `fullscreen: true`: та же поверхность во весь экран (iOS-модалка
+ * fullScreen вместо pageSheet). Добавляет мок статус-бара, убирает скругление и
+ * home-индикатор, отдаёт всю высоту содержимому. Так открывается просмотр PDF
+ * (809:74592): крестик слева, имя файла по центру, действие справа.
  *
  * `items` и `content` — разные способы наполнить шторку, вместе не используются.
  * Заголовков тоже два: `title` — строкой под шапкой (меню действий), `barTitle` —
@@ -85,11 +94,23 @@ function openSheet(config) {
   }).join('');
 
   var barAction = config.barAction;
+  /* Полноэкранный режим — та же модальная поверхность, только во весь экран
+     (iOS: fullScreen вместо pageSheet). Отсюда и мок статус-бара: шторка накрывает
+     экран целиком вместе с его полкой, и без своей вверху осталась бы дыра.
+     На настоящем телефоне мок прячется сам — медиазапрос живёт в navbar.css. */
+  var full = !!config.fullscreen;
   var overlay = document.createElement('div');
   overlay.className = 'sheet-app-overlay';
   overlay.innerHTML =
-    '<div class="sheet-app" role="dialog" aria-modal="true"'
+    '<div class="sheet-app' + (full ? ' sheet-app--fullscreen' : '') + '" role="dialog" aria-modal="true"'
       + (config.ariaLabel ? ' aria-label="' + esc(config.ariaLabel) + '"' : '') + '>'
+      + (full
+        ? '<div class="statusbar-app" aria-hidden="true">'
+          + '<img class="statusbar-app__time" src="' + icons + 'statusbar-time.svg" alt="">'
+          + '<div class="statusbar-app__island"></div>'
+          + '<img class="statusbar-app__indicators" src="' + icons + 'statusbar-indicators.svg" alt="">'
+          + '</div>'
+        : '')
       + '<div class="sheet-app__bar' + (barAction ? ' sheet-app__bar--action' : '') + '">'
         + '<button class="sheet-app__close" type="button" data-action="close" aria-label="Закрыть">'
           + '<img src="' + icons + 'close-24.svg" alt=""></button>'
@@ -105,7 +126,10 @@ function openSheet(config) {
         ? '<div class="sheet-app__content">' + config.content + '</div>'
         : '<div class="sheet-app__list">' + rows + '</div>')
       + (config.footer || '')
-      + '<div class="sheet-app__home" aria-hidden="true"></div>'
+      /* Полоска home-индикатора — примета шторки, которая не достаёт до низа экрана.
+         Полноэкранная достаёт: там индикатор рисует система, а содержимое обязано
+         прокручиваться до самого края. */
+      + (full ? '' : '<div class="sheet-app__home" aria-hidden="true"></div>')
     + '</div>';
 
   var panel = overlay.querySelector('.sheet-app');
@@ -139,10 +163,16 @@ function openSheet(config) {
     if (e.target === overlay) close();
     else if (e.target.closest('[data-action="close"]')) close();
     else if (e.target.closest('[data-action="bar-action"]')) {
-      /* Закрываем сами: действие в шапке — «Удалить» или «Сбросить», после любого
-         из них шторке нечего показывать. */
+      /* По умолчанию закрываем сами: «Удалить» и «Сбросить» — движения в один тап,
+         после которых показывать нечего. `keepOpen` — для действий, которые модалку
+         не заканчивают: «Отправить» в просмотре PDF поднимает системную панель
+         шаринга, и закрыть под ней сам просмотр значило бы отменить то, чем делятся.
+
+         Флаг снимаем ДО обработчика: он вправе тронуть саму шторку, и читать
+         `barAction` после вызова — читать уже не то, на что нажали. */
+      var keepOpen = !!(barAction && barAction.keepOpen);
       if (barAction && typeof barAction.onClick === 'function') barAction.onClick();
-      close();
+      if (!keepOpen) close();
     }
   });
 

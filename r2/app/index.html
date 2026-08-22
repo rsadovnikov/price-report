@@ -14,22 +14,23 @@
   <title>Мои объявления — приложение</title>
 
   <!-- Палитра, отступы, радиусы — общие с вебом -->
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230015">
   <!-- Поверхность приложения: SF Pro и своя шкала типографики. Только после tokens.css -->
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230015">
   <!-- Общая база обеих поверхностей: reset и типографика. web.css здесь не нужен -->
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230015">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608222158"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608230015"></script>
 
   <style>
     /* Страница экрана. Рамки устройства нет: смотрим либо с телефона, либо узким
@@ -108,7 +109,7 @@
   <main class="listing-app">
 
     <!-- --- Сниппет 1: продвижение активно, рассылка доступна, обновлений нет --- -->
-    <article class="snippet-app">
+    <article class="snippet-app" data-listing="mo1">
       <div class="snippet-app__info">
         <img class="snippet-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
         <div class="snippet-app__body">
@@ -191,7 +192,7 @@
     </article>
 
     <!-- --- Сниппет 2: есть обновления у конкурентов, рассылка недоступна --- -->
-    <article class="snippet-app" data-updates="3">
+    <article class="snippet-app" data-listing="mo2" data-updates="3">
       <div class="snippet-app__info">
         <img class="snippet-app__photo" src="../photos/mo/mo4-1.jpg" alt="">
         <div class="snippet-app__body">
@@ -279,7 +280,7 @@
     </article>
 
     <!-- --- Сниппет 3: без ставки, куплен «Топ» --- -->
-    <article class="snippet-app">
+    <article class="snippet-app" data-listing="mo3">
       <div class="snippet-app__info">
         <img class="snippet-app__photo" src="../photos/mo/mo3-1.jpg" alt="">
         <div class="snippet-app__body">
@@ -358,9 +359,11 @@
 </div>
 
 <!-- Шторка снизу — компонент дизайн-системы, состав меню — в mo-app.js -->
-<script src="../_design-system/components/app/sheet.js?v=202608222158"></script>
-<script src="mo-app.js?v=202608222158"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608230015"></script>
+<!-- Снекбар по выходу из раздела конкурентов — «Продолжаем отслеживать N…» -->
+<script src="../_design-system/components/app/snackbar.js?v=202608230015"></script>
+<script src="mo-app.js?v=202608230015"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608222158"></script>
+<script src="dev-reset.js?v=202608230015"></script>
 </body>
 </html>

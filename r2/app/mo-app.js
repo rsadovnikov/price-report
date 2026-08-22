@@ -1,7 +1,9 @@
 /* Экран «Мои объявления» (поверхность приложения) — поведение.
  *
- * Пока здесь одно: меню действий по «•••» в сниппете (макет Figma 563:72835).
- * Сам компонент шторки — в дизайн-системе, тут только состав меню и данные объявления.
+ * Две вещи: меню действий по «•••» в сниппете (макет Figma 563:72835) и возвращение
+ * из раздела конкурентов — снекбар «Продолжаем отслеживать N…» (макет 841:91652)
+ * плюс обновлённая плитка того объявления, в раздел которого ходили.
+ * Компоненты шторки и снекбара — в дизайн-системе, тут только состав и данные.
  */
 (function () {
   'use strict';
@@ -46,6 +48,9 @@
       /* Цена в сниппете уже с «₽» — на экране отчёта знак добавляется свой */
       url.searchParams.set('price', txt('.snippet-app__price').replace(/\s*₽\s*$/, ''));
       if (photoEl) url.searchParams.set('photo', photoEl.getAttribute('src'));
+      /* Кто именно ушёл в раздел. Объект описан своими полями, но найти по ним
+         сниппет обратно нельзя — а по выходу надо обновить именно его плитку. */
+      if (snippet.dataset.listing) url.searchParams.set('from', snippet.dataset.listing);
       tile.setAttribute('href', url.pathname.split('/').pop() + url.search);
     });
   }
@@ -71,6 +76,78 @@
     var n = parseInt(new URL(firstTile.getAttribute('href'), location.href)
                        .searchParams.get('n') || '5', 10);
     firstTile.querySelector('.action-tile-app__title').textContent = pluralCompetitors(n);
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Возврат из раздела конкурентов                                     *
+   * ------------------------------------------------------------------ */
+
+  /* След оставляет `report-app.js` на каждом своём заходе: `{ from, n }` —
+     чьё это объявление и сколько конкурентов сейчас отслеживается. «Мои
+     объявления» его читают, потому что появление этого экрана и есть выход
+     из раздела: назад уходят и стрелкой, и системным жестом, и «Сохранить и
+     выйти» с настройки — ловить каждый из путей по отдельности значило бы
+     развести одно событие по трём местам.
+
+     Снекбар — один раз на выход (`seen`), а плитка обновляется при каждом
+     показе экрана: число в ней должно пережить перезагрузку, а всплывающее
+     уведомление — нет. */
+  var EXIT_STORE = 'tracking-exit';
+
+  function readExit() {
+    try { return JSON.parse(sessionStorage.getItem(EXIT_STORE) || 'null'); }
+    catch (_) { return null; }
+  }
+
+  /* Плитка несёт и подпись, и адрес: без правки адреса повторный заход в раздел
+     открыл бы его прежним составом — то есть удалённые конкуренты вернулись бы. */
+  function setTileCount(snippet, count) {
+    var tile = snippet.querySelector('[data-action="competitors"]');
+    if (!tile) return;
+    var note = tile.querySelector('.action-tile-app__note');
+
+    if (count > 0) {
+      tile.querySelector('.action-tile-app__title').textContent = pluralCompetitors(count);
+    } else {
+      /* Нуля числом в макетах нет, а «0 конкурентов» читается как ошибка. Берём
+         подпись, которая для «не отслеживаем» уже нарисована, — ту же, что у
+         объявления до включения мониторинга. Заодно снимаем флаг обновлений:
+         конкурентов нет, значит и меняться нечему — и в плитке, и в меню «•••». */
+      tile.querySelector('.action-tile-app__title').textContent = 'Конкуренты';
+      tile.classList.remove('action-tile-app--warning');
+      if (note) note.remove();
+      snippet.dataset.updates = '0';
+    }
+
+    var url = new URL(tile.getAttribute('href'), location.href);
+    url.searchParams.set('n', count);
+    /* Поиск уже прошёл — второй раз показывать радар и онбординг незачем. */
+    url.searchParams.delete('activate');
+    if (count === 0) url.searchParams.delete('u');
+    tile.setAttribute('href', url.pathname.split('/').pop() + url.search);
+  }
+
+  var exit = readExit();
+  if (exit && typeof exit.n === 'number') {
+    var fromEl = exit.from
+      ? document.querySelector('.snippet-app[data-listing="' + exit.from + '"]')
+      : null;
+    if (fromEl) setTileCount(fromEl, exit.n);
+
+    if (!exit.seen) {
+      exit.seen = true;
+      try { sessionStorage.setItem(EXIT_STORE, JSON.stringify(exit)); } catch (_) {}
+      /* Формулировки из макета 841:91652 и карты коммуникаций 809:23579.
+         Оба снекбара тёмные (это режим по умолчанию у компонента), различаются
+         типом: продолжаем следить — success, не следим ни за кем — neutral. */
+      if (exit.n > 0) {
+        showSnackbarApp.success(
+          'Продолжаем отслеживать ' + pluralCompetitors(exit.n)
+          + ' — сообщим, когда будут изменения', { closable: true });
+      } else {
+        showSnackbarApp('Не отслеживаем конкурентов по этому объекту', { closable: true });
+      }
+    }
   }
 
   document.addEventListener('click', function (e) {

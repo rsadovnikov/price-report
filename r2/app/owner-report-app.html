@@ -12,22 +12,25 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Отчёт для собственника — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608230015">
+  <!-- Просмотр PDF — шторка в полноэкранном режиме (809:74592) -->
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230015">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608222158"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608230015"></script>
 
   <style>
     /* Раскладка и диапазон ширин — в components/app/screen.css.
@@ -35,6 +38,15 @@
     body {
       background: var(--background-secondary);
       -webkit-font-smoothing: antialiased;
+    }
+    /* --- Содержимое просмотра PDF ---
+       Страница отчёта — картинка во всю ширину модалки. Показываем рендер, а не сам
+       PDF: `<iframe>` с PDF на айфоне отдаёт не страницу, а свой просмотрщик, и в
+       модалке это выглядит как окно в окне. Делимся при этом настоящим файлом. */
+    .pdf-page {
+      display: block;
+      width: 100%;
+      height: auto;
     }
     /* Нижнего поля у экрана нет: последний блок — прибитая панель кнопок, она
        прижата к краю (`bottom: 0`) и вырез добирает своим паддингом. Поле здесь
@@ -73,8 +85,10 @@
       <a class="navbar-app__icon navbar-app__icon--back" id="back-link" href="report-app.html" aria-label="Назад">
         <img src="../_design-system/assets/icons/arrow-back-24.svg" alt="">
       </a>
+      <!-- «Чем полезен» отсюда убрана (решение Романа 2026-08-22). Ссылки не было и
+           в макете экрана: рассказ о сервисе живёт на «Обзоре конкурентов», а здесь
+           агент уже собирает отчёт — объяснять ему, чем сервис полезен, поздно. -->
       <p class="navbar-app__title"></p>
-      <a class="navbar-app__link" href="#">Чем полезен</a>
     </nav>
 
     <div class="appbar__filters appbar__filters--flat">
@@ -280,8 +294,12 @@
        иначе в конце прокрутки она дёрнется. -->
   <section class="screen-footer-app screen-footer-app--sticky">
     <div class="screen-footer-app__buttons">
-      <a class="btn-app btn-app--medium btn-app--primary btn-app--main btn-app--block"
-         id="create-pdf" href="../report.html">Создать PDF-отчёт</a>
+      <!-- На телефоне отчёт открывается модалкой поверх (809:74592), а не новой
+           вкладкой: уводить агента из приложения в системный просмотрщик значит
+           терять и настройку, и путь назад. Вебовая кнопка по-прежнему открывает
+           файл вкладкой — там это уместно. -->
+      <button class="btn-app btn-app--medium btn-app--primary btn-app--main btn-app--block"
+              id="create-pdf" type="button">Создать PDF-отчёт</button>
       <a class="btn-app btn-app--medium btn-app--secondary btn-app--main btn-app--block"
          id="save-exit" data-nav="back" href="report-app.html">Сохранить и выйти</a>
     </div>
@@ -289,9 +307,11 @@
 
 </div>
 
-<script src="competitors-data.js?v=202608222158"></script>
-<script src="owner-report-app.js?v=202608222158"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608230015"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608230015"></script>
+<script src="competitors-data.js?v=202608230015"></script>
+<script src="owner-report-app.js?v=202608230015"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608222158"></script>
+<script src="dev-reset.js?v=202608230015"></script>
 </body>
 </html>

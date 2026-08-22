@@ -12,25 +12,25 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230015">
   <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
        на этом экране их раньше не было, все действия шли entry-point'ами. -->
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608222158">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608222158">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230015">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608222158"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608230015"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -80,6 +80,10 @@
       align-items: center;
       justify-content: center;
       width: 48px; height: 48px;
+      /* 40% — из макета (845:77934). Раньше не выставляли: экспорт радара сам был
+         светло-серым, и гасить было нечего. Он стал тёмным — непрозрачность
+         оказалась настоящим свойством этого места, а не свойством картинки. */
+      opacity: 0.4;
     }
     .report-loading__radar img {
       display: block;
@@ -292,11 +296,11 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202608222158"></script>
-<script src="../_design-system/components/app/onboarding.js?v=202608222158"></script>
-<script src="competitors-data.js?v=202608222158"></script>
-<script src="report-app.js?v=202608222158"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608230015"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202608230015"></script>
+<script src="competitors-data.js?v=202608230015"></script>
+<script src="report-app.js?v=202608230015"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608222158"></script>
+<script src="dev-reset.js?v=202608230015"></script>
 </body>
 </html>

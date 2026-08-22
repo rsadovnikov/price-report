@@ -472,7 +472,11 @@
       var textEl = trackingBanner && trackingBanner.querySelector('.tracking-banner__text');
       if (!textEl || !(TOTAL_UPDATES > 0)) return;
       var days = 1 + Math.floor(Math.random() * 10);
-      var period = days === 1 ? 'вчера' : days + ' ' + (days < 5 ? 'дня' : 'дней') + ' назад';
+      /* Неразрывные пробелы: срок либо целиком в строке, либо целиком на следующей.
+         Правило то же, что на поверхности приложения (2026-08-22) — фраза одна, и
+         расходиться в переносах ей незачем. */
+      var period = days === 1 ? 'вчера'
+        : days + '\u00A0' + (days < 5 ? 'дня' : 'дней') + '\u00A0назад';
       textEl.classList.add('is-changed');
       textEl.innerHTML = 'Что изменилось с вашего прошлого визита, '
         + '<span class="tracking-banner__period">' + period + '</span>';

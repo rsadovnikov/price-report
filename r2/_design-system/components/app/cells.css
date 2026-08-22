@@ -224,13 +224,16 @@ a.section-head-app:active { opacity: 0.6; }
 }
 /* Плашка тоже бывает ссылкой — тогда она ведёт туда же, куда вся секция */
 a.hint-app:active { opacity: 0.6; }
+/* Прозрачности здесь нет и не должно быть (2026-08-22): экспорт радара стал
+   тёмным (715:77418), и в макете плашки к нему ничего не применяется. Пока
+   иконка была светло-серой, у нас стояло 0.5 — то есть глушили уже глушёное.
+   Гасит себя теперь только радар на экране загрузки, там 40% из своего макета. */
 .hint-app__icon {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: none;
   width: 36px; height: 36px;
-  opacity: 0.5;
 }
 .hint-app__icon img { display: block; width: 18px; height: 18px; }
 

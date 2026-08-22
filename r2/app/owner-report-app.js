@@ -23,8 +23,12 @@
   'use strict';
 
   var params = new URLSearchParams(location.search);
+  /* Ноль — законное значение: агент мог убрать из отслеживаемых всех. Со старым
+     `n < 1` он подменялся пятёркой, и «Сохранить и выйти» возвращало на обзор пять
+     воскресших конкурентов — а следом «Мои объявления» рапортовали, что следим за
+     пятью. Отчёт без конкурентов собирать не из чего, но врать об этом хуже. */
   var n = parseInt(params.get('n') || '5', 10);
-  if (!isFinite(n) || n < 1) n = 5;
+  if (!isFinite(n) || n < 0) n = 5;
 
   var base = {
     desc:  params.get('desc')  || '1-комн. кв., 50 м², 2/12 этаж',
@@ -72,14 +76,72 @@
     'Выбрано ' + n + ' ' + plural(n, 'конкурент', 'конкурента', 'конкурентов');
 
   var qs = new URLSearchParams({ n: n, desc: base.desc, price: base.price, photo: base.photo });
+  /* `from` едет дальше вместе с объектом: «Сохранить и выйти» возвращает на обзор,
+     а тот по выходу обновляет плитку того самого объявления в «Моих». */
+  if (params.get('from')) qs.set('from', params.get('from'));
   /* «Добавить комментарии» ведёт на свой экран (2026-08-18), а не в общий список
      конкурентов: там выбор объектов, здесь приписки к уже выбранным. */
   document.getElementById('comments-link').setAttribute('href', 'comments-app.html?' + qs);
   document.getElementById('back-link').setAttribute('href', 'report-app.html?' + qs);
   document.getElementById('save-exit').setAttribute('href', 'report-app.html?' + qs);
-  /* PDF по-прежнему собирается в вебовой версии — экран приложения довёл
-     настройку до конца, но самого PDF на этой поверхности нет. */
-  document.getElementById('create-pdf').setAttribute('href', '../report.html?n=' + n);
+  /* --- Просмотр PDF ---------------------------------------------------------
+     Макет 809:74592. На телефоне отчёт открывается модалкой поверх настройки:
+     крестик слева, имя файла по центру, «Отправить» справа. Новой вкладкой уходит
+     только вебовая кнопка — там системный просмотрщик и есть привычное поведение,
+     а здесь он выбросил бы агента из приложения вместе с настройкой.
+
+     Показываем рендер страницы (`pdf-report-preview.jpg`), а делимся настоящим
+     файлом (`pdf-report.pdf`). Причина в айфоне: PDF в `<iframe>` там открывается
+     не страницей, а встроенным просмотрщиком со своей панелью — окно в окне.
+     Страница в семпле одна, так что картинка показывает отчёт целиком. */
+  var PDF_FILE = '../pdf-report.pdf';
+  var PDF_NAME = 'report-1';
+
+  document.getElementById('create-pdf').addEventListener('click', function () {
+    openSheet({
+      base: '../_design-system/',
+      fullscreen: true,
+      ariaLabel: 'Отчёт для собственника, PDF',
+      barTitle: PDF_NAME,
+      /* keepOpen: панель шаринга поднимается ПОВЕРХ просмотра, и убирать из-под неё
+         сам просмотр значило бы отменять то, чем делятся. */
+      barAction: { title: 'Отправить', keepOpen: true, onClick: sharePdf },
+      content: '<img class="pdf-page" src="pdf-report-preview.jpg"'
+        + ' alt="Отчёт о цене и конкурентах">'
+    });
+  });
+
+  /* Нативная панель «Поделиться». Файлом, а не ссылкой: собственнику отправляют
+     отчёт, а не адрес прототипа. Порядок отступления — от лучшего к рабочему:
+     файл → ссылка на страницу → открыть PDF отдельной вкладкой.
+
+     Отказ пользователя (`AbortError`) — не ошибка и запасной путь не запускает:
+     панель закрыли осознанно, а не «не получилось». */
+  function sharePdf() {
+    var canFiles = typeof File === 'function' && navigator.canShare;
+    if (!navigator.share) return openPdfTab();
+
+    fetch(PDF_FILE).then(function (r) { return r.blob(); }).then(function (blob) {
+      var file = canFiles ? new File([blob], PDF_NAME + '.pdf', { type: 'application/pdf' }) : null;
+      if (file && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], title: 'Отчёт о цене и конкурентах' });
+      }
+      return navigator.share({ title: 'Отчёт о цене и конкурентах', url: location.href });
+    }).catch(function (err) {
+      if (err && err.name === 'AbortError') return;
+      openPdfTab();
+    });
+  }
+
+  function openPdfTab() {
+    /* Панели шаринга нет вовсе (десктопный браузер) — открываем файл вкладкой,
+       чтобы прототип не упирался в тупик. Снекбар объясняет, почему не панель. */
+    window.open(PDF_FILE, '_blank', 'noopener');
+    if (typeof showSnackbarApp === 'function') {
+      showSnackbarApp('Панель «Поделиться» есть только на телефоне');
+    }
+  }
+
 
   /* --- Шаг 2: цены у выбранных конкурентов -------------------------------- */
 
