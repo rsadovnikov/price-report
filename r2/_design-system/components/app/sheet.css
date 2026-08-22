@@ -127,6 +127,10 @@
 .sheet-app__bar--action { padding-right: var(--unit4); }
 .sheet-app__bar-action {
   flex: none;
+  /* К правому краю прижимает сам себя, а не сосед. Раньше вправо его отодвигал
+     заголовок в шапке (`flex: 1`), и без него — в шторке фильтра заголовок стоит
+     строкой ниже — действие липло к крестику. */
+  margin-left: auto;
   padding: 0;
   border: 0;
   background: none;

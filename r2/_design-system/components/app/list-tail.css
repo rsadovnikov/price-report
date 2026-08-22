@@ -1,0 +1,111 @@
+/* === ХВОСТ ЛЕНТЫ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Белые карточки в конце списка — то, что стоит после последнего объявления или
+ * вместо него. Геометрия из Figma «Доработки отчёта о цене и конкурентах»:
+ *
+ *   563:74187  «Показать ещё»                     → --more
+ *   563:69202  «Это всё, что нашлось»             → базовый вид
+ *   698:76453  «Добавить по ссылке», конец ленты  → --footer
+ *
+ * Общее у всех трёх: карточка во всю ширину ленты, радиус 16, содержимое по
+ * центру, кнопки во всю ширину. Отличаются наполнением и полями — поэтому один
+ * компонент с модификаторами, а не три похожих блока.
+ *
+ * Базовый вид — иллюстрация, заголовок и одна или несколько пар «пояснение +
+ * кнопка». Пар в макете две («Изменить фильтры» и «Добавить из архива»), то есть
+ * множественность заложена в раскладку, а не придумана. Тем же блоком собрано
+ * «Ничего не нашлось»: состояния разные, устройство одно.
+ *
+ * Вебового аналога нет: в отчёте лента не разбита на страницы и пустых состояний
+ * такого вида не встречалось.
+ */
+.list-tail-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--unit7);
+  padding: var(--unit5) var(--unit5) var(--unit6);
+  background: var(--background-primary);
+  border-radius: var(--radius-xxl);
+}
+
+/* Иллюстрация и заголовок — одна связка, поэтому свой зазор 12 */
+.list-tail-app__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--unit3);
+  width: 100%;
+}
+
+/* 100 — размер слота в макете. Файл кладём втрое крупнее: на телефоне 3x, и
+   стянутая до 100 картинка на нём мылится. */
+.list-tail-app__art {
+  display: block;
+  width: 100px;
+  height: 100px;
+  flex: none;
+}
+
+.list-tail-app__title {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+
+/* Пары «пояснение + кнопка» разведены на те же 28, что и от заголовка: каждая
+   пара — самостоятельное предложение, а не пункт списка. */
+.list-tail-app__groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit7);
+  width: 100%;
+}
+.list-tail-app__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit2);
+  width: 100%;
+}
+
+.list-tail-app__note {
+  margin: 0;
+  text-align: center;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  color: var(--text-primary-default);
+}
+
+/* --- «Показать ещё» ---
+ * node 563:74187. Карточка из одной кнопки: полей 16/20, ничего больше.
+ * В макете собрана на `Screen Footer`, но это не он — тот прибит к низу экрана и
+ * не скруглён. Здесь секция едет вместе с лентой, поэтому берём вид, а не
+ * компонент. Кнопка внутри — на `❌ Button | Depricated`, переносим результат:
+ * Medium × secondary × main во всю ширину.
+ */
+.list-tail-app--more {
+  gap: 0;
+  padding: var(--unit4) var(--unit5);
+}
+
+/* --- Вопрос в подвале ленты ---
+ * node 698:76453. Последняя карточка списка: скруглена только сверху и
+ * заканчивает ленту — снизу за ней ничего нет, поэтому и отступ 36, а не 24.
+ * Текст здесь Body1 и обращён к агенту напрямую, а не поясняет кнопку.
+ */
+.list-tail-app--footer {
+  gap: var(--unit3);
+  padding: var(--unit5) var(--unit5) 36px;
+  border-radius: var(--radius-xxl) var(--radius-xxl) 0 0;
+}
+.list-tail-app--footer .list-tail-app__note {
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+}

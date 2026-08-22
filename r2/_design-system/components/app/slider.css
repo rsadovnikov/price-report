@@ -1,0 +1,127 @@
+/* === СЛАЙДЕР, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Источник: Figma «Доработки отчёта о цене и конкурентах», `64:39754` — шторка
+ * «Радиус от оцениваемого объекта». В ките ЦИАН такого компонента нет ни в вебе,
+ * ни в iOS-библиотеке (записано в surface-app.md как дырка), поэтому собран у нас
+ * по анатомии из макета.
+ *
+ * Анатомия (снята 2026-08-22):
+ *   трек        335 × 3, радиус 3, Surface/Main/Default
+ *   заполнение  та же полоса, Control/Main/Primary/Default
+ *   ручка       28 × 28, белая, тень r4
+ *   подписи     Caption 12/15 вторичным, по краям под треком
+ *   баббл       над ручкой: паддинг 0/4, радиус 4, Overlay/Popover, текст Body2 белым
+ *
+ * Собран на `<input type="range">`, а не на своём drag: нативный элемент отдаёт
+ * клавиатуру, фокус, тач и доступность бесплатно, а нам остаётся только раскрасить
+ * трек и ручку. Свой drag всё это пришлось бы писать заново и хуже.
+ *
+ * Разметку и позиционирование баббла держит slider.js — CSS не умеет считать
+ * положение ручки.
+ */
+
+.slider-app {
+  display: flex;
+  flex-direction: column;
+  /* 20 — высота баббла, 44 — дорожка с ручкой, 15 — строка подписей: как в макете,
+     где SliderLabels ровно 75. */
+  gap: 0;
+}
+
+/* --- Баббл со значением --- */
+.slider-app__bubble {
+  position: relative;
+  height: 20px;
+}
+.slider-app__bubble-value {
+  position: absolute;
+  top: 0;
+  /* left ставит JS в процентах; сдвиг на половину ширины — здесь, чтобы не считать
+     её в скрипте: она зависит от текста и меняется на каждом шаге. */
+  transform: translateX(-50%);
+  padding: 0 var(--unit1);
+  border-radius: var(--radius-m);
+  background: var(--overlay-popover);
+  color: var(--text-inverted-default);
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  white-space: nowrap;
+}
+
+/* --- Дорожка ---
+ * Высота 44 — это тач-зона, а не толщина линии: сама полоса 3px и стоит по центру.
+ */
+.slider-app__track {
+  position: relative;
+  height: 44px;
+}
+.slider-app__line,
+.slider-app__fill {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+.slider-app__line {
+  left: 0; right: 0;
+  background: var(--surface-main-default);
+}
+.slider-app__fill {
+  left: 0;
+  background: var(--control-main-primary-default);
+}
+
+/* Нативный input поверх нарисованной дорожки: он невидим, но именно он ловит
+   палец и клавиатуру. Ручку рисуем его же псевдоэлементом — так она едет сама,
+   без пересчёта позиции в скрипте. */
+.slider-app__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.slider-app__input:focus { outline: none; }
+.slider-app__input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--stroke-control-focused);
+}
+.slider-app__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px; height: 28px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--background-primary);
+  box-shadow: 0 1px 4px var(--shadow-default);
+  cursor: pointer;
+}
+.slider-app__input::-moz-range-thumb {
+  width: 28px; height: 28px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--background-primary);
+  box-shadow: 0 1px 4px var(--shadow-default);
+  cursor: pointer;
+}
+.slider-app__input::-webkit-slider-runnable-track { background: none; }
+.slider-app__input::-moz-range-track { background: none; }
+
+/* --- Подписи концов --- */
+.slider-app__labels {
+  display: flex;
+  justify-content: space-between;
+  height: 15px;
+}
+.slider-app__labels span {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+  letter-spacing: var(--type-caption-ls);
+  color: var(--text-secondary-default);
+}
