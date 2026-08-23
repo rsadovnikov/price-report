@@ -89,8 +89,17 @@ node tools/cdp-eval.mjs storybook <файл-с-выражением> --nav "<url
 `.report-loader__spinner` → `.spinner` · `.filter-select` и `.search-input` в ЛК → `.select` и `.input`.
 
 ⚠️ **`.filter-select` в `inputs.css` остался без потребителей** — прототип целиком переехал
-на `.select`. Не удаляю: это задокументированный DS-компонент, но при следующей уборке
-решить, нужен ли он вообще (в ките он живёт только как визуальное демо на `<div>`).
+на `.select`, и `smoke-lk-ds` это фиксирует. Не удаляю: это задокументированный DS-компонент,
+но при следующей уборке решить, нужен ли он вообще.
+
+Замер 24.08 добавил к этому третий довод: **демо в ките показывает не компонент.** В `kit.html`
+лежит локальная копия `.filter-select` в инлайновом `<style>` — она идёт после `<link>` и
+побеждает. Рендерит 34px с `padding-right: 28px` и шевроном фоновой картинкой `#697797`;
+у компонента `padding: 6px 12px` и шеврон отдельным `.icon`. Внутри копии живут хардкоды
+`#B1BAD2` и `rgba(4,104,255,0.2)` — ровно те, что 12.08 перевели на токены. Плюс демо
+собрано на `<div>` с классами `.open` / `.filled` / `.disabled`, а у компонента API
+атрибутный (`[aria-expanded]`, `:disabled`). То есть чинить пришлось бы и стиль, и разметку —
+у компонента, которым никто не пользуется.
 
 **Не компоненты, хотя назывались похоже** — проверено 2026-08-13, переносить нечего:
 `.results-counter` — строка текста «Найдено N объектов», а не `Counter`;
@@ -205,11 +214,11 @@ Colors`, прямая пометка «устаревшая палитра, не
 
 | # | Расхождение | Прод | Наш |
 |---|---|---|---|
-| 🔴 | Толщина рамки | `2px` | `1.5px` → браузер рендерит **1px** |
-| 🟡 | Рамка disabled | `--stroke-control-default` #d0d8e9 (`!important`) | `--stroke-control-disabled` #e1e6f4 — сливается с заливкой |
-| 🟡 | `:active` | unchecked → `--surface-inverted-pressed` + `--stroke-control-pressed`; checked → `--control-main-primary-pressed` | нет |
-| 🟡 | Hover | есть у checked (`--control-main-primary-hovered`) и invalid (`--control-negative-primary-hovered`) | только у unchecked |
-| 🟡 | `focus-visible` | `outline-offset: 2px` | `1px` |
+| ✅ | Толщина рамки | `2px` | `2px` — приведено 12.08, замерено рендером 24.08 |
+| ✅ | Рамка disabled | `--stroke-control-default` #d0d8e9 (`!important`) | тот же токен — приведено 12.08 |
+| ✅ | `:active` | unchecked → `--surface-inverted-pressed` + `--stroke-control-pressed`; checked → `--control-main-primary-pressed` | оба заведены 12.08 (плюс `indeterminate`) |
+| ✅ | Hover | есть у checked (`--control-main-primary-hovered`) и invalid (`--control-negative-primary-hovered`) | заведены оба 12.08 |
+| ✅ | `focus-visible` | `outline-offset: 2px` | `2px` — приведено 12.08 |
 | ⚪ | Выравнивание | `align-items: flex-start`, центрирование — модификатор `.checkbox-center` | всегда `center` |
 | ✅ | `indeterminate` | проп атома `CheckToggle` | добавлен 2026-08-13 |
 
@@ -259,10 +268,10 @@ HTML-атрибута нет. В CSS блок идёт **после** `:checked`
 
 | # | Расхождение | Прод | Наш |
 |---|---|---|---|
-| 🔴 | Высота таба | 28 / 38 | **48** (padding `12px 0 10px`, текст 16/**24**) — не попадает ни в один прод-размер |
-| 🟡 | Индикатор | `::after` на ряду, ездит и анимируется | `border-bottom` на самом табе, прыгает |
-| 🟡 | Hover | серая подложка-подчёркивание `--surface-neutral-hovered`, цвет текста не меняется | текст темнеет до хардкода `#17203A` + серый бордер |
-| 🟡 | Disabled | `pointer-events:none`, текст `--text-primary-disabled` | нет |
+| ✅ | Высота таба | 28 / 38 | `.tab` **38** (padding 8/0, 16/22), `.tab-s` **28** (4/0, 14/20) — приведено 12.08, замерено 24.08 |
+| 🟡 | Индикатор | `::after` на ряду, **ездит** по `--indicator-offset` / `--indicator-width` | механизм тот же (`::after`, `bottom: -1px`) с 12.08, но **статичный**: переменных нет, при переключении вкладки подчёркивание перескакивает. Открыт только ход, не устройство |
+| ✅ | Hover | серая подложка-подчёркивание `--surface-neutral-hovered`, цвет текста не меняется | то же — приведено 12.08, хардкода `#17203A` в файле нет |
+| ✅ | Disabled | `pointer-events:none`, текст `--text-primary-disabled` | заведён 12.08, вместе с `focus-visible` |
 | ⚪ | Размерная сетка | `small` / `medium` | один размер |
 
 Совпало: gap ряда 24, gap иконка↔текст 8, цвет активного `--text-main-default`, счётчик в активном
@@ -311,13 +320,13 @@ HTML-атрибута нет. В CSS блок идёт **после** `:checked`
 Invalid → рамка `--stroke-border-negative`; disabled → рамка и заливка `#e1e6f4`;
 фокус — `box-shadow: 0 0 0 1px var(--stroke-control-focused)`. Есть адорнменты (34×36), `loading`.
 
-🟡 **У нас текстового инпута нет вообще.** `inputs.css` содержит только `.filter-select` —
-это контрол-дропдаун, а не поле ввода. Поле поиска в `index.html` сверстано ад-хок.
+✅ **Заведён 12.08, замерено рендером 24.08:** `.input` 36 / `.input-m` 44, radius 8,
+рамка 1px `--stroke-control-default`, поле 14/20, слот `.input__adornment` (демо в ките с 22.08).
 
-`.filter-select` против прод-инпута: высота 34 против 36; рамка и типографика совпали;
-hover/expanded красит рамку в `--control-primary`, тогда как прод на фокусе даёт `box-shadow`
-токеном `--stroke-control-focused`; disabled у нас хардкод `#B1BAD2` + `--stroke-divider-neutral`
-вместо прод `#e1e6f4`.
+Прежняя запись «у нас текстового инпута нет вообще, `inputs.css` содержит только
+`.filter-select`» устарела дважды: инпут заведён, а `.filter-select` остался **без единого
+потребителя** — прототип целиком на `.select`, и `smoke-lk-ds` это фиксирует. Решить,
+удалять ли его: в ките он живёт демо на `<div>` с локальной копией стилей.
 
 ---
 
@@ -495,9 +504,9 @@ negative #c2122d · inverted white · disabled #b1bad2.
 
 | # | Расхождение | Прод | Наш |
 |---|---|---|---|
-| 🟡 | Цвет | токен `--text-main-default` | хардкод `#005EDE` |
+| ✅ | Цвет | токен `--text-main-default` | тот же токен — переведено 12.08, замерено 24.08 (`rgb(0, 94, 222)`) |
 | 🟡 | Цветовые темы | 6 | одна (синяя) |
-| 🟡 | Размерная сетка | XS 28 / M 44 / auto | `.action-link-icon` 28×28, у остальных высота по контенту |
+| 🟡 | Размерная сетка | XS 28 / M 44 / auto — задаётся любой ссылке | у **иконочной** обе ступени есть (`.action-link-icon` 28, `.action-link-icon-m` 44); у текстовых высота всегда по контенту, ступень им не назначить |
 | ⚪ | Вес | 400 | наши action-линки объявлены Bold 700 в [components/links.md](components/links.md) |
 
 Вес — расхождение того же класса, что `letter-spacing` у кнопок: прод-код против нашей

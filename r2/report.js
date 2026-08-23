@@ -180,22 +180,46 @@
       var perM = REPORT_PARAMS.get('perM') || txt('#tableA .col-current-price .price-per-m');
       var metro = REPORT_PARAMS.get('metro') || txt('#tableA .metro-station');
       var areaM = /([\d,.]+)\s*м²/.exec(desc);
+      var roomsM = /^(\d+)-комн/.exec(desc);
       return {
         area: areaM ? parseFloat(areaM[1].replace(',', '.')) : null,
+        rooms: roomsM ? parseInt(roomsM[1], 10) : null,
         perM: num(perM),
         metro: (metro || '').replace(/\s+/g, ' ').trim(),
       };
     })();
 
-    // Чем меньше, тем ближе объект к пользовательскому. Площадь весит больше цены:
-    // сравнивать 40 м² с 40 м² по разной цене осмысленно, а 40 м² с 20 м² — нет,
-    // даже если цена за метр совпала. Разные станции — небольшой штраф, район один.
+    /* Чем меньше, тем ближе объект к пользовательскому. Площадь весит больше цены:
+       сравнивать 40 м² с 40 м² по разной цене осмысленно, а 40 м² с 20 м² — нет,
+       даже если цена за метр совпала. Разные станции — небольшой штраф, район один.
+
+       Комнатность (решение Романа 2026-08-23) — слагаемое, а не отсечение: похожесть
+       в вебе РАНЖИРУЕТ, а не отбирает, и объект с другой комнатностью должен опускаться,
+       а не исчезать. Не хватило своих — лучше показать чужие, чем полупустой отчёт.
+
+       Вес 10 подобран так, чтобы штраф был недостижим остальными слагаемыми: площадь
+       даёт максимум ~1 на разумных данных, цена ~0.6, станция 0.15. То есть на практике
+       это отсечение, пока своей комнатности хватает, и мягкая деградация, когда нет.
+
+       ⚠️ Без этого слагаемого веб полгода работал верно СЛУЧАЙНО: в прежней базе все
+       70 записей были однокомнатными, и площадь была точным заместителем комнатности.
+       На настоящих данных (50 однушек и 42 двушки, перекрытие в зоне 34–40 м²) двушка
+       37,7 м² оказывалась к однушке 37,3 м² ближе, чем однушка 40 м². */
+    var ROOMS_PENALTY = 10;
+
+    function roomsOf(desc) {
+      var m = /^(\d+)-комн/.exec(desc || '');
+      return m ? parseInt(m[1], 10) : null;
+    }
+
     function distanceToBase(d) {
       if (!BASE.area && !BASE.perM) return 0;    // объект неизвестен — не сужаем выборку
       var areaM = /([\d,.]+)\s*м²/.exec(d.desc);
       var area = areaM ? parseFloat(areaM[1].replace(',', '.')) : null;
       var perM = parseFloat(String(d.currentPricePerM).replace(/\s/g, ''));
+      var rooms = roomsOf(d.desc);
       var score = 0;
+      if (BASE.rooms && rooms && rooms !== BASE.rooms) score += ROOMS_PENALTY;
       if (BASE.area && area) score += Math.abs(area - BASE.area) / BASE.area;
       if (BASE.perM && perM) score += Math.abs(perM - BASE.perM) / BASE.perM * 0.6;
       if (BASE.metro && d.metroStation && d.metroStation !== BASE.metro) score += 0.15;
@@ -785,18 +809,87 @@
       }
     }
 
-    // === OWNER REPORT FAB ===
-    // Статичная кнопка в правом нижнем углу — на всех вкладках, независимо от скролла.
-    // Прежняя полка появлялась по скроллу (checkedIds.size > 0 && scrollY > 0 &&
-    // !ownerPanelReached()) и двигала бар «новых конкурентов»; вся эта логика снята.
-    // Единственное условие видимости — есть ли что показывать собственнику: на пустом
-    // отчёте кнопка уезжает за правый край (карточка там всё равно заблокирована).
-    var ownerFabEl = document.getElementById('ownerFab');
+    /* === РЯД ФАСЕТОВ ===
+     *
+     * Тот же набор и то же выделение, что на поверхности приложения: подписи трёх
+     * предустановленных фильтров приходят из общего `AppPreset.row(desc)`, остальные
+     * пять стоят пустыми ярлыками (просьба Романа 2026-08-23).
+     *
+     * До этого подписи были зашиты в разметку числами — «Радиус 3 км», «2 комнаты»,
+     * «До 50 кв. м.», «15–25 млн ₽» — и с объектом не сходились ни одной: у агента
+     * однушка 37 м², а ряд обещал двушку до 50 и коридор 15–25 млн. Плюс приложение
+     * ставит радиус 2 км, а веб рисовал 3.
+     *
+     * ⚠️ Чипы остаются НЕинтерактивными, как и были: в вебе выдачу определяет
+     * похожесть (distanceToBase), а не фасеты. Задача ряда здесь — честно показать,
+     * из чего собрана подборка. Сделать их рабочими — отдельная работа.
+     */
+    (function renderFacets() {
+      var host = document.getElementById('filtersFacets');
+      if (!host || typeof AppPreset === 'undefined') return;
+      var desc = REPORT_PARAMS.get('desc') || (function () {
+        var el = document.querySelector('#tableA .desc-title');
+        return el ? el.textContent.trim() : '';
+      })();
+      host.innerHTML = AppPreset.row(desc).map(function (f) {
+        return '<button class="btn-outline-sm style-secondary' + (f.on ? ' is-preset' : '')
+          + '" type="button" data-facet="' + f.key + '"'
+          + (f.on ? ' aria-pressed="true"' : '')
+          + '>' + f.label + ' <span class="icon">▾</span></button>';
+      }).join('');
+    })();
 
+    // === OWNER REPORT FAB ===
+    // Кнопка в правом нижнем углу ведёт к настройке отчёта — и уезжает, когда та
+    // на экране. Два условия, и оба про «есть ли ей что делать»:
+    //
+    //   1. Отслеживаемых нет — вести некуда, карточка отчёта заблокирована.
+    //   2. Карточка уже видна — привела, дальше только мешает.
+    //
+    // ⚠️ Второе условие когда-то было (`!ownerPanelReached()`), но ушло вместе с
+    // полкой-teaser, которую кнопка заменила. Последствие нашёл Роман 2026-08-23:
+    // кнопка доживала до самого низа страницы и стояла ПОВЕРХ той секции, куда сама
+    // же и ведёт, со стрелкой «вниз» — то есть звала туда, где ты уже стоишь.
+    // Заодно накрывала нижний край карточки с «Создать PDF-отчёт».
+    //
+    // Порог — доля экрана, а не пиксели: «дошёл» это когда карточка заняла экран, а
+    // не когда снизу показался её край. Считать от края нельзя — при одном конкуренте
+    // страница короткая, карточка выглядывает уже на первом экране, и кнопка пропадала
+    // бы до того, как агент до неё добрался.
+    var ownerFabEl = document.getElementById('ownerFab');
+    var OWNER_FAB_REACHED = 0.4;      // верх карточки выше 40% экрана — пришли
+
+    function ownerPanelReached() {
+      var card = document.getElementById('ownerReportCard');
+      if (!card) return false;
+      // Отрицательный top — карточку проскроллили насквозь, она тем более «достигнута»
+      return card.getBoundingClientRect().top < window.innerHeight * OWNER_FAB_REACHED;
+    }
+
+    // Два повода уехать — и у каждого своё направление, потому что смысл разный:
+    // вести некуда → вбок (кнопки тут больше нет), привела → вниз (уступила место
+    // содержимому). Классы взаимоисключающие: у обоих свой transform, и вместе они
+    // спорили бы за одно свойство.
     function updateOwnerFab() {
       if (!ownerFabEl) return;
-      ownerFabEl.classList.toggle('owner-fab--hidden', checkedIds.size === 0);
+      var nothingToShow = checkedIds.size === 0;
+      ownerFabEl.classList.toggle('owner-fab--hidden', nothingToShow);
+      ownerFabEl.classList.toggle('owner-fab--landed', !nothingToShow && ownerPanelReached());
     }
+
+    // Видимость зависит от прокрутки, а не только от состояния отбора, — значит
+    // пересчитывать надо и на скролле. Через rAF: обработчик дёргается сотнями раз.
+    (function watchOwnerFab() {
+      if (!ownerFabEl) return;
+      var queued = false;
+      function onScroll() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; updateOwnerFab(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+    })();
 
     // В разметке кнопка скрыта и с transition: none — стартовое состояние (его ставит
     // init через updateOwnerReportBlock) не должно проигрываться анимацией. Снимаем

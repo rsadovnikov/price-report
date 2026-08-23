@@ -731,6 +731,22 @@
       gap: 8px;
       flex: 1;
     }
+    /* Контейнер фасетов существует только как точка отрисовки: `display: contents`
+       отдаёт кнопки в общий wrap-поток `.filters-left`, иначе весь ряд стал бы одним
+       flex-элементом и переносился целиком, а «За N дней» и «Сбросить фильтры»
+       оторвались бы от него. */
+    .filters-facets { display: contents; }
+    /* Фасет, предустановленный по объекту. Те же токены, что у выбранного чипа в
+       вебе (.chip.active) и в приложении (.chip-app--selected): заливка
+       --surface-main-default и рамка --stroke-control-selected. У вебового
+       фильтр-чипа своего выбранного состояния не было вовсе — дырка в системе,
+       вылезла, когда ряд перестал быть декоративной разметкой. */
+    .btn-outline-sm.style-secondary.is-preset {
+      background: var(--surface-main-default);
+      border-color: var(--stroke-control-selected);
+      color: var(--text-primary-default);
+    }
+    .btn-outline-sm.style-secondary.is-preset:hover { background: var(--surface-main-default); }
     /* Хвост фильтров: сегмент + «Сбросить фильтры» как один неразрывный flex-элемент.
        Один широкий блок → чаще не влезает и переносится целиком на следующую строку
        (не форс-перенос, а нехватка места). Делит общий wrap-поток с чипами `.filters-left`,
@@ -1257,23 +1273,34 @@
       white-space: nowrap;
       transition: background-color 0.15s ease, transform 0.25s ease, visibility 0s;
     }
-    /* Нет ни одного отслеживаемого объекта — кнопке некуда вести (карточка отчёта
-       заблокирована, см. .owner-content-locked), поэтому уезжает за правый край.
-       visibility гасим после доезда (в .owner-fab--hidden свой delay), чтобы кнопка
-       не оставалась в табе и под кликом, пока висит за вьюпортом. */
-    .owner-fab--hidden {
-      transform: translateX(calc(100% + 36px));
+    /* Кнопка уходит по двум разным поводам, и направление их различает.
+       Общее у них только то, что кнопки больше нет: visibility гасим ПОСЛЕ доезда
+       (задержка в transition), чтобы она не оставалась в табе и под кликом, пока
+       висит за вьюпортом. */
+    .owner-fab--hidden,
+    .owner-fab--landed {
       visibility: hidden;
       pointer-events: none;
       transition: background-color 0.15s ease, transform 0.25s ease, visibility 0s linear 0.25s;
     }
+    /* Вести некуда: ни одного отслеживаемого, карточка отчёта заблокирована
+       (см. .owner-content-locked). Уезжает вбок — движение поперёк прокрутки читается
+       как «этой кнопки тут больше нет». */
+    .owner-fab--hidden { transform: translateX(calc(100% + 36px)); }
+    /* Привела: настройка отчёта на экране, работа сделана. Уезжает ВНИЗ за нижний
+       край (просьба Романа 2026-08-23) — туда же, откуда появлялась. Движение вдоль
+       прокрутки читается как «уступила место содержимому», а не «пропала».
+       24 — собственный отступ кнопки от края, иначе она замирает, едва коснувшись его. */
+    .owner-fab--landed { transform: translateY(calc(100% + 24px)); }
     /* Стартовое состояние выставляется без анимации. Без этого на пустом отчёте FAB
        успевает отрисоваться на месте и уезжает уже на глазах: report.js стоит в конце
        body, но браузер отдаёт кадры до него (замерено — transitionrun на transform
        через ~5 кадров после первой отрисовки). Класс снимается через два кадра. */
     .owner-fab--preload { transition: none; }
     @media (prefers-reduced-motion: reduce) {
-      .owner-fab, .owner-fab--hidden { transition: background-color 0.15s ease; }
+      .owner-fab,
+      .owner-fab--hidden,
+      .owner-fab--landed { transition: background-color 0.15s ease; }
     }
     .owner-fab:hover { background: var(--control-main-primary-hovered); }
     .owner-fab:active { background: var(--control-main-primary-pressed); }
@@ -1294,10 +1321,12 @@
        пользователь не может откатить снятие с отслеживания. Поднимаем стопку тостов
        на высоту кнопки: 48 + 8 зазора.
        Когда FAB уехал — место под ним не держим, стопка опускается на своё место.
-       Опускание с анимацией (правило --hidden), подъём мгновенный: он про доступность
-       кнопки тоста, ждать анимацию тут нельзя — FAB приезжает за те же 0.25s. */
+       Оба повода уехать считаются одинаково: важно не куда он делся, а что его нет.
+       Опускание с анимацией, подъём мгновенный: он про доступность кнопки тоста,
+       ждать анимацию тут нельзя — FAB приезжает за те же 0.25s. */
     .toast-container--bottom-right .toast-holder { padding-bottom: 56px; }
-    body:has(.owner-fab--hidden) .toast-container--bottom-right .toast-holder {
+    body:has(.owner-fab--hidden) .toast-container--bottom-right .toast-holder,
+    body:has(.owner-fab--landed) .toast-container--bottom-right .toast-holder {
       padding-bottom: 0;
       transition: padding-bottom 0.25s ease;
     }
