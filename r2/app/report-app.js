@@ -108,22 +108,12 @@
   var listHref = 'competitors-app.html?' + qs;
 
   /* --- Апдейты: кому какой бейдж ---
-     Кандидатов выбирают сами данные: цена — первому с непустым priceDelta, снятие —
-     первому со признаком removed. Остаток апдейтов уходит в строку-предложение. */
+     Раскладка живёт в общем модуле `updates-app.js`: те же флаги обязан показать
+     список конкурентов, и правило, лежащее внутри одного из двух экранов, они
+     разъезжаются молча — так и вышло до 2026-08-23. */
   var shown = ALL_COMPETITORS.slice(0, n);
-  var priceIdx = -1, removedIdx = -1, left = u;
-
-  if (left > 0) {
-    for (var i = 0; i < shown.length; i++) {
-      if (shown[i].priceDelta) { priceIdx = i; left--; break; }
-    }
-  }
-  if (left > 0) {
-    for (var j = 0; j < shown.length; j++) {
-      if (j !== priceIdx && shown[j].removed) { removedIdx = j; left--; break; }
-    }
-  }
-  var fresh = left;
+  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u);
+  var priceIdx = marks.priceIdx, removedIdx = marks.removedIdx, fresh = marks.fresh;
 
   /* --- Конкуренты --- */
   document.getElementById('competitors-title').textContent = pluralCompetitors(n);
@@ -168,13 +158,9 @@
 
   /* --- Строка-предложение --- */
   if (fresh > 0) {
-    /* Кандидат — первый активный объект за пределами списка: так же делит мир и
-       экран конкурентов (competitors-app.js): до n отслеживаются, дальше подборка
-       и архив. */
-    var suggest = null;
-    for (var k = n; k < ALL_COMPETITORS.length; k++) {
-      if (!ALL_COMPETITORS[k].removed) { suggest = ALL_COMPETITORS[k]; break; }
-    }
+    /* Кандидатов выбрал общий модуль — те же объекты помечены «Новый конкурент»
+       в подборке. Показываем первого, счётчик в бейдже говорит, сколько их всего. */
+    var suggest = marks.freshIds.length ? ALL_COMPETITORS[marks.freshIds[0]] : null;
     if (suggest) {
       var suggestRow = document.getElementById('suggest-row');
       document.getElementById('suggest-badge').textContent = pluralNew(fresh);

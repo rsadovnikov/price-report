@@ -8,6 +8,8 @@
  *   CompetitorCardApp.render(c, {
  *     idx:      3,                       // индекс в ALL_COMPETITORS — уезжает в data-idx
  *     archived: false,                   // снят с публикации: статус вместо цены-«было»
+ *     flag:     'Новый конкурент',       // бейдж над заголовком: что с объявлением
+ *     priceFlag: 'Цена изменилась',      // бейдж над строкой цены: что с ценой
  *     head:     '<button …>',            // правый верхний слот (корзина)
  *     tail:     '<div …>',               // слот внутри содержимого, зазор 12
  *     footer:   '<button …>'             // слот под содержимым, зазор 16
@@ -27,7 +29,8 @@ var CompetitorCardApp = (function () {
   var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
                 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
-  var ICONS = '../_design-system/assets/icons/';
+  var DS = '../_design-system/';
+  var ICONS = DS + 'assets/icons/';
 
   /* Иконка ветки метро: геометрия из экспорта Figma, цвет — из данных через
      currentColor (в самом экспорте он запечён зелёным). */
@@ -53,6 +56,14 @@ var CompetitorCardApp = (function () {
     return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
   }
 
+  /* Короткая дата, без года — так подписаны строки истории цены (64:39198).
+     Год там не нужен: все записи внутри срока размещения одного объявления. */
+  function shortDate(days) {
+    var d = new Date();
+    d.setDate(d.getDate() - days);
+    return d.getDate() + ' ' + MONTHS[d.getMonth()];
+  }
+
   /* Дата снятия с публикации: считается от той же точки, что и дата подачи.
      Формат «7.02» — из макета. В вебовом отчёте он длиннее («7.02.26»): там
      объект может провисеть больше года, а на карточке приложения год не помещается. */
@@ -74,6 +85,19 @@ var CompetitorCardApp = (function () {
       + ' style="--badge-app-accent: var(--text-primary-default);'
       + ' --badge-app-soft: var(--accent-ghost-secondary)">'
       + '<span class="badge-app__text">' + esc(text) + '</span></span>';
+  }
+
+  /* --- Флаги апдейтов ------------------------------------------------------
+     Два слота, и это не дублирование: верхний (макет 881:146541) говорит, что
+     случилось с ОБЪЯВЛЕНИЕМ — «Новый конкурент», «Сняли с публикации 7.08», —
+     и потому стоит над заголовком; нижний (881:146648) говорит, что случилось
+     с ЦЕНОЙ, и стоит прямо над строкой цены. Оба — Badge warning × secondary,
+     тот же, что несут строки на обзоре конкурентов. */
+  function flag(text) {
+    if (!text) return '';
+    return '<span class="badge-app badge-app--warning badge-app--secondary'
+      + ' competitor-card-app__flag"><span class="badge-app__text">'
+      + esc(text) + '</span></span>';
   }
 
   /* В данных ремонт лежит прилагательным («Дизайнерский»), и слепое «+ ремонт»
@@ -111,9 +135,63 @@ var CompetitorCardApp = (function () {
         + '<span class="price-row-app__arrow" aria-hidden="true">→</span>'
         + current
       + '</span>'
-      + '<img class="price-row-app__icon" src="' + ICONS + (isUp ? 'price-up-36.svg' : 'price-down-36.svg')
-        + '" alt="' + (isUp ? 'Цена выросла' : 'Цена снизилась') + '">'
+      /* Иконка динамики — кнопка: по ней открывается история изменений цены
+         (макет 64:39050). Была `<img>`, стала `<button>` с тем же экспортом
+         внутри — сама картинка не изменилась, изменилась её роль. */
+      + '<button class="price-row-app__icon" type="button" data-action="price-history"'
+        + ' aria-label="' + (isUp ? 'Цена выросла' : 'Цена снизилась') + '. История цены">'
+        + '<img src="' + ICONS + (isUp ? 'price-up-36.svg' : 'price-down-36.svg') + '" alt="">'
+      + '</button>'
       + '</div>';
+  }
+
+  /* --- История цены ---------------------------------------------------------
+     Шторка со списком изменений (макет 64:39050, шторка 64:39194). Открывается
+     кнопкой динамики на карточке; вызывают её экраны — здесь только то, что
+     показать, потому что данные и даты карточка уже умеет считать.
+
+     Даты берутся так же, как срок размещения: `dayOffset` — это сколько дней
+     прошло от подачи объявления, значит запись случилась `days − dayOffset`
+     дней назад. Запись без `delta` — первая цена, она и есть «Публикация».
+
+     Порядок в данных уже от новой к старой, как нарисовано; не пересортировываем. */
+  var ARROW = '<svg viewBox="0 0 12.162 12.9857" aria-hidden="true"><path fill-rule="evenodd" '
+    + 'clip-rule="evenodd" d="M8.6978 5.4247V1.30839C8.6978 0.585787 8.11201 0 7.38941 '
+    + '0H4.77263C4.05002 0 3.46424 0.585786 3.46424 1.30839V5.4247H1.311C0.156626 5.4247 '
+    + '-0.43211 6.81076 0.369388 7.64153L5.13941 12.5858C5.65389 13.119 6.50815 13.119 7.02263 '
+    + '12.5858L11.7926 7.64153C12.5941 6.81076 12.0054 5.4247 10.851 5.4247H8.6978Z"/></svg>';
+
+  function historyRow(c, h) {
+    /* Знак несёт стрелка, а не число: «↓ 450 000 ₽», а не «↓ −450 000 ₽».
+       То же правило в вебовом тултипе истории (report.js, buildContentFromHistory). */
+    var amount = String(h.delta || '').replace(/[−+-]/g, '').trim();
+    var second = '';
+    if (!h.delta) {
+      second = '<span class="price-history-app__note">Публикация</span>';
+    } else {
+      second = '<span class="price-history-app__delta price-history-app__delta--'
+        + (h.isUp ? 'up' : 'down') + '">' + ARROW
+        + '<span>' + esc(amount) + ' ₽</span></span>';
+    }
+    return '<div class="price-history-app__row">'
+      + '<div class="price-history-app__line">'
+        + '<span class="price-history-app__date">' + esc(shortDate(c.days - h.dayOffset)) + '</span>'
+        + '<span class="price-history-app__sum">' + esc(h.price) + ' ₽</span>'
+      + '</div>'
+      + '<div class="price-history-app__line">' + second + '</div>'
+      + '</div>';
+  }
+
+  function openPriceHistory(c) {
+    if (!c || !c.priceHistory || !c.priceHistory.length) return null;
+    return openSheet({
+      base: DS,
+      ariaLabel: 'История цены',
+      title: 'История цены',
+      content: '<div class="price-history-app">'
+        + c.priceHistory.map(function (h) { return historyRow(c, h); }).join('')
+        + '</div>'
+    });
   }
 
   function statsBlock(c, archived) {
@@ -161,6 +239,7 @@ var CompetitorCardApp = (function () {
           + '<div class="competitor-card-app__main">'
             + '<div class="competitor-card-app__head">'
               + '<div class="competitor-card-app__titles">'
+                + flag(opts.flag)
                 + '<p class="competitor-card-app__title">' + esc(c.desc) + '</p>'
                 + '<div class="competitor-card-app__geo">'
                   + '<div class="competitor-card-app__metro-row">'
@@ -184,7 +263,7 @@ var CompetitorCardApp = (function () {
                 + chips.map(function (t) { return badge(t); }).join('') + '</div>' : '')
           + '</div>'
           + '<div class="competitor-card-app__figures">'
-            + priceBlock(c, archived) + statsBlock(c, archived)
+            + flag(opts.priceFlag) + priceBlock(c, archived) + statsBlock(c, archived)
           + '</div>'
           + (opts.tail || '')
         + '</div>'
@@ -200,6 +279,8 @@ var CompetitorCardApp = (function () {
     icons: ICONS,
     pluralDays: pluralDays,
     dateFromDays: dateFromDays,
-    removedDate: removedDate
+    shortDate: shortDate,
+    removedDate: removedDate,
+    openPriceHistory: openPriceHistory
   };
 })();

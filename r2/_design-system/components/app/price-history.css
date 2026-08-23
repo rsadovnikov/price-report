@@ -1,0 +1,139 @@
+/* === ИСТОРИЯ ЦЕНЫ, ПОВЕРХНОСТЬ ПРИЛОЖЕНИЯ (iOS) ===
+ *
+ * Макет: экран 64:39050, шторка `bottom-sheet` 64:39194. Строка — компонент
+ * `price_section` (390 × 74). Открывается кнопкой динамики цены на карточке
+ * конкурента; разметку строит competitor-card-app.js.
+ *
+ * Устройство строки: дата слева — цена справа, под ними вторая строка —
+ * «Публикация» слева ИЛИ величина изменения справа. Обе необязательны: у
+ * последней записи нет изменения (это первая цена), у остальных нет пометки.
+ *
+ * Поля 20 по бокам даёт шторка (`.sheet-app__content`), поэтому у строк их нет,
+ * а разделитель идёт во всю их ширину — ровно как в макете, где он отбит на 20
+ * с обеих сторон.
+ *
+ * --- Три расхождения с макетом, все осознанные ---
+ *
+ * 1. **Высота строки 69, а не 74.** В `price_section` дата и цена набраны 16/22,
+ *    а изменение 14/20 — таких ролей в шкале приложения нет (Body1 и Heading4 —
+ *    16/20, Body2 — 14/17). Компонент старый, из той же легаси-библиотеки, что
+ *    `❌ Button | Depricated`: интерлиньяж там выставлен руками. Берём роли, как
+ *    везде, отступы оставляем макетные (12 сверху, 16 снизу, зазор 4) — разница
+ *    набегает только на интерлиньяже.
+ *    ⚠️ В списке стилей узла при этом значится **`Description (14)` = 14/20/−0.24** —
+ *    то есть у библиотеки есть именованный стиль, которого нет в нашей таблице
+ *    ролей. Стоит проверить, не дырка ли это у нас.
+ *
+ * 2. **Разделитель — `--stroke-divider-default`.** В макете он `#e8e9ec` из
+ *    легаси-набора «black_solid/black_10_solid»; в палитре ЦИАН такого цвета нет
+ *    вовсе (ΔE2000 до ближайшего `--solid-gray60` = 4.9, до нашего разделителя
+ *    #d0d8e9 = 7.3). Берём роль, а не подбираем цвет.
+ *
+ * 3. **У последней строки разделителя нет.** В макете он стоит у всех четырёх,
+ *    включая нижнюю, и повисает перед home-индикатором — тот же след копирования,
+ *    что был в шторке действий (563:72835), там мы его тоже убрали.
+ */
+
+.price-history-app {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-history-app__row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit1);
+  padding: var(--unit3) 0 var(--unit4);
+}
+/* Разделитель — отдельная линия, а не `border-bottom`: движок округляет ширину
+   рамки до целого пикселя устройства и 0.5 превращается в 1, отчего строка ещё и
+   вырастает. В макете это и есть отдельный слой `separator` поверх нижнего края. */
+.price-history-app__row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background: var(--stroke-divider-default);
+}
+.price-history-app__row:last-child::after { content: none; }
+
+.price-history-app__line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--unit2);
+}
+
+/* Дата — Body1 основным цветом */
+.price-history-app__date {
+  font-size: var(--type-body1-size);
+  line-height: var(--type-body1-lh);
+  letter-spacing: var(--type-body1-ls);
+  font-weight: var(--type-body1-weight);
+  color: var(--text-primary-default);
+}
+
+/* Цена — Heading4, прижата вправо */
+.price-history-app__sum {
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-lh);
+  letter-spacing: var(--type-h4-ls);
+  font-weight: var(--type-h4-weight);
+  color: var(--text-primary-default);
+}
+
+/* «Публикация» — пометка под датой у самой первой цены */
+.price-history-app__note {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+  color: var(--text-secondary-default);
+}
+
+/* Величина изменения: стрелка + сумма, всегда справа под ценой.
+   `margin-left: auto` — потому что слева соседа может и не быть: пометка
+   «Публикация» и изменение в одной строке никогда не встречаются. */
+.price-history-app__delta {
+  display: flex;
+  align-items: center;
+  gap: var(--unit1);
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+  font-weight: var(--type-body2-weight);
+}
+/* ⚠️ Цвет взят таким, как связан в макете: роль `control/…/primary/default`, а не
+   `text/…/default`. Это текст, покрашенный ролью контрола, — странно, но так стоит
+   в самом файле, и цвета там заметно ярче текстовых (#34ac0a против #227e01,
+   #db1f36 против #c2122d). Подменять связанную переменную «более правильной»
+   значит спорить с макетом молча.
+
+   ⚠️ Звёздочку в путях токенов здесь писать НЕЛЬЗЯ. «control/» со звёздочкой и
+   следующий слэш складываются в закрывающую пару и обрывают комментарий посреди
+   фразы; всё, что дальше, движок разбирает как CSS, спотыкается и выбрасывает
+   следующие правила — то есть ровно эти две строки с цветом. Симптом обманчивый:
+   класс на элементе, токен в палитре, а текст красится наследованным основным.
+   Поэтому здесь многоточие. Поймано дважды: сначала в самом правиле, потом в
+   этом же предупреждении о нём. */
+.price-history-app__delta--down { color: var(--control-positive-primary-default); }
+.price-history-app__delta--up   { color: var(--control-negative-primary-default); }
+
+/* Стрелка — один путь и одна заливка, поэтому инлайновый svg с currentColor,
+   а не два экспорта: цвет обязан следовать за цветом суммы. Вверх — тот же
+   глиф, повёрнутый на 180°, как он и собран в макете. */
+.price-history-app__delta svg {
+  display: block;
+  flex: none;
+  width: 12.162px;
+  height: 12.986px;
+  fill: currentColor;
+}
+.price-history-app__delta--up svg { transform: rotate(180deg); }

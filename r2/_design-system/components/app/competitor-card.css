@@ -196,6 +196,18 @@ button.competitor-card-app__comment:active { opacity: 0.6; }
   gap: var(--unit1);
 }
 
+/* --- Флаг апдейта ---
+ * Бейдж «Новый конкурент» / «Сняли с публикации 7.08» над заголовком (881:146541)
+ * и «Цена изменилась» над строкой цены (881:146648).
+ *
+ * `align-self` — потому что колонка тянет детей на всю ширину, а пилюля обязана
+ * быть по содержимому. Нижний отступ 4 добирает зазор до заголовка до 8: у колонки
+ * заголовков он 4 (заголовок → гео), а в макете от флага до заголовка 8. Заводить
+ * ради этого ещё один уровень вложенности, как в макете, дороже одного правила.
+ * В блоке цифр добирать нечего — там зазор уже 8. */
+.competitor-card-app__flag { align-self: flex-start; }
+.competitor-card-app__titles > .competitor-card-app__flag { margin-bottom: var(--unit1); }
+
 /* --- Цифры: цена и статистика --- */
 .competitor-card-app__figures {
   display: flex;
@@ -245,8 +257,28 @@ button.competitor-card-app__comment:active { opacity: 0.6; }
   line-height: 20px;                  /* в макете у стрелки свой интерлиньяж */
   color: var(--text-secondary-default);
 }
-/* Иконка динамики: 36×36, экспорт из макета — фон, столбики и стрелка в одном файле */
-.price-row-app__icon { display: block; flex: none; width: 36px; height: 36px; }
+/* Иконка динамики: 36×36, экспорт из макета — фон, столбики и стрелка в одном файле.
+   С 2026-08-23 это кнопка: по ней открывается история изменений цены (64:39050). */
+.price-row-app__icon {
+  display: block;
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.price-row-app__icon img { display: block; width: 36px; height: 36px; }
+.price-row-app__icon:active { opacity: 0.6; }
+/* Тач-зона до 44: сама иконка 36, и это её размер из макета — добираем
+   псевдоэлементом, как у кнопок size=small, а не растягиванием картинки. */
+.price-row-app__icon::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
 
 /* Статистика: срок размещения и просмотры */
 .stats-row-app {

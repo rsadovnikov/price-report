@@ -163,6 +163,11 @@
     if (!card) return;
     var idx = parseInt(card.getAttribute('data-idx'), 10);
     if (e.target.closest('[data-action="comment"]')) openComment(idx);
+    /* Та же кнопка динамики цены, что и на «Конкурентах объекта», и та же шторка:
+       карточка одна на два экрана, историю ей незачем расходиться. */
+    if (e.target.closest('[data-action="price-history"]')) {
+      CompetitorCardApp.openPriceHistory(ALL_COMPETITORS[idx]);
+    }
   });
 
   /* Объект и число конкурентов едут дальше по ссылкам — иначе возврат в настройку

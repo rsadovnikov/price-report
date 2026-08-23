@@ -12,25 +12,25 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230929">
   <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
        на этом экране их раньше не было, все действия шли entry-point'ами. -->
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608230015">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230015">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230929">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608230015"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608230929"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -296,11 +296,13 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202608230015"></script>
-<script src="../_design-system/components/app/onboarding.js?v=202608230015"></script>
-<script src="competitors-data.js?v=202608230015"></script>
-<script src="report-app.js?v=202608230015"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608230929"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202608230929"></script>
+<script src="competitors-data.js?v=202608230929"></script>
+<!-- Раскладка апдейтов — общая с экраном конкурентов -->
+<script src="updates-app.js?v=202608230929"></script>
+<script src="report-app.js?v=202608230929"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608230015"></script>
+<script src="dev-reset.js?v=202608230929"></script>
 </body>
 </html>
