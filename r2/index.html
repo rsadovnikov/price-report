@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мои объявления — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/base.css?v=202608231235">
-  <link rel="stylesheet" href="_design-system/web.css?v=202608231235">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/base.css?v=202608231850">
+  <link rel="stylesheet" href="_design-system/web.css?v=202608231850">
   <style>
     /* === MAIN CONTENT === */
     .main-content {
@@ -449,110 +449,50 @@
   </main>
 </div>
 
-<script src="_design-system/components/header.js?v=202608231235"></script>
-<script src="_design-system/components/sidebar.js?v=202608231235"></script>
-<script src="_design-system/components/drawer.js?v=202608231235"></script>
-<script src="_design-system/components/gallery-modal.js?v=202608231235"></script>
-<script src="_design-system/components/toast.js?v=202608231235"></script>
+<script src="_design-system/components/header.js?v=202608231850"></script>
+<script src="_design-system/components/sidebar.js?v=202608231850"></script>
+<script src="_design-system/components/drawer.js?v=202608231850"></script>
+<script src="_design-system/components/gallery-modal.js?v=202608231850"></script>
+<script src="_design-system/components/toast.js?v=202608231850"></script>
+<!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
+     что показано снятым) — в mock-scenario.js, форма записи — в mock-connect.js. -->
+<script src="_mock-data/mock.js?v=202608231850"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202608231850"></script>
+<script src="mock-scenario.js?v=202608231850"></script>
+<script src="mock-connect.js?v=202608231850"></script>
 <script>
 renderHeader('_design-system/');
 renderSidebar({ active: 'Мои объявления' });
 
-const LISTINGS = [
-  {
-    photo: 'photos/mo/mo1-1.jpg',
-    photos: ['photos/mo/mo1-1.jpg', 'photos/mo/mo1-2.jpg', 'photos/mo/mo1-3.jpg', 'photos/mo/mo1-4.jpg', 'photos/mo/mo1-5.jpg'],
-    desc: '1-комн. кв., 37,5 м², 10/22 этаж',
-    metroColor: 'green',
-    metro: 'Аэропорт',
-    walkMin: 13,
-    zhk: 'Черняховского 19',
-    address: 'Москва, САО, р-н Аэропорт, ул. Черняховского, 19',
-    price: '23 700 000',
-    startPrice: '24 500 000',
-    startPricePerM: '653 333',
-    priceHistory: [{ dayOffset: 13, price: '23 700 000', delta: '−800 000', isUp: false }, { dayOffset: 0, price: '24 500 000' }],
-    pricePerM: '632 000',
-    views: 383, viewsDelta: '+41',
-    calls: 31, callsDelta: '+11',
-    msgs: 4, msgsDelta: '+2',
-    favs: 23, favsDelta: '',
-    position: 21, positionLabel: '21 позиция по району',
-    rate: 'Ставка 245 ₽',
-    dateTime: 'Вчера, 13:45',
-    remaining: 'осталось 14 д.',
-    competitors: 7
-  },
-  {
-    photo: 'photos/mo/mo2-1.jpg',
-    photos: ['photos/mo/mo2-1.jpg', 'photos/mo/mo2-2.jpg', 'photos/mo/mo2-3.jpg', 'photos/mo/mo2-4.jpg', 'photos/mo/mo2-5.jpg'],
-    desc: '1-комн. апарт., 37,15 м², 9/12 этаж',
-    metroColor: 'green',
-    metro: 'Маяковская',
-    walkMin: 5,
-    zhk: 'Резиденция Тверская',
-    address: 'Москва, ЦАО, р-н Тверской, 2-я Брестская ул., 6',
-    price: '21 600 000',
-    startPrice: '22 300 000',
-    startPricePerM: '600 269',
-    priceHistory: [{ dayOffset: 21, price: '21 600 000', delta: '−700 000', isUp: false }, { dayOffset: 0, price: '22 300 000' }],
-    pricePerM: '581 427',
-    views: 306, viewsDelta: '+31',
-    calls: 31, callsDelta: '+11',
-    msgs: 4, msgsDelta: '+2',
-    favs: 23, favsDelta: '+1',
-    position: 15, positionLabel: '15 позиция по району',
-    rate: 'Ставка 140 ₽',
-    dateTime: 'Вчера, 12:27',
-    remaining: 'осталось 20 д.',
-    competitors: 11
-  },
-  {
-    photo: 'photos/mo/mo3-1.jpg',
-    photos: ['photos/mo/mo3-1.jpg', 'photos/mo/mo3-2.jpg', 'photos/mo/mo3-3.jpg', 'photos/mo/mo3-4.jpg', 'photos/mo/mo3-5.jpg'],
-    desc: '1-комн. кв., 34 м², 11/16 этаж',
-    metroColor: 'green',
-    metro: 'Белорусская',
-    walkMin: 11,
-    zhk: '',
-    address: 'Москва, ЦАО, р-н Пресненский, ул. Малая Грузинская, 41',
-    price: '17 700 000',
-    pricePerM: '520 588',
-    views: 386, viewsDelta: '+115',
-    calls: 31, callsDelta: '+11',
-    msgs: 4, msgsDelta: '+2',
-    favs: 23, favsDelta: '',
-    position: 18, positionLabel: '18 позиция по району',
-    rate: 'Ставка 195 ₽',
-    dateTime: 'Вчера, 09:52',
-    remaining: 'осталось 3 д.',
-    competitors: 5
-  },
-  {
-    photo: 'photos/mo/mo4-1.jpg',
-    photos: ['photos/mo/mo4-1.jpg', 'photos/mo/mo4-2.jpg', 'photos/mo/mo4-3.jpg', 'photos/mo/mo4-4.jpg', 'photos/mo/mo4-5.jpg'],
-    desc: '1-комн. кв., 36,7 м², 7/9 этаж',
-    metroColor: 'green',
-    metro: 'Аэропорт',
-    walkMin: 16,
-    zhk: '',
-    address: 'Москва, САО, р-н Аэропорт, ул. 8 Марта, 9',
-    price: '16 100 000',
-    startPrice: '17 000 000',
-    startPricePerM: '463 215',
-    priceHistory: [{ dayOffset: 9, price: '16 100 000', delta: '−900 000', isUp: false }, { dayOffset: 0, price: '17 000 000' }],
-    pricePerM: '438 692',
-    views: 2079, viewsDelta: '+209',
-    calls: 31, callsDelta: '+11',
-    msgs: 4, msgsDelta: '+2',
-    favs: 12, favsDelta: '+4',
-    position: 6, positionLabel: '6 позиция по району',
-    rate: 'Ставка 230 ₽',
-    dateTime: 'Вчера, 16:33',
-    remaining: 'осталось 28 д.',
-    competitors: 9
-  }
+/* Объявления агента.
+ *
+ * Факты объявления — из общей базы (`Mock.base(i)` через `myListing`): описание,
+ * цена, история, метро, адрес, фотографии. Здесь их нет и быть не должно —
+ * захардкоженное число пережило бы обновление базы и разошлось бы с ней молча.
+ *
+ * Здесь остаётся СТАТИСТИКА КАБИНЕТА: звонки, сообщения, избранное, позиция в
+ * выдаче, ставка продвижения, срок размещения. В публичной выдаче ЦИАНа этого
+ * нет — значит и в зеркале быть не может. Это данные экрана, и живут они у него.
+ *
+ * Порядок соответствует `MOCK_SCENARIO.base`: первым идёт двушка у Аэропорта,
+ * вторым — апартаменты у Маяковской.
+ */
+const CABINET = [
+  { viewsDelta: '+41',  calls: 31, callsDelta: '+11', msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '',   position: 21, positionLabel: '21 позиция по району',
+    rate: 'Ставка 245 ₽', dateTime: 'Вчера, 13:45', remaining: 'осталось 14 д.', competitors: 7 },
+  { viewsDelta: '+31',  calls: 31, callsDelta: '+11', msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '+1', position: 15, positionLabel: '15 позиция по району',
+    rate: 'Ставка 140 ₽', dateTime: 'Вчера, 12:27', remaining: 'осталось 20 д.', competitors: 11 },
+  { viewsDelta: '+115', calls: 31, callsDelta: '+11', msgs: 4, msgsDelta: '+2',
+    favs: 23, favsDelta: '',   position: 18, positionLabel: '18 позиция по району',
+    rate: 'Ставка 195 ₽', dateTime: 'Вчера, 09:52', remaining: 'осталось 3 д.',  competitors: 5 },
+  { viewsDelta: '+209', calls: 31, callsDelta: '+11', msgs: 4, msgsDelta: '+2',
+    favs: 12, favsDelta: '+4', position: 6,  positionLabel: '6 позиция по району',
+    rate: 'Ставка 230 ₽', dateTime: 'Вчера, 16:33', remaining: 'осталось 28 д.', competitors: 9 },
 ];
+
+const LISTINGS = CABINET.map((c, i) => myListing(i, c)).filter(Boolean);
 
 // Плюрализация RU: (n, ['обновление','обновления','обновлений']).
 function plural(n, forms) {
@@ -602,7 +542,10 @@ function renderListings() {
     // узнаем тогда → n не передаём, report.js подберёт 4–7 сам).
     // pset/pn — набор фото этого объявления: в отчёте галерея «Моего объекта» должна
     // показывать те же кадры, что и карточка здесь, а не добор из общего пула.
-    const psetId = (item.photos[0].match(/\/(mo\d+)-\d+\.jpg$/) || [])[1] || '';
+    // Набор кадров объекта отчёт достаёт по id объявления из общей базы. Раньше
+    // здесь из пути к файлу выковыривалось имя набора («mo2») — путь и был
+    // идентификатором. Теперь идентификатор настоящий, а путь считает Mock.
+    const psetId = item.id;
     const q = new URLSearchParams(Object.assign(
       { desc: item.desc, photo: item.photo, metro: item.metro, metroColor: item.metroColor,
         walk: item.walkMin, zhk: item.zhk, addr: item.address, price: item.price, perM: item.pricePerM,
@@ -629,7 +572,7 @@ function renderListings() {
         <div class="listing-desc">
           <div class="listing-desc-title">${item.desc}</div>
           <div class="listing-desc-metro">
-            <svg class="metro-icon metro-${item.metroColor}" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg>
+            <svg class="metro-icon" style="color:${item.metroColor}" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg>
             ${item.metro}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.86694 4.4748C9.83344 4.4748 10.6169 3.69628 10.6169 2.73594C10.6169 1.77559 9.83344 0.99707 8.86694 0.99707C7.90044 0.99707 7.11694 1.77559 7.11694 2.73594C7.11694 3.51365 7.63078 4.17212 8.33952 4.39444L3.94052 5.68301L2.80273 8.65315L4.67039 9.3686L5.4537 7.3238L6.5739 6.99567L3.64505 15.0034H5.77463L5.8693 14.7446L5.85254 14.7384L8.4092 7.80108L8.66739 7.09434L9.85934 8.0034H13.1972V6.0034H10.535L8.47254 4.43046C8.5993 4.45947 8.73132 4.4748 8.86694 4.4748Z" fill="#7683A0"/><path d="M11.1973 15.0034H9.19734V11.4176L8.42628 10.6466L9.18795 8.57983L11.1973 10.5892V15.0034Z" fill="#7683A0"/></svg>
             ${item.walkMin} мин
@@ -644,7 +587,7 @@ function renderListings() {
         <div class="listing-stats">
           <div class="stat-row">
             <svg aria-label="Просмотры" width="16" height="16" viewBox="0 0 16 16" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 8C0 8 3 2 8 2C13 2 16 8 16 8C16 8 13 14 8 14C3 14 0 8 0 8ZM8 11C9.65685 11 11 9.65685 11 8C11 6.34315 9.65685 5 8 5C6.34315 5 5 6.34315 5 8C5 9.65685 6.34315 11 8 11Z" fill="#7683A0"/></svg>
-            ${item.views} <span class="stat-delta">${item.viewsDelta}</span>
+            ${item.viewsTotal} <span class="stat-delta">${item.viewsDelta}</span>
           </div>
           <div class="stat-row">
             <svg aria-label="Звонки" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9.02028 11.8655L4.13447 6.97972C4.83219 6.28201 5.5299 5.58429 6.22762 4.88657C6.6134 4.50079 6.61304 3.87523 6.22709 3.48963C5.06348 2.32709 3.90175 1.16322 2.73853 0L0.283622 2.4549C0.0990174 2.63951 -0.00656964 2.8899 0.000317234 3.15088C0.0929357 6.66068 1.4741 9.90432 3.78543 12.2146C6.10093 14.529 9.34962 15.907 12.8491 15.9997C13.1101 16.0066 13.3605 15.901 13.5451 15.7164L16 13.2615C14.8369 12.0984 13.6738 10.9352 12.5107 9.77212C12.125 9.38644 11.4996 9.38668 11.114 9.77241C10.4162 10.4703 9.71812 11.1677 9.02028 11.8655Z" fill="#707A95"/></svg>

@@ -46,22 +46,21 @@
       var d = ALL_COMPETITORS[idx];
       return (d && d.photos && d.photos.length) ? d.photos : [coverPhoto(idx)];
     }
-    // Набор объекта пользователя приходит из «Моих объявлений» (?pset=moN&pn=5) —
-    // у объявления там свой набор, не пересекающийся с конкурентами.
+    // Набор объекта пользователя приходит из «Моих объявлений» (?pset=<id объявления>).
+    // Раньше в `pset` ехало имя папки с кадрами («mo2»), и путь к файлу был
+    // идентификатором объявления. Теперь едет настоящий id, а где лежат байты —
+    // знает Mock: у него же спрашивают путь и все остальные экраны.
     function mainObjectPhotos() {
-      var pset = REPORT_PARAMS.get('pset');
-      var pn = parseInt(REPORT_PARAMS.get('pn'), 10);
-      if (pset && /^mo\d+$/.test(pset) && pn > 0) {
-        var arr = [];
-        for (var k = 1; k <= pn; k++) arr.push('photos/mo/' + pset + '-' + k + '.jpg');
-        return arr;
+      var pset = parseInt(REPORT_PARAMS.get('pset'), 10);
+      if (pset) {
+        var own = MY_LISTINGS.filter(function (b) { return b.id === pset; })[0];
+        if (own && own.photos.length) return own.photos;
       }
-      // Открыли отчёт напрямую, без сниппета — показываем обложку дефолтного объекта
-      var main = document.getElementById('mainPhoto');
-      return [(main && main.getAttribute('src')) || 'photos/mo/mo1-1.jpg'];
+      // Открыли отчёт напрямую, без сниппета — показываем первый объект агента
+      return (MY_LISTINGS[0] && MY_LISTINGS[0].photos) || ['https://placehold.co/80x80'];
     }
 
-    // ALL_COMPETITORS загружается из competitors-data.js
+    // ALL_COMPETITORS и MY_LISTINGS приходят из mock-connect.js
 
     // === ПАРАМЕТРЫ И СЛУЧАЙНОСТЬ ===
     var REPORT_PARAMS = new URLSearchParams(location.search);
@@ -215,7 +214,11 @@
       function add(i) { if (picked.length < AUTO_TRACK_COUNT && picked.indexOf(i) < 0) picked.push(i); }
       // Только активные: архивные (removedIds) по умолчанию в отслеживаемые НЕ попадают.
       // Если активных меньше N — отслеживаем сколько есть (архивными не добиваем).
-      ALL_COMPETITORS.forEach(function(d, i) { if (d.initialChecked && !removedIds.has(i)) add(i); }); // явно отмеченные активные
+      /* Раньше здесь первыми добавлялись «явно отмеченные» — объекты с
+         `initialChecked` в данных. Поле уехало вместе с переездом на общую базу:
+         кого показать отмеченным — сценарий показа, а не свойство объявления.
+         Терять было нечего, `initialChecked` стоял `false` у всех 70 записей и не
+         выбирал ни одного объекта ни разу. */
 
       // Берём из ближнего круга: сортируем активных по похожести и случайно тасуем
       // пул вдвое шире нужного. Так конкуренты сопоставимы с объектом, но состав всё
@@ -358,12 +361,19 @@
     // === Проброс базового объекта из сниппета «Мои объявления» ===
     // Шапка и Table A показывают тот объект, по которому кликнули. Дизайн не меняется — только содержимое.
     (function propBaseObject() {
-      if (!REPORT_PARAMS.get('desc')) return; // открыт напрямую — оставляем дефолтный объект
       var p = REPORT_PARAMS;
-      var desc = p.get('desc'), photo = p.get('photo'), metro = p.get('metro') || '';
-      var color = p.get('metroColor') || 'green', walk = p.get('walk') || '';
-      var addr = p.get('addr') || '', zhk = p.get('zhk') || '';
-      var price = p.get('price') || '', perM = p.get('perM') || '';
+      /* Открыли напрямую, без сниппета — берём первый объект агента из общей базы.
+         Раньше в этом случае блок просто не запускался, и на экране оставался
+         объект, захардкоженный в разметке. Он не менялся вместе с базой, то есть
+         рано или поздно начал бы спорить с «Моими объявлениями» — и молча. */
+      var my = (typeof MY_LISTINGS !== 'undefined' && MY_LISTINGS[0]) || {};
+      var desc = p.get('desc') || my.desc || '';
+      var photo = p.get('photo') || (my.photos && my.photos[0]) || '';
+      var metro = p.get('metro') || my.metroStation || '';
+      var color = p.get('metroColor') || my.metroColor || '';
+      var walk = p.get('walk') || my.walkMin || '';
+      var addr = p.get('addr') || my.address || '', zhk = p.get('zhk') || my.zhk || '';
+      var price = p.get('price') || my.currentPrice || '', perM = p.get('perM') || my.currentPricePerM || '';
       var addrLine = (zhk ? 'ЖК «' + zhk + '», ' : '') + addr;
       function setText(sel, val) { var el = document.querySelector(sel); if (el && val != null) el.textContent = val; }
 
@@ -379,7 +389,10 @@
         var svgs = el.querySelectorAll('svg');
         var metroIcon = svgs[0] ? svgs[0].cloneNode(true) : null;
         var walkIcon = svgs[1] ? svgs[1].cloneNode(true) : null;
-        if (metroIcon) metroIcon.setAttribute('class', 'metro-icon metro-' + color);
+        if (metroIcon) {
+          metroIcon.setAttribute('class', 'metro-icon');
+          metroIcon.style.color = color;   // настоящий цвет линии, а не одно из пяти наших имён
+        }
         el.innerHTML = '';
         if (metroIcon) el.appendChild(metroIcon);
         el.appendChild(document.createTextNode(' ' + metro + ' '));
@@ -400,9 +413,11 @@
       // параметрами: без них колонка «Стартовая цена» повторяла текущую, а падение цены
       // не показывалось вовсе — дельта и иконка динамики прятались за неимением данных.
       if (price) {
-        var startPrice = p.get('startPrice'), startPerM = p.get('startPerM');
+        var startPrice = p.get('startPrice') || my.startPrice;
+        var startPerM = p.get('startPerM') || my.startPricePerM;
         var histRaw = p.get('hist'), hist = null;
         try { hist = histRaw ? JSON.parse(histRaw) : null; } catch (_) { hist = null; }
+        if (!hist) hist = my.priceHistory || null;
 
         setText('#tableA .col-start-price .price-main', (startPrice || price) + ' ₽');
         setText('#tableA .col-start-price .price-per-m', (startPerM || perM) + ' ₽/м²');
@@ -537,7 +552,7 @@
         + '<td class="sticky-photo col-photo">' + photoThumbHtml(coverPhoto(idx)) + '</td>'
         + '<td class="col-desc desc-cell">'
         +   '<div class="desc-title' + (removedIds.has(idx) ? ' removed' : '') + '">' + d.desc + '</div>'
-        +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
+        +   '<div class="desc-metro"><svg class="metro-icon" style="color:' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + ' мин</div>'
         +   (d.zhk ? '<div class="desc-zhk">ЖК \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
         +   updateBadge
         + '</td>'
@@ -714,7 +729,7 @@
           + '<td class="occ-photo">' + photoThumbHtml(coverPhoto(idx)) + '</td>'
           + '<td class="occ-desc desc-cell">'
           +   '<div class="' + titleClass + '">' + d.desc + '</div>'
-          +   '<div class="desc-metro"><svg class="metro-icon metro-' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + '\u00a0\u043c\u0438\u043d</div>'
+          +   '<div class="desc-metro"><svg class="metro-icon" style="color:' + d.metroColor + '" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroInDesc + ' ' + BUS_ICON + ' ' + d.walkMin + '\u00a0\u043c\u0438\u043d</div>'
           +   (d.zhk ? '<div class="desc-zhk">\u0416\u041a \u00ab' + d.zhk + '\u00bb, ' + d.address + '</div>' : '<div class="desc-zhk">' + d.address + '</div>')
           +   badgeHtml
           +   commentHtml

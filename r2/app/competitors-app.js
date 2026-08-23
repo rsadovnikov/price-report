@@ -49,10 +49,11 @@
      в данных нет расстояния до объекта, и выдумывать его ради фильтра нельзя. */
   var DS = '../_design-system/';
 
-  /* Значения в макете и в данных местами разные. Сопоставление держим здесь —
-     данные не переписываем, они сняты с реальных объявлений. */
-  var REPAIR_IN_DATA = { 'Евроремонт': 'Евро' };
-  var BUILDING_IN_DATA = { 'Кирпично-монолитный': 'Монолитно-кирпичный' };
+  /* Мостиков между макетом и данными больше нет. Раньше здесь стояло
+     «Евроремонт → Евро» и «Кирпично-монолитный → Монолитно-кирпичный»: прежний
+     сборщик скрёб подписи со страницы и получал обрезки. Теперь ремонт и материал
+     приезжают из `features` — то есть словами самого ЦИАНа, теми же, что стоят
+     в макете. Сопоставлять нечего. */
 
   /* Разбор описания живёт в `preset-app.js`: та же регулярка нужна пресету, а две
      копии одной регулярки — это две копии её будущих ошибок. */
@@ -120,17 +121,13 @@
         var one = v.length === 1 && /^(Косметический|Дизайнерский)$/.test(v[0]);
         return one ? v[0] + ' ремонт' : joinPlus(v);
       },
-      match: function (c, v) {
-        return v.some(function (x) { return c.repair === (REPAIR_IN_DATA[x] || x); });
-      } },
+      match: function (c, v) { return v.indexOf(c.repair) >= 0; } },
 
     { key: 'building', label: 'Материал дома', type: 'chips', title: 'Материал дома',
       options: ['Кирпичный', 'Деревянный', 'Монолитный', 'Панельный', 'Блочный',
                 'Кирпично-монолитный', 'Сталинский'],
       chip: joinPlus,
-      match: function (c, v) {
-        return v.some(function (x) { return c.building === (BUILDING_IN_DATA[x] || x); });
-      } },
+      match: function (c, v) { return v.indexOf(c.building) >= 0; } },
 
     { key: 'year', label: 'Год постройки', type: 'range', title: 'Год постройки дома', unit: 'г',
       chip: function (v) { return rangeLabel(v, 'г'); },
@@ -441,10 +438,16 @@
      на этот экран. Переключается одной строкой. */
   var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, BASE_PRESET);
 
+  /* Пул — только сравнимое с объектом по природе: апартаменты не сопоставляют с
+     квартирами, и наоборот. Это не фильтр (сбросом не снимается), а определение
+     того, что вообще считается конкурентом. Если сравнимых нет, все три вкладки
+     честно пусты — так устроен случай «отчёт ничего не нашёл». */
   var SELECTION = [], ARCHIVE = [];
   var tracked = new Set();
+  var seen = 0;
   ALL_COMPETITORS.forEach(function (c, i) {
-    if (i < n) { tracked.add(i); return; }
+    if (!AppPreset.comparable(c, params.get('desc') || '')) return;
+    if (seen++ < n) { tracked.add(i); return; }
     (c.removed ? ARCHIVE : SELECTION).push(i);
   });
 

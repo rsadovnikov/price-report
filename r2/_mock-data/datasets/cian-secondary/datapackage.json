@@ -1,0 +1,95 @@
+{
+  "name": "cian-secondary",
+  "title": "Вторичка Москвы — объявления для прототипов",
+  "description": "Зеркало модели объявления ЦИАН: поля и значения лежат ровно так, как их отдаёт прод (defaultState.offerData). Подписи для интерфейса строит mock.js, в данных их не выдумываем.",
+  "profile": "data-package",
+  "licenses": [
+    {
+      "name": "public-listings-only",
+      "title": "Только публичная выдача классифайда",
+      "path": "https://www.cian.ru/",
+      "note": "Данные и фотографии сняты с публичных страниц объявлений ЦИАН и используются во внутренних прототипах. Никаких внутренних выгрузок, воронок, ФИО сотрудников и материалов из Confluence здесь быть не должно."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Публичная выдача ЦИАН: вторичка, 1–2 комнаты, 12–22 млн ₽",
+      "path": "https://www.cian.ru/cat.php?deal_type=sale&engine_version=2&offer_type=flat&region=1&room1=1&room2=1&object_type%5B0%5D=1&minprice=12000000&maxprice=22000000",
+      "note": "Границы выбраны разведкой 2026-08-23: без потолка медиана уезжает к 21 млн с хвостом до 62 — другой рынок и другие интерьеры. Метро вокруг базового объекта: Белорусская, Динамо, Аэропорт, Савёловская, Маяковская."
+    }
+  ],
+
+  "collection": {
+    "tool": "tools/raid.mjs",
+    "readsFrom": "window._cianConfig['frontend-offer-card'] → defaultState.offerData",
+    "shotsPerListing": 5,
+    "photoVariants": {
+      "full": "-1 fullUrl, 948×711…1280×720, 76–132 КБ — галерее",
+      "small": "-2 thumbnailUrl, 301×226, 13 КБ — строкам и стопкам превью"
+    },
+    "excluded": [
+      "апартаменты (offer.isApartments) — другая юридическая природа и другие ожидания по цене. Исключение одно и оно намеренное: 332632243 собран отдельным заходом (`collect --only-apart`), чтобы у прототипа был объект, которому не с чем сравниваться",
+      "объявления без фотографий — нечего показывать"
+    ]
+  },
+
+  "resources": [
+    {
+      "name": "listings",
+      "path": "listings.js",
+      "format": "js",
+      "description": "Массив записей. Каждая — объявление в модели ЦИАНа плюс локальные имена скачанных кадров. Все записи устроены одинаково: «моих» и «чужих» на этом уровне нет.",
+      "schema": {
+        "primaryKey": ["offer.id"],
+        "uniqueKeys": [["offer.id"], ["offer.objectGuid"]],
+        "noInventedFields": "Верхнеуровневых ключей ровно столько, сколько перечислено ниже. Проверяется валидатором: своего флага в зеркале завестись не должно. Поле `role` (чьё объявление) жило здесь до 2026-08-23 и уехало к клиенту — у объявления на ЦИАНе нет свойства «оно моё», это факт сценария. Сценарий задаётся при подключении, см. mock.js.",
+        "fields": [
+          { "name": "source", "type": "string", "required": true, "description": "URL страницы без query" },
+          { "name": "seenAt", "type": "datetime", "required": true, "description": "Когда запись прочитана в последний раз" },
+
+          { "name": "offer.id", "type": "integer", "required": true },
+          { "name": "offer.objectGuid", "type": "string", "required": true,
+            "description": "GUID объекта. Переживает снятие и повторную подачу, в отличие от id объявления." },
+          { "name": "offer.status", "type": "string", "required": true, "enum": ["published", "deactivated"] },
+          { "name": "offer.roomsCount", "type": "integer", "required": true },
+          { "name": "offer.totalArea", "type": "string", "required": true, "description": "Число строкой с точкой — так отдаёт ЦИАН" },
+          { "name": "offer.floorNumber", "type": "integer", "required": true },
+          { "name": "offer.building.floorsCount", "type": "integer", "required": true },
+          { "name": "offer.priceTotal", "type": "integer", "required": true },
+          { "name": "offer.creationDate", "type": "datetime", "required": true },
+          { "name": "offer.geo.coordinates", "type": "object", "required": true, "description": "lat/lng — из них считается расстояние до базового объекта" },
+          { "name": "offer.geo.undergrounds", "type": "array", "required": true, "description": "Станции с реальным цветом линии (lineColor) и временем пешком" },
+          { "name": "files", "type": "array", "required": true, "minItems": 1,
+            "description": "Локальные кадры: { id, isDefault, full, mini }. Единственное, чего нет у ЦИАНа, — это не модель, а место, куда легли байты." },
+
+          { "name": "offer.repairType", "type": "string", "required": false },
+          { "name": "offer.building.materialType", "type": "string", "required": false },
+          { "name": "offer.building.buildYear", "type": "integer", "required": false },
+          { "name": "features", "type": "array", "required": false,
+            "description": "Характеристики словами ЦИАНа, сгруппированные: «О квартире», «О доме», «Юридические особенности»" },
+          { "name": "factoids", "type": "array", "required": false },
+          { "name": "priceChanges", "type": "array", "required": false, "description": "История цены. Пустая — цена не менялась с подачи." },
+          { "name": "bti", "type": "object", "required": false, "description": "Дом по данным БТИ — отдельный источник, общий для всех квартир в доме" },
+          { "name": "stats", "type": "object", "required": false },
+          { "name": "priceInfo", "type": "object", "required": false }
+        ]
+      }
+    },
+    {
+      "name": "photos",
+      "path": "photos/",
+      "format": "jpg",
+      "description": "Кадры объявлений: <id объявления>-<n>.jpg и -<n>m.jpg. Имя из URL ЦИАНа не берём — там встречаются названия агентств и имена людей."
+    }
+  ],
+
+  "limits": {
+    "note": "Проверяется tools/validate.mjs. Числа не из головы: замеры 2026-08-23. Потолок на кадр подняли с 400 до 512 КБ после первого набега: три настоящих кадра 1280 px весили 396–408 КБ, то есть прежняя граница была уже реальных данных, а не наоборот.",
+    "maxPhotoBytes": 512000,
+    "maxPhotoLongSide": 1400,
+    "maxDatasetBytes": 4000000,
+    "maxPhotosBytes": 120000000,
+    "syncScriptWarnAt": 300,
+    "syncScriptNote": "Данные подключаются синхронным <script>. Запись ~27 КБ, поэтому после ~300–500 объявлений их пора делить на индекс для отбора и детали по запросу."
+  }
+}

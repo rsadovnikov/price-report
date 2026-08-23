@@ -116,7 +116,6 @@ var CompetitorCardApp = (function () {
      пропуски не выдумываем. */
   function repairLabel(r) {
     if (!r) return '';
-    if (r === 'Евро') return 'Евроремонт';
     if (/ремонт/i.test(r)) return r;
     return r + ' ремонт';
   }
@@ -205,8 +204,10 @@ var CompetitorCardApp = (function () {
   }
 
   function statsBlock(c, archived) {
-    /* В данных просмотры лежат строкой «35 / 881»: за 10 дней и за всё время.
-       У снятого объекта короткое окно уже неинформативно — в макете его нет. */
+    /* В данных просмотры лежат строкой «25 / 711»: за сегодня и за всё время.
+       У снятого объекта короткое окно уже неинформативно — в макете его нет.
+       ⚠️ Раньше первым числом было «за 10 дней». Такого окна у ЦИАНа нет вовсе —
+       он отдаёт «N просмотров, M за сегодня», и подпись пошла за источником. */
     var v = String(c.views || '').split('/');
     var recent = (v[0] || '').trim(), total = (v[1] || '').trim();
     var pair = function (count, period) {
@@ -226,7 +227,7 @@ var CompetitorCardApp = (function () {
       + '<div class="stats-row-app__views">'
         + '<span class="stats-row-app__eye"><img src="' + ICONS + 'views-16.svg" alt=""></span>'
         + '<span class="stats-row-app__counts">'
-          + (archived ? '' : pair(recent, 'за 10 дней,'))
+          + (archived ? '' : pair(recent, 'за сегодня,'))
           + pair(total, 'за всё время')
         + '</span>'
       + '</div>'
@@ -254,7 +255,7 @@ var CompetitorCardApp = (function () {
                 + '<div class="competitor-card-app__geo">'
                   + '<div class="competitor-card-app__metro-row">'
                     + '<span class="competitor-card-app__metro">'
-                      + '<span class="metro-icon-app metro-' + esc(c.metroColor || 'green') + '">'
+                      + '<span class="metro-icon-app" style="color:' + esc(c.metroColor || 'currentColor') + '">'
                         + '<svg viewBox="0 0 15 10.6459" fill="none" aria-hidden="true">'
                         + '<path d="' + METRO_PATH + '"/></svg></span>'
                       + '<p>' + esc(c.metroInDesc || c.metroStation) + '</p>'

@@ -30,10 +30,21 @@
   var n = parseInt(params.get('n') || '5', 10);
   if (!isFinite(n) || n < 0) n = 5;
 
+  /* --- Мой объект ---
+     Значения по умолчанию — первый объект агента из общей базы. Раньше здесь
+     стояли числа из макета: страница открывалась без параметров, но показывала
+     объект, которого нет ни в одном списке. */
+  var ALL_MY = (typeof MY_LISTINGS !== 'undefined' && MY_LISTINGS) || [];
+  /* Объект ищем целиком, а не добираем по полям. Иначе ссылка с одним `desc`
+     собирает химеру: описание от одного объявления, цена и кадр — от первого в
+     списке. Не нашли по описанию — ничего не подставляем: пустая строка честнее
+     чужой цены. */
+  var my = ALL_MY.filter(function (b) { return b.desc === params.get('desc'); })[0]
+        || (params.get('desc') ? {} : ALL_MY[0]) || {};
   var base = {
-    desc:  params.get('desc')  || '1-комн. кв., 50 м², 2/12 этаж',
-    price: params.get('price') || '19 130 000',
-    photo: params.get('photo') || '../photos/mo/mo1-1.jpg'
+    desc:  params.get('desc')  || my.desc  || '',
+    price: params.get('price') || my.currentPrice || '',
+    photo: params.get('photo') || (my.photos && my.photos[0]) || ''
   };
 
   /* Границы рыночной оценки — из макета. Внутри них «Хорошая цена». */

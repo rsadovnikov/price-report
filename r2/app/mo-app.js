@@ -10,6 +10,51 @@
 
   var DS = '../_design-system/';
 
+  /* Объявления агента приходят из общей базы. В разметке остаётся только каркас
+     сниппета: цена, описание, адрес и кадр — факты объявления, и держать их в
+     HTML значит однажды разойтись с базой молча. Порядок сниппетов на экране —
+     порядок `MOCK_SCENARIO.base`.
+
+     `data-listing` не трогаем: это ключ сниппета, по которому раздел конкурентов
+     возвращается к нужной плитке, а не идентификатор объявления. */
+  (function fillListings() {
+    if (typeof MY_LISTINGS === 'undefined') return;
+    document.querySelectorAll('.snippet-app').forEach(function (snippet, i) {
+      var b = MY_LISTINGS[i];
+      if (!b) return;
+      var set = function (sel, text) {
+        var el = snippet.querySelector(sel);
+        if (el) el.textContent = text;
+      };
+      var photo = snippet.querySelector('.snippet-app__photo');
+      if (photo) photo.src = b.photos[0] || '';
+      set('.snippet-app__price', b.currentPrice + ' ₽');
+      set('.snippet-app__params', b.desc);
+      set('.snippet-app__addr', 'м. ' + b.metroStation + ', ' + b.addressShort);
+
+      /* Объекту, которому не с чем сравниваться, число на плитке не рисуем.
+         «0 конкурентов» читается как ошибка, а любое другое число было бы
+         неправдой: внутри раздела его встретит пустое состояние. Подпись
+         «Конкуренты» для этого уже нарисована — ею же помечен объект, по
+         которому мониторинг ещё не включали. */
+      var rivals = (typeof ALL_COMPETITORS === 'undefined') ? 1
+        : ALL_COMPETITORS.filter(function (c) {
+            return !c.removed && AppPreset.comparable(c, b.desc);
+          }).length;
+      if (!rivals) {
+        var tile = snippet.querySelector('[data-action="competitors"]');
+        if (tile) {
+          var t = tile.querySelector('.action-tile-app__title');
+          if (t) t.textContent = 'Конкуренты';
+          var u = new URL(tile.getAttribute('href'), location.href);
+          u.searchParams.set('n', '0');
+          tile.setAttribute('href', u.pathname.split('/').pop() + u.search);
+        }
+        snippet.removeAttribute('data-updates');
+      }
+    });
+  })();
+
   /* Состав меню одинаков для всех объявлений — это меню объявления, а не состояния.
      Строка обзора конкурентов помечена, чтобы подставить в неё ссылку и бейдж. */
   var ITEMS = [

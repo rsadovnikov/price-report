@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <!-- viewport-fit=cover — чтобы работали env(safe-area-inset-*) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Сафари на айфоне сама превращает длинные группы цифр в телефонные ссылки:
+       цены «23 700 000 ₽» и границы оценки становились синими и подчёркнутыми,
+       то есть выглядели кликабельными и вели в звонилку. Это детектор данных iOS,
+       а не наша разметка — в ней это обычный <p>. Выключается только этим мета-тегом.
+       Замечено Романом 2026-08-23 на живом проде. -->
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
        и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
        при котором уже написанный CSS вообще включается. -->
@@ -14,23 +20,23 @@
   <title>Мои объявления — приложение</title>
 
   <!-- Палитра, отступы, радиусы — общие с вебом -->
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231850">
   <!-- Поверхность приложения: SF Pro и своя шкала типографики. Только после tokens.css -->
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231850">
   <!-- Общая база обеих поверхностей: reset и типографика. web.css здесь не нужен -->
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/snippet.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231850">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231850"></script>
 
   <style>
     /* Страница экрана. Рамки устройства нет: смотрим либо с телефона, либо узким
@@ -111,7 +117,7 @@
     <!-- --- Сниппет 1: продвижение активно, рассылка доступна, обновлений нет --- -->
     <article class="snippet-app" data-listing="mo1">
       <div class="snippet-app__info">
-        <img class="snippet-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
+        <img class="snippet-app__photo" src="" alt="">
         <div class="snippet-app__body">
           <div class="snippet-app__head">
             <div class="snippet-app__titles">
@@ -194,7 +200,7 @@
     <!-- --- Сниппет 2: есть обновления у конкурентов, рассылка недоступна --- -->
     <article class="snippet-app" data-listing="mo2" data-updates="3">
       <div class="snippet-app__info">
-        <img class="snippet-app__photo" src="../photos/mo/mo4-1.jpg" alt="">
+        <img class="snippet-app__photo" src="" alt="">
         <div class="snippet-app__body">
           <div class="snippet-app__head">
             <div class="snippet-app__titles">
@@ -282,7 +288,7 @@
     <!-- --- Сниппет 3: без ставки, куплен «Топ» --- -->
     <article class="snippet-app" data-listing="mo3">
       <div class="snippet-app__info">
-        <img class="snippet-app__photo" src="../photos/mo/mo3-1.jpg" alt="">
+        <img class="snippet-app__photo" src="" alt="">
         <div class="snippet-app__body">
           <div class="snippet-app__head">
             <div class="snippet-app__titles">
@@ -359,11 +365,18 @@
 </div>
 
 <!-- Шторка снизу — компонент дизайн-системы, состав меню — в mo-app.js -->
-<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231850"></script>
 <!-- Снекбар по выходу из раздела конкурентов — «Продолжаем отслеживать N…» -->
-<script src="../_design-system/components/app/snackbar.js?v=202608231235"></script>
-<script src="mo-app.js?v=202608231235"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608231850"></script>
+<!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
+     что показано снятым) — в mock-scenario.js, форма записи — в mock-connect.js. -->
+<script src="../_mock-data/mock.js?v=202608231850"></script>
+<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202608231850"></script>
+<script src="mock-scenario.js?v=202608231850"></script>
+<script src="preset-app.js?v=202608231850"></script>
+<script src="mock-connect.js?v=202608231850"></script>
+<script src="mo-app.js?v=202608231850"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608231235"></script>
+<script src="dev-reset.js?v=202608231850"></script>
 </body>
 </html>

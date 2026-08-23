@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Сафари на айфоне сама превращает длинные группы цифр в телефонные ссылки:
+       цены «23 700 000 ₽» и границы оценки становились синими и подчёркнутыми,
+       то есть выглядели кликабельными и вели в звонилку. Это детектор данных iOS,
+       а не наша разметка — в ней это обычный <p>. Выключается только этим мета-тегом.
+       Замечено Романом 2026-08-23 на живом проде. -->
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
        и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
        при котором уже написанный CSS вообще включается. -->
@@ -12,31 +18,31 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Конкуренты объекта — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231850">
   <!-- Фильтры выбираются в шторке: она сама, поля «от / до», слайдер радиуса
        и панель с «Применить» -->
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231850">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231850"></script>
 
   <style>
     body {
@@ -204,17 +210,22 @@
   <a class="btn-app btn-app--medium btn-app--primary btn-app--main" id="create-report" href="owner-report-app.html">Создать</a>
 </div>
 
-<script src="../_design-system/components/app/snackbar.js?v=202608231235"></script>
-<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
-<script src="../_design-system/components/app/slider.js?v=202608231235"></script>
-<script src="competitors-data.js?v=202608231235"></script>
-<script src="competitor-card-app.js?v=202608231235"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608231850"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231850"></script>
+<script src="../_design-system/components/app/slider.js?v=202608231850"></script>
+<!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
+     что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
+<script src="../_mock-data/mock.js?v=202608231850"></script>
+<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202608231850"></script>
+<script src="mock-scenario.js?v=202608231850"></script>
+<script src="mock-connect.js?v=202608231850"></script>
+<script src="competitor-card-app.js?v=202608231850"></script>
 <!-- Предустановка фильтров по объекту — общая на весь раздел -->
-<script src="preset-app.js?v=202608231235"></script>
+<script src="preset-app.js?v=202608231850"></script>
 <!-- Раскладка апдейтов — общая с экраном обзора -->
-<script src="updates-app.js?v=202608231235"></script>
-<script src="competitors-app.js?v=202608231235"></script>
+<script src="updates-app.js?v=202608231850"></script>
+<script src="competitors-app.js?v=202608231850"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608231235"></script>
+<script src="dev-reset.js?v=202608231850"></script>
 </body>
 </html>

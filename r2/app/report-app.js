@@ -11,7 +11,8 @@
  *   price  — цена «Моего объекта», без «₽»
  *   photo  — путь к фото «Моего объекта»
  *
- * Конкуренты берутся из competitors-data.js — того же мира объектов, что и вебовый
+ * Конкуренты берутся из общей базы мок-данных (mock-connect.js) — того же мира
+ * объектов, что и вебовый
  * отчёт. Выбираются ПЕРВЫЕ n: подбор по похожести живёт в отчёте, здесь список —
  * витрина, а не результат подбора. Если понадобится настоящий подбор — тянуть его
  * из report.js, а не переписывать заново.
@@ -65,11 +66,20 @@
   if (!(u > 0)) u = 0;
 
   /* --- Мой объект ---
-     Значения по умолчанию — из макета, чтобы страница открывалась и без параметров. */
+     Значения по умолчанию — первый объект агента из общей базы. Раньше здесь
+     стояли числа из макета: страница открывалась без параметров, но показывала
+     объект, которого нет ни в одном списке. */
+  var ALL_MY = (typeof MY_LISTINGS !== 'undefined' && MY_LISTINGS) || [];
+  /* Объект ищем целиком, а не добираем по полям. Иначе ссылка с одним `desc`
+     собирает химеру: описание от одного объявления, цена и кадр — от первого в
+     списке. Не нашли по описанию — ничего не подставляем: пустая строка честнее
+     чужой цены. */
+  var my = ALL_MY.filter(function (b) { return b.desc === params.get('desc'); })[0]
+        || (params.get('desc') ? {} : ALL_MY[0]) || {};
   var base = {
-    desc:  params.get('desc')  || '1-комн. кв., 50 м², 2/12 этаж',
-    price: params.get('price') || '19 130 000',
-    photo: params.get('photo') || '../photos/mo/mo1-1.jpg'
+    desc:  params.get('desc')  || my.desc  || '',
+    price: params.get('price') || my.currentPrice || '',
+    photo: params.get('photo') || (my.photos && my.photos[0]) || ''
   };
 
   var baseRow = document.getElementById('base-object');
@@ -111,7 +121,13 @@
      Раскладка живёт в общем модуле `updates-app.js`: те же флаги обязан показать
      список конкурентов, и правило, лежащее внутри одного из двух экранов, они
      разъезжаются молча — так и вышло до 2026-08-23. */
-  var shown = ALL_COMPETITORS.slice(0, n);
+  /* Показываем только сравнимое с объектом: апартаменты не сопоставляют с
+     квартирами (см. preset-app.js). Сравнимых нет — список пуст, и экран уходит
+     в нулевое состояние тем же путём, что при «убрал всех из отслеживаемых». */
+  var comparable = ALL_COMPETITORS.filter(function (c) {
+    return AppPreset.comparable(c, base.desc);
+  });
+  var shown = comparable.slice(0, n);
   /* Пресет тот же, что на экране подборки: новый конкурент обязан там найтись,
      иначе строка-предложение ведёт в список, где обещанного объекта нет. */
   var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, AppPreset.from(base.desc));
@@ -291,6 +307,21 @@
   var blockEl = document.getElementById('report-block');
   var ctaEl = document.getElementById('report-cta');
   var emptyEl = document.getElementById('report-empty');
+  /* Подвал со «Добавить по ссылке» живёт вместе с пустым состоянием: это его
+     вторая половина, а не отдельное состояние экрана. */
+  var emptyLinkEl = document.getElementById('report-empty-link');
+
+  /* Коллаж пустого состояния — три кадра из общей базы. В разметке их нет: путь
+     к файлу больше не идентификатор объекта, а сама картинка тут декорация, и
+     держать её захардкоженной значит однажды сослаться на кадр, которого в
+     наборе не осталось. */
+  (function fillCollage() {
+    var shots = emptyEl ? emptyEl.querySelectorAll('.empty-state-app__photo') : [];
+    for (var i = 0; i < shots.length; i++) {
+      var c = ALL_COMPETITORS[i];
+      if (c && c.photos && c.photos[0]) shots[i].src = c.photos[0];
+    }
+  })();
 
   /* --- Ноль отслеживаемых ---
      Это не «список из нуля строк», а другое состояние экрана (макет 696:75455):
@@ -302,10 +333,15 @@
 
      Состояние стало достижимым только 2026-08-23: до этого `n=0` подменялся
      пятёркой, и убранные конкуренты воскресали на первом же переходе. */
-  var isEmpty = n === 0;
+  /* Пусто по двум причинам, и экран у них общий: агент убрал всех из
+     отслеживаемых (`n=0`) — или сравнивать не с чем вовсе. Второе случается,
+     когда объект другой природы: у апартаментов нет сопоставимых апартаментов
+     поблизости, и подставлять вместо них квартиры значит соврать в отчёте. */
+  var isEmpty = n === 0 || shown.length === 0;
 
   function showContent() {
     emptyEl.hidden = !isEmpty;
+    emptyLinkEl.hidden = !isEmpty;
     blockEl.hidden = isEmpty;
     ctaEl.hidden = isEmpty;
     floatBar.hidden = isEmpty;
@@ -325,6 +361,7 @@
     try { sessionStorage.setItem(STORE_TRACKING, '1'); } catch (_) {}
     loadingEl.hidden = false;
     emptyEl.hidden = true;
+    emptyLinkEl.hidden = true;
     blockEl.hidden = true;
     ctaEl.hidden = true;
     floatBar.hidden = true;

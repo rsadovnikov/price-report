@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Сафари на айфоне сама превращает длинные группы цифр в телефонные ссылки:
+       цены «23 700 000 ₽» и границы оценки становились синими и подчёркнутыми,
+       то есть выглядели кликабельными и вели в звонилку. Это детектор данных iOS,
+       а не наша разметка — в ней это обычный <p>. Выключается только этим мета-тегом.
+       Замечено Романом 2026-08-23 на живом проде. -->
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
   <!-- Без *-web-app-capable медиазапрос (display-mode: standalone) на айфоне не срабатывает,
        и мок статус-бара остаётся поверх настоящего. То есть это не украшение, а условие,
        при котором уже написанный CSS вообще включается. -->
@@ -12,26 +18,27 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/empty-state.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/empty-state.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231850">
   <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
        на этом экране их раньше не было, все действия шли entry-point'ами. -->
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608231235">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608231850">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231850">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231850"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -43,6 +50,15 @@
     /* Раскладка и диапазон ширин — в components/app/screen.css.
        Здесь только то, что своё у этого экрана. */
     .screen-app { padding-bottom: calc(var(--unit5) + env(safe-area-inset-bottom)); }
+
+    /* Подвал пустого состояния заканчивает экран: в макете (895:147035) белое
+       поле доходит до нижнего края, а не кончается вместе с текстом. Поэтому он
+       забирает остаток высоты, а нижний отступ экрана в этом состоянии снимается —
+       иначе под белым осталась бы полоска фона. Содержимое остаётся наверху:
+       `align-items: center` центрует по горизонтали, по вертикали ничего не
+       растягивается. Скругление у блока только верхнее — он и так упирается в край. */
+    #report-empty-link { flex: 1; }
+    .screen-app:has(#report-empty-link:not([hidden])) { padding-bottom: 0; }
 
     /* Карточка конкурентов: шапка блока и список, между ними 20 */
     .report-block {
@@ -148,7 +164,8 @@
 
       <div class="ad-list-app">
         <div class="ad-row-app" id="base-object">
-          <img class="ad-row-app__photo" src="../photos/mo/mo1-1.jpg" alt="">
+          <!-- Кадр ставит report-app.js из общей базы: захардкоженный путь пережил бы смену набора. -->
+          <img class="ad-row-app__photo" src="" alt="">
           <span class="ad-row-app__body">
             <span class="ad-row-app__title"></span>
             <span class="ad-row-app__price"></span>
@@ -181,12 +198,12 @@
   <section class="card-app empty-state-app" id="report-empty" hidden>
     <div class="empty-state-app__body">
       <div class="empty-state-app__collage" aria-hidden="true">
-        <img class="empty-state-app__photo empty-state-app__photo--back" src="../photos/comp/c05-1.jpg" alt="">
-        <img class="empty-state-app__photo empty-state-app__photo--main" src="../photos/comp/c23-1.jpg" alt="">
+        <img class="empty-state-app__photo empty-state-app__photo--back" src="" alt="">
+        <img class="empty-state-app__photo empty-state-app__photo--main" src="" alt="">
         <span class="badge-app badge-app--warning badge-app--secondary badge-app--bold empty-state-app__badge empty-state-app__badge--new">
           <span class="badge-app__text">Новый конкурент</span>
         </span>
-        <img class="empty-state-app__photo empty-state-app__photo--side" src="../photos/comp/c31-1.jpg" alt="">
+        <img class="empty-state-app__photo empty-state-app__photo--side" src="" alt="">
         <span class="badge-app badge-app--warning badge-app--secondary badge-app--bold empty-state-app__badge empty-state-app__badge--price">
           <span class="badge-app__text">Изменилась цена</span>
         </span>
@@ -201,6 +218,21 @@
            id="empty-choose" href="competitors-app.html?tab=selection">Выбрать конкурентов</a>
       </div>
     </div>
+  </section>
+
+  <!-- Подвал пустого состояния: добавить объект по прямой ссылке (макет 895:147035).
+       Это тот же `list-tail-app--footer`, что заканчивает ленту подборки, — там он
+       стоит под последней карточкой, здесь под пустой. Блок один и тот же не по
+       случайности: вопрос «а если нужного объекта в выдаче нет?» одинаков и когда
+       выдача кончилась, и когда её нет вовсе.
+
+       Стоит отдельной карточкой, а не внутри пустого состояния: в макете между
+       ними зазор 8, у каждой свои поля, и скруглены у нижней только верхние углы —
+       она заканчивает экран. -->
+  <section class="list-tail-app list-tail-app--footer" id="report-empty-link" hidden>
+    <p class="list-tail-app__note">Хотите отслеживать какой-то конкретный объект на Циане?</p>
+    <button class="btn-app btn-app--medium btn-app--secondary btn-app--main btn-app--block"
+            type="button" data-action="add-by-link">Добавить по ссылке</button>
   </section>
 
   <!-- ===== Конкуренты ===== -->
@@ -330,15 +362,20 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
-<script src="../_design-system/components/app/onboarding.js?v=202608231235"></script>
-<script src="competitors-data.js?v=202608231235"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231850"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202608231850"></script>
+<!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
+     что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
+<script src="../_mock-data/mock.js?v=202608231850"></script>
+<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202608231850"></script>
+<script src="mock-scenario.js?v=202608231850"></script>
+<script src="mock-connect.js?v=202608231850"></script>
 <!-- Предустановка фильтров по объекту — общая на весь раздел -->
-<script src="preset-app.js?v=202608231235"></script>
+<script src="preset-app.js?v=202608231850"></script>
 <!-- Раскладка апдейтов — общая с экраном конкурентов -->
-<script src="updates-app.js?v=202608231235"></script>
-<script src="report-app.js?v=202608231235"></script>
+<script src="updates-app.js?v=202608231850"></script>
+<script src="report-app.js?v=202608231850"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608231235"></script>
+<script src="dev-reset.js?v=202608231850"></script>
 </body>
 </html>

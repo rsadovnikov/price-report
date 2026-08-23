@@ -23,6 +23,10 @@ var AppPreset = (function () {
   'use strict';
 
   var DESC_RE = /^(\d+)-комн\.[^,]*,\s*([\d,.]+)\s*м²(?:,\s*(\d+)\/)?/;
+  /* Апартаменты — не «квартира подешевле», а другая юридическая природа и другие
+     ожидания по цене. Сравнивать их с квартирами нельзя ни в ту, ни в другую
+     сторону, поэтому вид жилья читается из описания и участвует в подборе. */
+  var APART_RE = /апарт/i;
 
   /* Допуск по площади. ±15% на данных прототипа оставляет 33 карточки из 44:
      лента остаётся полной, а выдача — похожей на объект. */
@@ -36,7 +40,8 @@ var AppPreset = (function () {
     var parsed = {
       rooms: parseInt(m[1], 10),
       area: parseFloat(String(m[2] || '').replace(',', '.')),
-      floor: parseInt(m[3], 10)
+      floor: parseInt(m[3], 10),
+      apart: APART_RE.test(desc || '')
     };
     cache[desc] = parsed;
     return parsed;
@@ -45,6 +50,9 @@ var AppPreset = (function () {
   function from(desc) {
     var p = parse(desc);
     var out = {};
+    /* Вид жилья ставим только когда описание разобралось: объект неизвестен —
+       не сужаем ничего, включая вид. */
+    if (p.rooms > 0) out.apart = p.apart;
     if (p.rooms > 0) out.rooms = [p.rooms >= 6 ? '6+' : String(p.rooms)];
     if (p.area > 0) {
       /* Границы кратны 4 — как отступы: замер объекта точен до десятых, а фильтр
@@ -58,6 +66,7 @@ var AppPreset = (function () {
   function matches(c, preset) {
     if (!preset) return true;
     var p = parse(c.desc);
+    if (preset.apart != null && p.apart !== preset.apart) return false;
     if (preset.rooms && preset.rooms.length) {
       var ok = preset.rooms.some(function (x) {
         return x === '6+' ? p.rooms >= 6 : p.rooms === Number(x);
@@ -72,5 +81,17 @@ var AppPreset = (function () {
     return true;
   }
 
-  return { parse: parse, from: from, matches: matches, areaTolerance: AREA_TOLERANCE };
+  /* Сравнимо ли объявление с объектом ПО ПРИРОДЕ — отдельно от фильтров.
+     Фильтры агент сбрасывает, и это законно: он хочет увидеть больше. А вот
+     «покажите мне квартиры вместо апартаментов» сбросом не делается — это не
+     более широкая выдача, а другая. Поэтому вид жилья режет пул до фильтров и
+     сбросу не поддаётся. */
+  function comparable(c, desc) {
+    var p = parse(desc || '');
+    if (!(p.rooms > 0)) return true;              // объект неизвестен — не сужаем
+    return parse(c.desc).apart === p.apart;
+  }
+
+  return { parse: parse, from: from, matches: matches, comparable: comparable,
+           areaTolerance: AREA_TOLERANCE };
 })();
