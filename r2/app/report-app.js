@@ -112,7 +112,9 @@
      список конкурентов, и правило, лежащее внутри одного из двух экранов, они
      разъезжаются молча — так и вышло до 2026-08-23. */
   var shown = ALL_COMPETITORS.slice(0, n);
-  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u);
+  /* Пресет тот же, что на экране подборки: новый конкурент обязан там найтись,
+     иначе строка-предложение ведёт в список, где обещанного объекта нет. */
+  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, AppPreset.from(base.desc));
   var priceIdx = marks.priceIdx, removedIdx = marks.removedIdx, fresh = marks.fresh;
 
   /* --- Конкуренты --- */
@@ -186,6 +188,10 @@
   var suggestQs = new URLSearchParams(qs);
   suggestQs.set('tab', 'selection');
   document.getElementById('suggest-link').setAttribute('href', 'competitors-app.html?' + suggestQs);
+
+  /* Кнопка нулевого состояния ведёт туда же: выбирать конкурентов негде, кроме
+     подборки — вкладка «Отслеживаются» на этом экране как раз и пуста. */
+  document.getElementById('empty-choose').setAttribute('href', 'competitors-app.html?' + suggestQs);
 
   /* --- Плавающая копия входа в отчёт ---
      Ведёт себя как `position: sticky`: пока место кнопки ниже прижатого положения,
@@ -284,15 +290,33 @@
   var loadingEl = document.getElementById('report-loading');
   var blockEl = document.getElementById('report-block');
   var ctaEl = document.getElementById('report-cta');
+  var emptyEl = document.getElementById('report-empty');
 
-  function finishSearch() {
-    loadingEl.hidden = true;
-    blockEl.hidden = false;
-    ctaEl.hidden = false;
-    floatBar.hidden = false;
+  /* --- Ноль отслеживаемых ---
+     Это не «список из нуля строк», а другое состояние экрана (макет 696:75455):
+     вместо карточки конкурентов встаёт карточка с предложением их выбрать.
+     Вместе с ними уезжает и карточка отчёта: отчёт собирается ИЗ конкурентов, и
+     звать «настроить и создать» там, где сравнивать не с чем, — тупик. В макете
+     под пустой карточкой пусто до низа экрана, то есть отсутствие входа в отчёт
+     нарисовано, а не забыто. Плавающая копия кнопки уходит по той же причине.
+
+     Состояние стало достижимым только 2026-08-23: до этого `n=0` подменялся
+     пятёркой, и убранные конкуренты воскресали на первом же переходе. */
+  var isEmpty = n === 0;
+
+  function showContent() {
+    emptyEl.hidden = !isEmpty;
+    blockEl.hidden = isEmpty;
+    ctaEl.hidden = isEmpty;
+    floatBar.hidden = isEmpty;
     /* Пока шёл поиск, мерить было нечего: настоящей кнопки на экране не было,
        и копия осталась бы приземлённой навсегда. */
     place();
+  }
+
+  function finishSearch() {
+    loadingEl.hidden = true;
+    showContent();
   }
 
   var isNew = params.get('activate') === '1' && !sessionStorage.getItem(STORE_TRACKING);
@@ -300,6 +324,7 @@
   if (isNew) {
     try { sessionStorage.setItem(STORE_TRACKING, '1'); } catch (_) {}
     loadingEl.hidden = false;
+    emptyEl.hidden = true;
     blockEl.hidden = true;
     ctaEl.hidden = true;
     floatBar.hidden = true;
@@ -308,7 +333,8 @@
        Иначе выходило бы, что загрузка была декорацией к онбордингу. */
     setTimeout(finishSearch, 4000);
     setTimeout(showOnboarding, 500);
-  } else if (params.get('onb') === '1') {
-    showOnboarding();
+  } else {
+    showContent();
+    if (params.get('onb') === '1') showOnboarding();
   }
 })();

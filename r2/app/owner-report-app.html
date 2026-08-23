@@ -12,25 +12,26 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Отчёт для собственника — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/switch.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/segmented.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/photo-stack.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/owner-report.css?v=202608231235">
   <!-- Просмотр PDF — шторка в полноэкранном режиме (809:74592) -->
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608230929"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
 
   <style>
     /* Раскладка и диапазон ширин — в components/app/screen.css.
@@ -103,7 +104,13 @@
     <div class="report-step-app">
       <span class="stepper-app">1</span>
       <div class="report-step-app__body">
-        <p class="heading4" id="step-competitors">Выбрано 6 конкурентов</p>
+        <!-- Заголовок и стопка превью — одна связка (894:146989), поэтому свой
+             зазор 8 внутри общего 16 до кнопки. Плитки подставляет JS: это те же
+             объекты и в том же порядке, что везде в разделе. -->
+        <div class="report-step-app__head">
+          <p class="heading4" id="step-competitors">Выбрано 6 конкурентов</p>
+          <div class="photo-stack-app" id="step-competitors-photos" aria-hidden="true"></div>
+        </div>
         <a class="btn-app btn-app--large btn-app--secondary btn-app--main btn-app--block btn-app--stacked"
            id="comments-link" href="comments-app.html">
           <span class="btn-app__label">Добавить комментарии</span>
@@ -307,11 +314,11 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202608230929"></script>
-<script src="../_design-system/components/app/snackbar.js?v=202608230929"></script>
-<script src="competitors-data.js?v=202608230929"></script>
-<script src="owner-report-app.js?v=202608230929"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608231235"></script>
+<script src="competitors-data.js?v=202608231235"></script>
+<script src="owner-report-app.js?v=202608231235"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608230929"></script>
+<script src="dev-reset.js?v=202608231235"></script>
 </body>
 </html>

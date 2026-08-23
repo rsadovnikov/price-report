@@ -5,8 +5,11 @@
  * конкурентов. Взято из вебового отчёта (report.js, markUpdates) и повторено
  * здесь, потому что мобильные экраны показывают те же изменения.
  *
- *   AppUpdates.allocate(ALL_COMPETITORS, n, u)
+ *   AppUpdates.allocate(ALL_COMPETITORS, n, u, preset)
  *     -> { priceIdx, removedIdx, fresh, freshIds }
+ *
+ * `preset` — предустановка фильтров по объекту агента (`AppPreset.from(desc)`).
+ * Нужна новым конкурентам: они обязаны лежать внутри предустановленной выдачи.
  *
  * Почему отдельный файл. До 2026-08-23 правило жило внутри `report-app.js`, и
  * список конкурентов о нём не знал вовсе — то есть на обзоре у объекта стоял флаг,
@@ -20,17 +23,23 @@
 var AppUpdates = (function () {
   'use strict';
 
-  function allocate(list, n, u) {
+  function allocate(list, n, u, preset) {
     var left = u > 0 ? u : 0;
     var shown = (list || []).slice(0, n);
     var priceIdx = -1, removedIdx = -1, i;
 
     /* Кандидатов выбирают сами данные: цена — первому с непустым priceDelta,
        снятие — первому со признаком removed. Порядок важен, поэтому «снятие»
-       ищется уже с оглядкой на выбранного под цену. */
+       ищется уже с оглядкой на выбранного под цену.
+
+       ⚠️ Флаг «Цена изменилась» отдаётся только АКТИВНОМУ объекту (правило Романа
+       2026-08-23). У снятого с публикации динамика по цене может быть и показана,
+       но новость про него — что его сняли, а не что он подешевел. До этой правки
+       флаг доставался первому попавшемуся с дельтой, и на данных прототипа это был
+       снятый объект: экран сообщал про цену объявления, которого уже нет. */
     if (left > 0) {
       for (i = 0; i < shown.length; i++) {
-        if (shown[i].priceDelta) { priceIdx = i; left--; break; }
+        if (shown[i].priceDelta && !shown[i].removed) { priceIdx = i; left--; break; }
       }
     }
     if (left > 0) {
@@ -41,10 +50,17 @@ var AppUpdates = (function () {
 
     /* Остаток — новые возможные конкуренты: активные объекты за пределами
        отслеживаемых. Так же делит мир экран конкурентов: до n отслеживаются,
-       дальше подборка и архив. */
+       дальше подборка и архив.
+
+       И они обязаны проходить пресет по объекту агента: «Новый конкурент» по
+       определению входит в предустановленную выдачу, потому что именно она и
+       формирует набор релевантных конкурентов (правило Романа 2026-08-23).
+       Предлагать объект, которого агент не найдёт в подборке, — пустое обещание. */
     var freshIds = [];
     for (i = n; i < list.length && freshIds.length < left; i++) {
-      if (!list[i].removed) freshIds.push(i);
+      if (list[i].removed) continue;
+      if (preset && !AppPreset.matches(list[i], preset)) continue;
+      freshIds.push(i);
     }
 
     return { priceIdx: priceIdx, removedIdx: removedIdx, fresh: left, freshIds: freshIds };

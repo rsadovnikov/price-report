@@ -12,25 +12,26 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/empty-state.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231235">
   <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
        на этом экране их раньше не было, все действия шли entry-point'ами. -->
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608230929"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -169,6 +170,39 @@
     <p class="report-loading__text" role="status">Ищем конкурентов…</p>
   </section>
 
+  <!-- ===== Нулевое состояние: отслеживаемых конкурентов не осталось =====
+       Макет 696:75455 «если удалить всех конкурентов». Показывается вместо
+       карточки конкурентов И вместо карточки отчёта: отчёт собирается из
+       конкурентов, без них собирать нечего. В макете ниже этой карточки на всём
+       экране пусто — то есть отсутствие входа в отчёт нарисовано, а не забыто.
+
+       Бейджи внутри коллажа — иллюстрация возможностей, а не состояние данных,
+       поэтому текст в них статический и коллаж скрыт от скринридера. -->
+  <section class="card-app empty-state-app" id="report-empty" hidden>
+    <div class="empty-state-app__body">
+      <div class="empty-state-app__collage" aria-hidden="true">
+        <img class="empty-state-app__photo empty-state-app__photo--back" src="../photos/comp/c05-1.jpg" alt="">
+        <img class="empty-state-app__photo empty-state-app__photo--main" src="../photos/comp/c23-1.jpg" alt="">
+        <span class="badge-app badge-app--warning badge-app--secondary badge-app--bold empty-state-app__badge empty-state-app__badge--new">
+          <span class="badge-app__text">Новый конкурент</span>
+        </span>
+        <img class="empty-state-app__photo empty-state-app__photo--side" src="../photos/comp/c31-1.jpg" alt="">
+        <span class="badge-app badge-app--warning badge-app--secondary badge-app--bold empty-state-app__badge empty-state-app__badge--price">
+          <span class="badge-app__text">Изменилась цена</span>
+        </span>
+        <span class="badge-app badge-app--warning badge-app--secondary badge-app--bold empty-state-app__badge empty-state-app__badge--removed">
+          <span class="badge-app__text">Сняли с публикации</span>
+        </span>
+      </div>
+
+      <div class="empty-state-app__text">
+        <p class="empty-state-app__note">Выберите подходящих конкурентов, чтобы отслеживать по ним изменения</p>
+        <a class="btn-app btn-app--primary btn-app--main btn-app--medium btn-app--block"
+           id="empty-choose" href="competitors-app.html?tab=selection">Выбрать конкурентов</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Конкуренты ===== -->
   <section class="card-app report-block" id="report-block">
     <div class="report-intro">
@@ -296,13 +330,15 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202608230929"></script>
-<script src="../_design-system/components/app/onboarding.js?v=202608230929"></script>
-<script src="competitors-data.js?v=202608230929"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202608231235"></script>
+<script src="competitors-data.js?v=202608231235"></script>
+<!-- Предустановка фильтров по объекту — общая на весь раздел -->
+<script src="preset-app.js?v=202608231235"></script>
 <!-- Раскладка апдейтов — общая с экраном конкурентов -->
-<script src="updates-app.js?v=202608230929"></script>
-<script src="report-app.js?v=202608230929"></script>
+<script src="updates-app.js?v=202608231235"></script>
+<script src="report-app.js?v=202608231235"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608230929"></script>
+<script src="dev-reset.js?v=202608231235"></script>
 </body>
 </html>

@@ -12,31 +12,31 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Конкуренты объекта — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202608231235">
   <!-- Фильтры выбираются в шторке: она сама, поля «от / до», слайдер радиуса
        и панель с «Применить» -->
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202608230929">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608230929">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202608231235">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202608231235">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202608230929"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202608231235"></script>
 
   <style>
     body {
@@ -54,6 +54,10 @@
       display: flex;
       flex-direction: column;
       gap: var(--unit2);
+      /* Лента забирает остаток высоты экрана — это нужно пустой выдаче: её блок
+         в макете (894:146771) занимает всё место до подвала. Карточкам это ничего
+         не меняет, они по содержимому. */
+      flex: 1;
     }
     /* Место под нижнюю плашку — только там, где она есть (вкладка «Отслеживаются»):
        75 плашка + отступы. */
@@ -127,23 +131,22 @@
        целиком, и всё, что должно стоять ПОСЛЕ карточек, обязано попадать в тот же
        innerHTML — иначе оно либо затрётся, либо выпадет из ритма ленты (зазор 8). -->
 
-  <!-- Фильтры отсеяли всё. Кнопка возвращает выдачу — без неё из этого состояния
-       пришлось бы выбираться, открывая фильтры по одному. Своего макета у состояния
-       нет: собрано тем же блоком, что и конец подборки (563:69202). -->
+  <!-- Фильтры отсеяли всё. Макет 894:146771 (прислан Романом 2026-08-23): только
+       иллюстрация, заголовок и текст — кнопки внутри блока нет, а под ним идёт
+       обычный подвал ленты с «Добавить по ссылке». До этого здесь стояла кнопка
+       «Сбросить фильтры»: своего макета у состояния не было, и блок собирался по
+       образцу конца подборки (563:69202).
+       ⚠️ Текст советует сбросить фильтры, а контрола для этого на экране нет —
+       вынесено Роману отдельным вопросом. -->
   <template id="tpl-empty">
-    <div class="list-tail-app" id="filters-empty">
+    <div class="list-tail-app list-tail-app--empty" id="filters-empty">
+      <img class="list-tail-app__art" src="../_design-system/assets/empty-search-100.png" alt="">
       <div class="list-tail-app__head">
-        <img class="list-tail-app__art" src="../_design-system/assets/empty-search-100.png" alt="">
-        <p class="list-tail-app__title">Ничего не нашлось</p>
-      </div>
-      <div class="list-tail-app__groups">
-        <div class="list-tail-app__group">
-          <p class="list-tail-app__note">
-            Если нужно больше объявлений — попробуйте сделать фильтры менее строгими
-          </p>
-          <button class="btn-app btn-app--medium btn-app--secondary btn-app--main btn-app--block"
-                  type="button" data-action="reset-filters">Сбросить фильтры</button>
-        </div>
+        <p class="list-tail-app__title">Не нашли таких объявлений</p>
+        <p class="list-tail-app__note">
+          Попробуйте сбросить или изменить фильтры. Ищете конкретное объявление?
+          Добавьте его по ссылке.
+        </p>
       </div>
     </div>
   </template>
@@ -201,15 +204,17 @@
   <a class="btn-app btn-app--medium btn-app--primary btn-app--main" id="create-report" href="owner-report-app.html">Создать</a>
 </div>
 
-<script src="../_design-system/components/app/snackbar.js?v=202608230929"></script>
-<script src="../_design-system/components/app/sheet.js?v=202608230929"></script>
-<script src="../_design-system/components/app/slider.js?v=202608230929"></script>
-<script src="competitors-data.js?v=202608230929"></script>
-<script src="competitor-card-app.js?v=202608230929"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202608231235"></script>
+<script src="../_design-system/components/app/sheet.js?v=202608231235"></script>
+<script src="../_design-system/components/app/slider.js?v=202608231235"></script>
+<script src="competitors-data.js?v=202608231235"></script>
+<script src="competitor-card-app.js?v=202608231235"></script>
+<!-- Предустановка фильтров по объекту — общая на весь раздел -->
+<script src="preset-app.js?v=202608231235"></script>
 <!-- Раскладка апдейтов — общая с экраном обзора -->
-<script src="updates-app.js?v=202608230929"></script>
-<script src="competitors-app.js?v=202608230929"></script>
+<script src="updates-app.js?v=202608231235"></script>
+<script src="competitors-app.js?v=202608231235"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202608230929"></script>
+<script src="dev-reset.js?v=202608231235"></script>
 </body>
 </html>

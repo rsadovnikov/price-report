@@ -54,19 +54,9 @@
   var REPAIR_IN_DATA = { 'Евроремонт': 'Евро' };
   var BUILDING_IN_DATA = { 'Кирпично-монолитный': 'Монолитно-кирпичный' };
 
-  var DESC_RE = /^(\d+)-комн\., ([\d,.]+) м², (\d+)\/(\d+) этаж$/;
-  var descCache = {};
-  function parseDesc(c) {
-    if (descCache[c.desc]) return descCache[c.desc];
-    var m = DESC_RE.exec(c.desc) || [];
-    var parsed = {
-      rooms: parseInt(m[1], 10),
-      area: parseFloat(String(m[2] || '').replace(',', '.')),
-      floor: parseInt(m[3], 10)
-    };
-    descCache[c.desc] = parsed;
-    return parsed;
-  }
+  /* Разбор описания живёт в `preset-app.js`: та же регулярка нужна пресету, а две
+     копии одной регулярки — это две копии её будущих ошибок. */
+  function parseDesc(c) { return AppPreset.parse(c.desc); }
   function num(s) { return parseInt(String(s).replace(/\D/g, ''), 10); }
 
   function joinPlus(vals) {
@@ -91,7 +81,7 @@
        Подтверждается макетом его шторки (64:39747): в шапке только крестик,
        «Сбросить» там нет, в отличие от остальных семи. */
     { key: 'radius', label: 'Радиус', type: 'slider', title: 'Радиус от оцениваемого объекта',
-      always: true, min: 200, max: 20000, step: 100, start: 3000,
+      always: true, min: 200, max: 20000, step: 100, start: 2000,
       format: function (v) { return v >= 1000 ? String(v / 1000).replace('.', ',') + ' км' : v + ' м'; },
       chip: function (v) { return 'Радиус ' + this.format(v); } },
 
@@ -184,20 +174,12 @@
 
      Разбор терпит и «1-комн. кв., 37,5 м²» из «Моих объявлений», и «1-комн., 32 м²»
      из данных конкурентов: между «комн.» и запятой может стоять «кв.» или «апарт.». */
-  var BASE_RE = /^(\d+)-комн\.[^,]*,\s*([\d,.]+)\s*м²/;
-  var AREA_TOLERANCE = 0.15;
+  var BASE_PRESET = AppPreset.from(params.get('desc') || '');
 
   function preset() {
     var s = { radius: byKey.radius.start };
-    var m = BASE_RE.exec(params.get('desc') || '');
-    if (!m) return s;
-    var rooms = parseInt(m[1], 10);
-    var area = parseFloat(m[2].replace(',', '.'));
-    if (rooms > 0) s.rooms = [rooms >= 6 ? '6+' : String(rooms)];
-    if (area > 0) {
-      var to4 = function (x) { return Math.round(x / 4) * 4; };
-      s.area = { from: to4(area * (1 - AREA_TOLERANCE)), to: to4(area * (1 + AREA_TOLERANCE)) };
-    }
+    if (BASE_PRESET.rooms) s.rooms = BASE_PRESET.rooms.slice();
+    if (BASE_PRESET.area) s.area = { from: BASE_PRESET.area.from, to: BASE_PRESET.area.to };
     return s;
   }
 
@@ -401,8 +383,10 @@
     return CompetitorCardApp.render(c, {
       idx: idx,
       archived: mode === 'archive',
-      flag: flagFor(idx),
+      topFlag: marks.freshIds.indexOf(idx) >= 0 ? 'Новый конкурент' : '',
       priceFlag: idx === marks.priceIdx ? 'Цена изменилась' : '',
+      statusFlag: idx === marks.removedIdx
+        ? 'Сняли с публикации ' + CompetitorCardApp.removedDate(c) : '',
       head: remove,
       footer: mode === 'tracked' ? '' : trackButton(tracked.has(idx))
     });
@@ -446,22 +430,16 @@
      считает общий модуль `updates-app.js` — по индексам, а не по «примерно тем же»
      объектам, иначе флаг на двух экранах достаётся разным карточкам.
 
-     Верхний флаг говорит, что случилось с объявлением, нижний — что с ценой
-     (макеты 881:146541 и 881:146648). Формулировки взяты те же, что на обзоре:
+     Каждый флаг стоит рядом с тем, о чём говорит: «Новый конкурент» — над
+     заголовком (881:146541), «Цена изменилась» — над строкой цены (881:146648),
+     «Сняли с публикации» — ПОД ценой, там же, где на вкладке «Архивные» стоит
+     плашка «Снято с публикации» (правка Романа 2026-08-23: два места под один и
+     тот же факт — ошибка). Формулировки взяты те же, что на обзоре:
      ⚠️ в свежем макете бейдж подписан «Изменилась цена», а на обзоре и в макете
      обзора — «Цена изменилась». Один и тот же факт в двух порядках слов; выбрал
      формулировку обзора, потому что агент видит её первой и через тап попадает
      на этот экран. Переключается одной строкой. */
-  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u);
-
-  function flagFor(idx) {
-    if (idx === marks.removedIdx) {
-      return 'Сняли с публикации ' + CompetitorCardApp.removedDate(ALL_COMPETITORS[idx]);
-    }
-    /* «Новый конкурент» — тем, кто ушёл в остаток апдейтов: на обзоре они собраны
-       в строку «N новых возможных конкурентов», а живут здесь, в подборке. */
-    return marks.freshIds.indexOf(idx) >= 0 ? 'Новый конкурент' : '';
-  }
+  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, BASE_PRESET);
 
   var SELECTION = [], ARCHIVE = [];
   var tracked = new Set();
@@ -540,11 +518,14 @@
 
     /* Хвост ленты. Пусто — объясняем пустоту; есть непоказанные — «Показать ещё»;
        кончились — «Это всё, что нашлось». Подвал с вопросом про конкретный объект
-       идёт последним в любом случае, кроме пустого: там предлагать «ещё» не о чем. */
+       идёт последним ВСЕГДА, включая пустую выдачу: в макете 894:146771 он там и
+       нарисован, и это единственное действие, которое пустому экрану остаётся —
+       текст сам отсылает к «Добавьте его по ссылке». Раньше подвал на пустой
+       выдаче прятался. */
     var tail = '';
     if (!onTracked) {
-      tail = ids.length === 0 ? TPL.empty
-        : (rest > 0 ? TPL.more : endHtml(current === 'selection')) + TPL.footer;
+      tail = (ids.length === 0 ? TPL.empty
+        : (rest > 0 ? TPL.more : endHtml(current === 'selection'))) + TPL.footer;
     }
     listEl.innerHTML = visible.map(function (i) { return card(ALL_COMPETITORS[i], i, mode); }).join('') + tail;
     syncCount();

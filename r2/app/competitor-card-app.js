@@ -8,8 +8,9 @@
  *   CompetitorCardApp.render(c, {
  *     idx:      3,                       // индекс в ALL_COMPETITORS — уезжает в data-idx
  *     archived: false,                   // снят с публикации: статус вместо цены-«было»
- *     flag:     'Новый конкурент',       // бейдж над заголовком: что с объявлением
- *     priceFlag: 'Цена изменилась',      // бейдж над строкой цены: что с ценой
+ *     topFlag:    'Новый конкурент',        // бейдж над заголовком: про объект
+ *     priceFlag:  'Цена изменилась',        // бейдж над строкой цены: про цену
+ *     statusFlag: 'Сняли с публикации 7.08',// бейдж под ценой: про судьбу объявления
  *     head:     '<button …>',            // правый верхний слот (корзина)
  *     tail:     '<div …>',               // слот внутри содержимого, зазор 12
  *     footer:   '<button …>'             // слот под содержимым, зазор 16
@@ -88,11 +89,20 @@ var CompetitorCardApp = (function () {
   }
 
   /* --- Флаги апдейтов ------------------------------------------------------
-     Два слота, и это не дублирование: верхний (макет 881:146541) говорит, что
-     случилось с ОБЪЯВЛЕНИЕМ — «Новый конкурент», «Сняли с публикации 7.08», —
-     и потому стоит над заголовком; нижний (881:146648) говорит, что случилось
-     с ЦЕНОЙ, и стоит прямо над строкой цены. Оба — Badge warning × secondary,
-     тот же, что несут строки на обзоре конкурентов. */
+     Три слота, и у каждого своя точка привязки — флаг стоит рядом с тем, о чём
+     говорит:
+
+       topFlag    — над заголовком (макет 881:146541): «Новый конкурент», то есть
+                    новость про сам объект целиком;
+       priceFlag  — над строкой цены (881:146648): «Цена изменилась»;
+       statusFlag — ПОД ценой, перед статистикой: «Сняли с публикации 7.08».
+
+     Нижний слот появился 2026-08-23 по правке Романа: сперва снятие с публикации
+     стояло наверху, вместе с «Новым конкурентом». Но у карточки уже есть место под
+     эту новость — там, где на вкладке «Архивные» стоит плашка «Снято с публикации»
+     (макет 393:82223). Два места под один и тот же факт — это и была ошибка.
+
+     Все три — Badge warning × secondary, тот же, что несут строки на обзоре. */
   function flag(text) {
     if (!text) return '';
     return '<span class="badge-app badge-app--warning badge-app--secondary'
@@ -239,7 +249,7 @@ var CompetitorCardApp = (function () {
           + '<div class="competitor-card-app__main">'
             + '<div class="competitor-card-app__head">'
               + '<div class="competitor-card-app__titles">'
-                + flag(opts.flag)
+                + flag(opts.topFlag)
                 + '<p class="competitor-card-app__title">' + esc(c.desc) + '</p>'
                 + '<div class="competitor-card-app__geo">'
                   + '<div class="competitor-card-app__metro-row">'
@@ -263,7 +273,8 @@ var CompetitorCardApp = (function () {
                 + chips.map(function (t) { return badge(t); }).join('') + '</div>' : '')
           + '</div>'
           + '<div class="competitor-card-app__figures">'
-            + flag(opts.priceFlag) + priceBlock(c, archived) + statsBlock(c, archived)
+            + flag(opts.priceFlag) + priceBlock(c, archived)
+            + flag(opts.statusFlag) + statsBlock(c, archived)
           + '</div>'
           + (opts.tail || '')
         + '</div>'

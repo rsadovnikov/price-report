@@ -42,6 +42,15 @@
 }
 .report-step-app__body--tight { gap: var(--unit1); }
 
+/* Заголовок шага и то, что его иллюстрирует (стопка превью на шаге 1) — одна
+   связка, поэтому свой зазор 8 внутри общего 16 (node 894:146989). */
+.report-step-app__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--unit2);
+}
+
 .stepper-app {
   flex: none;
   box-sizing: border-box;
