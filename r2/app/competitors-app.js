@@ -86,6 +86,24 @@
       format: function (v) { return v >= 1000 ? String(v / 1000).replace('.', ',') + ' км' : v + ' м'; },
       chip: function (v) { return 'Радиус ' + this.format(v); } },
 
+    /* «До метро» — второй в ряду, как в макете вебового ряда (393:50545); своего
+       макета шторки у него нет (в раскладке 64:39578 восемь фильтров, метро среди
+       них нет), поэтому собран по образцу остальных.
+       Выбор одиночный: это порог «не дальше N», а не набор значений — как у
+       архивного «За N дней». Ступени взяты у самого ЦИАНа (5 / 10 / 15 / 20 / 30),
+       а не подогнаны под выдачу: в наших 97 объявлениях максимум 18 минут, так что
+       20 и 30 ничего не отсекают — это свойство выборки, а не фильтра. */
+    { key: 'metro', label: 'До метро', type: 'chips', title: 'Сколько идти до метро',
+      single: true, options: ['5 мин', '10 мин', '15 мин', '20 мин', '30 мин'],
+      chip: function (v) { return v[0] + ' до метро'; },
+      match: function (c, v) {
+        var limit = parseInt(v[0], 10);
+        var walk = parseInt(c.walkMin, 10);
+        /* Станции нет или время не заполнено — объявление не проходит порог:
+           «не дальше 10 минут» про объект без метро сказать нечего. */
+        return !isNaN(walk) && walk > 0 && walk <= limit;
+      } },
+
     { key: 'rooms', label: 'Комнаты', type: 'chips', title: 'Сколько комнат',
       options: ['Студия', '1', '2', '3', '4', '5', '6+', 'Свободная планировка'],
       chip: function (v) {
@@ -101,10 +119,6 @@
         });
       } },
 
-    { key: 'floor', label: 'Этаж', type: 'range', title: 'Какой этаж', unit: '',
-      chip: function (v) { return rangeLabel(v, 'этаж').replace(/\s+этаж$/, ' этаж'); },
-      match: function (c, v) { return inRange(parseDesc(c).floor, v); } },
-
     { key: 'area', label: 'Площадь', type: 'range', title: 'Общая площадь', unit: 'м²',
       chip: function (v) { return rangeLabel(v, 'м²'); },
       match: function (c, v) { return inRange(parseDesc(c).area, v); } },
@@ -112,6 +126,14 @@
     { key: 'price', label: 'Цена', type: 'range', title: 'Цена', unit: '₽',
       chip: function (v) { return rangeLabel(v, 'млн ₽', mln); },
       match: function (c, v) { return inRange(num(c.currentPrice), v); } },
+
+    /* «Этаж» стоит ПОСЛЕ цены — так в макете вебового ряда (393:50545). У нас он
+       был третьим, между комнатами и площадью. ⚠️ В макете приложения (393:82216)
+       фильтра «Этаж» нет вовсе — семь чипов против девяти кнопок в вебе; решение,
+       оставлять ли его здесь, за Романом. */
+    { key: 'floor', label: 'Этаж', type: 'range', title: 'Какой этаж', unit: '',
+      chip: function (v) { return rangeLabel(v, 'этаж').replace(/\s+этаж$/, ' этаж'); },
+      match: function (c, v) { return inRange(parseDesc(c).floor, v); } },
 
     { key: 'repair', label: 'Ремонт', type: 'chips', title: 'Ремонт',
       options: ['Без ремонта', 'Косметический', 'Евроремонт', 'Дизайнерский'],
@@ -123,7 +145,7 @@
       },
       match: function (c, v) { return v.indexOf(c.repair) >= 0; } },
 
-    { key: 'building', label: 'Материал дома', type: 'chips', title: 'Материал дома',
+    { key: 'building', label: 'Тип дома', type: 'chips', title: 'Материал дома',
       options: ['Кирпичный', 'Деревянный', 'Монолитный', 'Панельный', 'Блочный',
                 'Кирпично-монолитный', 'Сталинский'],
       chip: joinPlus,

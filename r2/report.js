@@ -831,11 +831,16 @@
         var el = document.querySelector('#tableA .desc-title');
         return el ? el.textContent.trim() : '';
       })();
+      /* Шеврон — экспорт `Icons/Action/16/ChevronDownSmall` из кита, тот же файл,
+         что уже стоит в ряду приложения. До 2026-08-24 здесь был текстовый символ
+         `▾`: он рисуется ЗАЛИТЫМ треугольником шрифта, а в макете глиф — открытая
+         галка, и кегль ему задаёт шрифт, а не бокс 16. Нашёл Роман. */
+      var CHEV = '_design-system/assets/icons/chevron-down-small-16.svg';
       host.innerHTML = AppPreset.row(desc).map(function (f) {
         return '<button class="btn-outline-sm style-secondary' + (f.on ? ' is-preset' : '')
           + '" type="button" data-facet="' + f.key + '"'
           + (f.on ? ' aria-pressed="true"' : '')
-          + '>' + f.label + ' <span class="icon">▾</span></button>';
+          + '>' + f.label + ' <span class="icon"><img src="' + CHEV + '" alt=""></span></button>';
       }).join('');
     })();
 
