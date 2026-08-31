@@ -36,138 +36,17 @@
    *  Фильтры                                                            *
    * ------------------------------------------------------------------ */
 
-  /* Восемь фильтров по раскладке Figma 64:39578. Одна таблица держит всё сразу:
-     подпись чипа в ряду, тело шторки, отбор. Разнести это по трём местам значит
-     обречь их разъезжаться — формулировка поменяется в чипе и забудется в отборе.
+  /* Таблица фильтров переехала в общий `filters.js` (2026-08-24): её читают обе
+     поверхности, а лежала она внутри файла ОДНОГО экрана приложения. Здесь
+     остаётся только то, что у экрана своё — шторка и её тело.
 
      Тип решает, чем наполнить шторку:
        chips  — мультивыбор из списка (single: true — одиночный)
        range  — пара полей «от / до» с единицей
-       slider — одно значение на дорожке
-
-     `match(c, v)` — отбор. Возвращает undefined там, где отбирать нечем: у радиуса
-     в данных нет расстояния до объекта, и выдумывать его ради фильтра нельзя. */
+       slider — одно значение на дорожке */
   var DS = '../_design-system/';
-
-  /* Мостиков между макетом и данными больше нет. Раньше здесь стояло
-     «Евроремонт → Евро» и «Кирпично-монолитный → Монолитно-кирпичный»: прежний
-     сборщик скрёб подписи со страницы и получал обрезки. Теперь ремонт и материал
-     приезжают из `features` — то есть словами самого ЦИАНа, теми же, что стоят
-     в макете. Сопоставлять нечего. */
-
-  /* Разбор описания живёт в `preset-app.js`: та же регулярка нужна пресету, а две
-     копии одной регулярки — это две копии её будущих ошибок. */
-  function parseDesc(c) { return AppPreset.parse(c.desc); }
-  function num(s) { return parseInt(String(s).replace(/\D/g, ''), 10); }
-
-  function joinPlus(vals) {
-    return vals.length > 1 ? vals[0] + ' +' + (vals.length - 1) : vals[0];
-  }
-  function rangeLabel(v, unit, fmt) {
-    var f = fmt || function (x) { return x; };
-    if (v.from != null && v.to != null) return f(v.from) + '–' + f(v.to) + ' ' + unit;
-    if (v.from != null) return 'от ' + f(v.from) + ' ' + unit;
-    return 'до ' + f(v.to) + ' ' + unit;
-  }
-  function inRange(x, v) {
-    if (isNaN(x)) return false;
-    if (v.from != null && x < v.from) return false;
-    if (v.to != null && x > v.to) return false;
-    return true;
-  }
-  function mln(x) { return String(Math.round(x / 100000) / 10).replace('.', ','); }
-
-  var FILTERS = [
-    /* `always` — фильтр не бывает пустым: радиус включён всегда и не сбрасывается.
-       Подтверждается макетом его шторки (64:39747): в шапке только крестик,
-       «Сбросить» там нет, в отличие от остальных семи. */
-    { key: 'radius', label: 'Радиус', type: 'slider', title: 'Радиус от оцениваемого объекта',
-      always: true, min: 200, max: 20000, step: 100, start: 2000,
-      format: function (v) { return v >= 1000 ? String(v / 1000).replace('.', ',') + ' км' : v + ' м'; },
-      chip: function (v) { return 'Радиус ' + this.format(v); } },
-
-    /* «До метро» — второй в ряду, как в макете вебового ряда (393:50545); своего
-       макета шторки у него нет (в раскладке 64:39578 восемь фильтров, метро среди
-       них нет), поэтому собран по образцу остальных.
-       Выбор одиночный: это порог «не дальше N», а не набор значений — как у
-       архивного «За N дней». Ступени взяты у самого ЦИАНа (5 / 10 / 15 / 20 / 30),
-       а не подогнаны под выдачу: в наших 97 объявлениях максимум 18 минут, так что
-       20 и 30 ничего не отсекают — это свойство выборки, а не фильтра. */
-    { key: 'metro', label: 'До метро', type: 'chips', title: 'Сколько идти до метро',
-      single: true, options: ['5 мин', '10 мин', '15 мин', '20 мин', '30 мин'],
-      chip: function (v) { return v[0] + ' до метро'; },
-      match: function (c, v) {
-        var limit = parseInt(v[0], 10);
-        var walk = parseInt(c.walkMin, 10);
-        /* Станции нет или время не заполнено — объявление не проходит порог:
-           «не дальше 10 минут» про объект без метро сказать нечего. */
-        return !isNaN(walk) && walk > 0 && walk <= limit;
-      } },
-
-    { key: 'rooms', label: 'Комнаты', type: 'chips', title: 'Сколько комнат',
-      options: ['Студия', '1', '2', '3', '4', '5', '6+', 'Свободная планировка'],
-      chip: function (v) {
-        var allNum = v.every(function (x) { return /^\d/.test(x); });
-        return allNum ? v.join(', ') + ' комн.' : joinPlus(v);
-      },
-      match: function (c, v) {
-        var r = parseDesc(c).rooms;
-        return v.some(function (x) {
-          if (x === '6+') return r >= 6;
-          if (/^\d$/.test(x)) return r === Number(x);
-          return false;   // «Студия» и «Свободная планировка» в данных не встречаются
-        });
-      } },
-
-    { key: 'area', label: 'Площадь', type: 'range', title: 'Общая площадь', unit: 'м²',
-      chip: function (v) { return rangeLabel(v, 'м²'); },
-      match: function (c, v) { return inRange(parseDesc(c).area, v); } },
-
-    { key: 'price', label: 'Цена', type: 'range', title: 'Цена', unit: '₽',
-      chip: function (v) { return rangeLabel(v, 'млн ₽', mln); },
-      match: function (c, v) { return inRange(num(c.currentPrice), v); } },
-
-    /* «Этаж» стоит ПОСЛЕ цены — так в макете вебового ряда (393:50545). У нас он
-       был третьим, между комнатами и площадью. ⚠️ В макете приложения (393:82216)
-       фильтра «Этаж» нет вовсе — семь чипов против девяти кнопок в вебе; решение,
-       оставлять ли его здесь, за Романом. */
-    { key: 'floor', label: 'Этаж', type: 'range', title: 'Какой этаж', unit: '',
-      chip: function (v) { return rangeLabel(v, 'этаж').replace(/\s+этаж$/, ' этаж'); },
-      match: function (c, v) { return inRange(parseDesc(c).floor, v); } },
-
-    { key: 'repair', label: 'Ремонт', type: 'chips', title: 'Ремонт',
-      options: ['Без ремонта', 'Косметический', 'Евроремонт', 'Дизайнерский'],
-      chip: function (v) {
-        /* «Косметический» на чипе становится «Косметический ремонт» — так в макете
-           (64:39585). «Без ремонта» и «Евроремонт» слово уже несут. */
-        var one = v.length === 1 && /^(Косметический|Дизайнерский)$/.test(v[0]);
-        return one ? v[0] + ' ремонт' : joinPlus(v);
-      },
-      match: function (c, v) { return v.indexOf(c.repair) >= 0; } },
-
-    { key: 'building', label: 'Тип дома', type: 'chips', title: 'Материал дома',
-      options: ['Кирпичный', 'Деревянный', 'Монолитный', 'Панельный', 'Блочный',
-                'Кирпично-монолитный', 'Сталинский'],
-      chip: joinPlus,
-      match: function (c, v) { return v.indexOf(c.building) >= 0; } },
-
-    { key: 'year', label: 'Год постройки', type: 'range', title: 'Год постройки дома', unit: 'г',
-      chip: function (v) { return rangeLabel(v, 'г'); },
-      match: function (c, v) { return inRange(c.buildYear, v); } },
-
-    /* Только на архиве — как в вебовом отчёте, где «За N дней» стоит первым в том же
-       общем ряду. Выбор одиночный: период один, а не набор. */
-    { key: 'period', label: 'За 7 дней', type: 'chips', title: 'Архивные', archiveOnly: true,
-      single: true, options: ['За 7 дней', 'За 14 дней', 'За месяц'],
-      chip: function (v) { return v[0]; },
-      match: function (c, v) {
-        var days = { 'За 7 дней': 7, 'За 14 дней': 14, 'За месяц': 30 }[v[0]];
-        return (c.days - (c.removedAfterDays || 0)) <= days;
-      } }
-  ];
-
-  var byKey = {};
-  FILTERS.forEach(function (f) { byKey[f.key] = f; });
+  var FILTERS = AppFilters.list;
+  var byKey = AppFilters.byKey;
 
   /* --- Предустановка по объекту агента -------------------------------------
      В фиче фильтры приходят на экран не пустыми: они предустановлены по параметрам
@@ -195,27 +74,14 @@
      из данных конкурентов: между «комн.» и запятой может стоять «кв.» или «апарт.». */
   var BASE_PRESET = AppPreset.from(params.get('desc') || '');
 
-  function preset() {
-    var s = { radius: byKey.radius.start };
-    if (BASE_PRESET.rooms) s.rooms = BASE_PRESET.rooms.slice();
-    if (BASE_PRESET.area) s.area = { from: BASE_PRESET.area.from, to: BASE_PRESET.area.to };
-    return s;
-  }
+  function preset() { return AppFilters.preset(params.get('desc') || ''); }
 
   /* Что выбрано сейчас. Пустой фильтр в состоянии не лежит вовсе — так «заполнен»
      проверяется наличием ключа, а не разбором пустых массивов и null-границ. */
   var state = preset();
 
-  function isFilled(f, v) {
-    if (v == null) return false;
-    if (f.type === 'chips') return v.length > 0;
-    if (f.type === 'range') return v.from != null || v.to != null;
-    return true;                                   // slider: выбран, если его трогали
-  }
-
-  function chipText(f) {
-    return isFilled(f, state[f.key]) ? f.chip(state[f.key]) : f.label;
-  }
+  var isFilled = AppFilters.isFilled;
+  function chipText(f) { return AppFilters.label(f, state); }
 
   /* ------------------------------------------------------------------ *
    *  Ряд фильтров                                                       *
@@ -234,11 +100,7 @@
     /* Период на архиве встаёт ПЕРВЫМ — он и в вебовом отчёте первый в общем ряду.
        В таблице он объявлен последним, потому что там порядок по смыслу, а не по
        раскладке; здесь переставляем явно, а не полагаемся на порядок объявления. */
-    var list = FILTERS.filter(function (f) { return !f.archiveOnly; });
-    if (tab === 'archive') {
-      list = FILTERS.filter(function (f) { return f.archiveOnly; }).concat(list);
-    }
-    document.getElementById('filters-row').innerHTML = list.map(chipHtml).join('');
+    document.getElementById('filters-row').innerHTML = AppFilters.row(tab).map(chipHtml).join('');
     /* Контейнер скролла живёт дольше своего содержимого: на архиве в начало ряда
        встаёт «За N дней», и увидеть его надо с первого кадра. */
     document.getElementById('filters').scrollLeft = 0;
@@ -518,12 +380,7 @@
   /* Отбор идёт только по заполненным фильтрам — пустых в `state` нет вовсе.
      Фильтр без `match` (радиус) в отборе не участвует: расстояния до объекта в
      данных нет, и подменять его чем попало значит врать в выдаче. */
-  function passesFilters(c) {
-    return Object.keys(state).every(function (key) {
-      var f = byKey[key];
-      return !f.match || f.match(c, state[key]);
-    });
-  }
+  function passesFilters(c) { return AppFilters.passes(c, state); }
 
   function render() {
     var onTracked = current === 'tracked';

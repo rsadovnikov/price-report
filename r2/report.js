@@ -535,10 +535,11 @@
     var stickyTabSelection = document.getElementById('stickyTabSelection');
     var stickyTabArchive = document.getElementById('stickyTabArchive');
     var archiveBanner = document.getElementById('archiveBanner');
-    var archivePeriodBtn = document.getElementById('archivePeriodBtn'); // «За N дней» в общем ряду, только на «Архивных»
     var filtersEl = document.querySelector('.filters');
     var resultsCounter = document.querySelector('.results-counter');
     var counterText = document.getElementById('counterText');
+    var emptyBText = document.querySelector('#emptyBState .empty-report-text');
+    var btnSelectCompetitors = document.getElementById('btnSelectCompetitors');
     var btnShowMore = document.getElementById('btnShowMore');
     var btnAddLink = document.getElementById('btnAddLink');
     var stickyTableHeader = document.getElementById('stickyTableHeader');
@@ -629,6 +630,13 @@
         }
       }
 
+      // Фильтры отбирают выдачу — до 2026-08-24 ряд был декорацией, и отбора не было
+      // вовсе. На «Отслеживаются» фильтры не показываются, значит и не применяются:
+      // там не выдача, а выбор агента.
+      if (activeTab !== 'in-report') {
+        items = items.filter(function (x) { return AppFilters.passes(x.d, filterState); });
+      }
+
       // «Подборка» — по близости к объекту пользователя: сверху то, с чем его реально
       // сравнивают. Порядок массива (то есть порядок выгрузки с ЦИАНа) смысла не несёт.
       if (activeTab === 'selection') {
@@ -650,6 +658,16 @@
         tableBBody.innerHTML = '';
         tableBWrapper.style.display = 'none';
         emptyBState.style.display = 'flex';
+        /* Пусто бывает по двум разным причинам, и говорить о них одним текстом нельзя.
+           «Выберите конкурентов» — про пустой список отслеживаемых; когда выдачу
+           обнулили ФИЛЬТРЫ, этот текст отвечает не на тот вопрос и не даёт выхода.
+           Вылезло сразу, как фильтры начали отбирать (2026-08-24). */
+        var byFilters = activeTab !== 'in-report' && filtersNarrow();
+        emptyBText.textContent = byFilters
+          ? 'Ничего не нашлось. Попробуйте изменить фильтры'
+          : 'Выберите подходящих конкурентов, чтобы отслеживать по ним изменения';
+        btnSelectCompetitors.textContent = byFilters ? 'Сбросить фильтры' : 'Выбрать конкурентов';
+        btnSelectCompetitors.dataset.mode = byFilters ? 'reset-filters' : 'select';
         requestAnimationFrame(updateEmptyStateHeight);
       } else {
         tableBWrapper.style.display = '';
@@ -809,41 +827,194 @@
       }
     }
 
-    /* === РЯД ФАСЕТОВ ===
+    /* === ФИЛЬТРЫ ===
      *
-     * Тот же набор и то же выделение, что на поверхности приложения: подписи трёх
-     * предустановленных фильтров приходят из общего `AppPreset.row(desc)`, остальные
-     * пять стоят пустыми ярлыками (просьба Романа 2026-08-23).
+     * До 2026-08-24 ряд в вебе был ДЕКОРАЦИЕЙ: восемь кнопок с подписями и ни одного
+     * обработчика — выдачу определяла только похожесть (`distanceToBase`). Роман
+     * попросил сделать как на проде, я сходил на живой отчёт
+     * (my.cian.ru/competitors-report) и прокликал все девять выпадаек.
      *
-     * До этого подписи были зашиты в разметку числами — «Радиус 3 км», «2 комнаты»,
-     * «До 50 кв. м.», «15–25 млн ₽» — и с объектом не сходились ни одной: у агента
-     * однушка 37 м², а ряд обещал двушку до 50 и коридор 15–25 млн. Плюс приложение
-     * ставит радиус 2 км, а веб рисовал 3.
+     * Что снято с прода и повторено здесь:
      *
-     * ⚠️ Чипы остаются НЕинтерактивными, как и были: в вебе выдачу определяет
-     * похожесть (distanceToBase), а не фасеты. Задача ряда здесь — честно показать,
-     * из чего собрана подборка. Сделать их рабочими — отдельная работа.
+     * — **Триггер — это Button, а не чип.** В DOM он подписан `data-name="FilterButton"`,
+     *   размер XS. Отсюда же ответ на «почему выбранный не подсвечивается»: у Button
+     *   в ките нет состояния Selected вовсе (132 варианта, ни одного). Значение
+     *   сообщает подпись кнопки, а не заливка. Синюю `.is-preset` убрал.
+     *
+     * — **Два вида подтверждения, и правило в самом контроле.** Чекбоксовые фильтры
+     *   применяются СРАЗУ, кнопок у них нет. Диапазон и слайдер — по «Применить»:
+     *   галка это законченный выбор, а диапазон незакончен, пока не введены обе
+     *   границы. ⚠️ На поверхности приложения «Применить» стоит у всех — там шторка,
+     *   и закрывать её тапом по галке значило бы не дать поставить вторую.
+     *
+     * — **«Сбросить» живёт в подвале рядом с «Применить»**, а не в шапке: шапки у
+     *   выпадайки нет.
+     *
+     * Таблица фильтров — общий `filters.js`, тот же, что у приложения.
      */
-    (function renderFacets() {
-      var host = document.getElementById('filtersFacets');
-      if (!host || typeof AppPreset === 'undefined') return;
-      var desc = REPORT_PARAMS.get('desc') || (function () {
-        var el = document.querySelector('#tableA .desc-title');
-        return el ? el.textContent.trim() : '';
-      })();
-      /* Шеврон — экспорт `Icons/Action/16/ChevronDownSmall` из кита, тот же файл,
-         что уже стоит в ряду приложения. До 2026-08-24 здесь был текстовый символ
-         `▾`: он рисуется ЗАЛИТЫМ треугольником шрифта, а в макете глиф — открытая
-         галка, и кегль ему задаёт шрифт, а не бокс 16. Нашёл Роман. */
-      var CHEV = '_design-system/assets/icons/chevron-down-small-16.svg';
-      host.innerHTML = AppPreset.row(desc).map(function (f) {
-        return '<button class="btn-outline-sm style-secondary' + (f.on ? ' is-preset' : '')
-          + '" type="button" data-facet="' + f.key + '"'
-          + (f.on ? ' aria-pressed="true"' : '')
-          + '>' + f.label + ' <span class="icon"><img src="' + CHEV + '" alt=""></span></button>';
-      }).join('');
-    })();
+    var filterState = AppFilters.preset(REPORT_PARAMS.get('desc') || (function () {
+      var el = document.querySelector('#tableA .desc-title');
+      return el ? el.textContent.trim() : '';
+    })());
 
+    /* Шеврон — экспорт `Icons/Action/16/ChevronDownSmall` из кита, тот же файл, что
+       в ряду приложения. До 2026-08-24 здесь стоял текстовый символ `▾`: он рисуется
+       ЗАЛИТЫМ треугольником шрифта, а в ките глиф — открытая галка. Нашёл Роман. */
+    var CHEV = '_design-system/assets/icons/chevron-down-small-16.svg';
+
+    function renderFilterRow() {
+      var host = document.getElementById('filtersFacets');
+      if (!host) return;
+      host.innerHTML = AppFilters.row(activeTab).map(function (f) {
+        return '<button class="btn-outline-sm style-secondary filter-btn" type="button"'
+          + ' data-facet="' + f.key + '" aria-haspopup="dialog">'
+          + escHtml(AppFilters.label(f, filterState))
+          + ' <span class="icon"><img src="' + CHEV + '" alt=""></span></button>';
+      }).join('');
+    }
+
+    /* Тело выпадайки. Три вида — ровно те, что на проде. */
+    function filterBody(f, draft) {
+      if (f.type === 'chips') {
+        return '<div class="popover__group">' + f.options.map(function (o, i) {
+          var on = draft && draft.indexOf(o) >= 0;
+          return '<label class="checkbox"><input class="checkbox__control" type="checkbox"'
+            + ' data-option="' + escHtml(o) + '"' + (on ? ' checked' : '') + '>'
+            + '<span class="checkbox__label">' + escHtml(o) + '</span></label>';
+        }).join('') + '</div>';
+      }
+      if (f.type === 'range') {
+        return '<div class="popover__range">' + [['from', 'от'], ['to', 'до']].map(function (b) {
+          var val = draft && draft[b[0]] != null ? draft[b[0]] : '';
+          return '<span class="popover__range-field"><span class="input">'
+            + '<input class="input__control" type="text" inputmode="numeric"'
+            + ' data-bound="' + b[0] + '" placeholder="' + b[1] + '" value="' + val + '">'
+            + '</span></span>';
+        }).join('') + (f.unit ? '<span class="popover__unit">' + escHtml(f.unit) + '</span>' : '')
+        + '</div>';
+      }
+      /* Слайдер: подпись значения сверху, дорожка под ней — как на проде. */
+      var v = draft != null ? draft : f.start;
+      return '<div class="popover__slider">'
+        + '<span class="popover__slider-value">' + escHtml(f.format(v)) + '</span>'
+        + '<input class="range-input" type="range" min="' + f.min + '" max="' + f.max
+        + '" step="' + f.step + '" value="' + v + '">'
+        + '</div>';
+    }
+
+    function openFilter(f, btn) {
+      /* Правим копию: «Применить» — подтверждение, а закрытие должно оставить фильтр
+         таким, каким он был. У чекбоксов копия тоже нужна: они применяются сразу,
+         но состояние всё равно собирается по одной галке. */
+      var cur = filterState[f.key];
+      var draft = cur == null ? null
+        : f.type === 'chips' ? cur.slice()
+        : f.type === 'range' ? { from: cur.from, to: cur.to }
+        : cur;
+
+      var needsApply = f.type !== 'chips';
+      var html = filterBody(f, draft)
+        + (needsApply
+          ? '<div class="popover__footer">'
+            + '<button class="btn-primary-sm" type="button" data-action="apply">Применить</button>'
+            + '<button class="btn-ghost-sm" type="button" data-action="reset">Сбросить</button>'
+            + '</div>'
+          : '');
+
+      var pop = openPopover({ anchor: btn, content: html, ariaLabel: f.title });
+
+      function commit() {
+        if (AppFilters.isFilled(f, draft)) filterState[f.key] = draft;
+        else delete filterState[f.key];
+        renderFilterRow();
+        visibleCount = 10;          // новая выдача начинается с первой страницы
+        renderTableB();
+        updateResultsCounter();
+        updateShowMoreBtn();
+      }
+
+      pop.el.addEventListener('change', function (e) {
+        var box = e.target.closest('[data-option]');
+        if (!box || f.type !== 'chips') return;
+        var val = box.dataset.option;
+        if (!draft) draft = [];
+        if (f.single) {
+          draft = box.checked ? [val] : [];
+          pop.el.querySelectorAll('[data-option]').forEach(function (b) {
+            b.checked = draft.indexOf(b.dataset.option) >= 0;
+          });
+        } else {
+          var i = draft.indexOf(val);
+          if (box.checked && i < 0) draft.push(val);
+          if (!box.checked && i >= 0) draft.splice(i, 1);
+        }
+        commit();                   // чекбоксы применяются сразу — так на проде
+      });
+
+      pop.el.addEventListener('input', function (e) {
+        var field = e.target.closest('[data-bound]');
+        if (field) {
+          if (!draft) draft = { from: null, to: null };
+          var raw = field.value.replace(/[^\d]/g, '');
+          field.value = raw;
+          draft[field.dataset.bound] = raw === '' ? null : Number(raw);
+          return;
+        }
+        var slider = e.target.closest('.range-input');
+        if (slider) {
+          draft = Number(slider.value);
+          var out = pop.el.querySelector('.popover__slider-value');
+          if (out) out.textContent = f.format(draft);
+        }
+      });
+
+      pop.el.addEventListener('click', function (e) {
+        if (e.target.closest('[data-action="apply"]')) { commit(); pop.close(); return; }
+        if (e.target.closest('[data-action="reset"]')) {
+          /* Сброс — движение в один шаг: чистит фильтр, обновляет выдачу и закрывает.
+             Подтверждать нечего, а показывать панель с пустым выбором незачем. */
+          draft = f.always ? f.start : null;
+          commit();
+          pop.close();
+        }
+      });
+    }
+
+    /* «Сужают» — то есть в состоянии есть хоть один фильтр С ОТБОРОМ. Радиус не в
+       счёт: у него нет `match`, он ничего не выкидывает (расстояния в данных нет). */
+    function filtersNarrow() {
+      return Object.keys(filterState).some(function (k) {
+        var f = AppFilters.byKey[k];
+        return f && f.match && AppFilters.isFilled(f, filterState[k]);
+      });
+    }
+
+    function resetAllFilters() {
+      /* Сброс полный: предустановка по объекту НЕ возвращается — она стартовое
+         предположение, а не ограничение, и агент, который её снял, хотел увидеть
+         больше. Радиус остаётся: он не бывает пустым. То же правило в приложении. */
+      filterState = { radius: filterState.radius };
+      renderFilterRow();
+      visibleCount = 10;
+      renderTableB();
+      updateResultsCounter();
+      updateShowMoreBtn();
+    }
+
+    document.getElementById('filtersFacets').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-facet]');
+      if (btn) openFilter(AppFilters.byKey[btn.dataset.facet], btn);
+    });
+
+    /* Ссылка «Сбросить фильтры» в самом ряду. До 2026-08-24 у неё не было
+       обработчика вовсе — сбрасывать было нечего, ряд был декорацией. */
+    var resetLink = document.querySelector('.reset-filters');
+    if (resetLink) resetLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      resetAllFilters();
+    });
+
+    renderFilterRow();
     // === OWNER REPORT FAB ===
     // Кнопка в правом нижнем углу ведёт к настройке отчёта — и уезжает, когда та
     // на экране. Два условия, и оба про «есть ли ей что делать»:
@@ -1011,11 +1182,15 @@
 
     // Сколько активных конкурентов доступно в «Подборке» (не в отчёте). Архив — отдельная
     // вкладка, в этот счётчик («Показать ещё» + «Нашли ещё N») не входит.
+    /* Сколько объявлений в подборке ПОСЛЕ фильтров. До 2026-08-24 фильтры были
+       декорацией, и счётчик их не знал; когда они начали отбирать, он остался бы
+       врать — «Нашли ещё 10» при нуле строк на экране. */
     function selectionPoolCount() {
       var c = 0;
       for (var j = 0; j < ALL_COMPETITORS.length; j++) {
         if (checkedIds.has(j) && !justAddedInSelection.has(j)) continue;
         if (removedIds.has(j)) continue;
+        if (!AppFilters.passes(ALL_COMPETITORS[j], filterState)) continue;
         c++;
       }
       return c;
@@ -1062,6 +1237,8 @@
 
     // === PLACEHOLDER BUTTON ===
     document.getElementById('btnSelectCompetitors').addEventListener('click', function() {
+      /* Одна кнопка, два смысла — по тому, чем вызвана пустота (см. renderTableB). */
+      if (this.dataset.mode === 'reset-filters') { resetAllFilters(); return; }
       tabSelection.click();
     });
 
@@ -1419,7 +1596,7 @@
       filtersEl.style.display = 'none';
       resultsCounter.style.display = 'none';
       archiveBanner.style.display = 'none';
-      archivePeriodBtn.style.display = 'none';
+      renderFilterRow();
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -1434,7 +1611,7 @@
       filtersEl.style.display = '';
       resultsCounter.style.display = '';
       archiveBanner.style.display = 'none';
-      archivePeriodBtn.style.display = 'none';
+      renderFilterRow();
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();
@@ -1455,7 +1632,7 @@
       filtersEl.style.display = '';        // общий фасетный ряд — как в «Подборке» (синхрон)
       resultsCounter.style.display = 'none';
       archiveBanner.style.display = 'flex';
-      archivePeriodBtn.style.display = ''; // «За N дней» — архив-специфичный, первым в общем ряду
+      renderFilterRow();   // на архиве в ряд встаёт «За N дней» первым
       renderTableB();
       updateShowMoreBtn();
       updateArrowVisibility();

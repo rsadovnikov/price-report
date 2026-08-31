@@ -741,24 +741,52 @@
        --surface-main-default и рамка --stroke-control-selected. У вебового
        фильтр-чипа своего выбранного состояния не было вовсе — дырка в системе,
        вылезла, когда ряд перестал быть декоративной разметкой. */
-    /* Выбранный фасет. Тройка снята с настоящего компонента кита «🌐 Chip»,
-       State=Checked: заливка #e6f0ff, рамка #3686ff, текст основной — сверено по
-       всем 16 вариантам сета 2026-08-24, совпадение точное.
-       ⚠️ Ровно та же тройка уже лежит в `components/chips.css` у `.chip-s.active`.
-       Дубль потому, что ряд собран на Button (так в макете 393:50545), а
-       выбранного состояния у Button нет вовсе — в сете 132 варианта и ни одного
-       Selected. То есть макет нарисован компонентом, который это состояние выразить
-       не может. Кому здесь быть — Button или Chip — решение за Романом. */
-    .btn-outline-sm.style-secondary.is-preset {
-      background: var(--surface-main-default);
-      border-color: var(--stroke-control-selected);
-      color: var(--text-primary-default);
+    /* ⚠️ Выбранный фильтр НЕ подсвечивается — так на проде (замер 2026-08-24:
+       у «2-комнатную» галка стоит, а фон прозрачный и рамка та же, что у пустых).
+       Причина в компоненте: триггер — это Button (`data-name="FilterButton"`),
+       а у Button в ките состояния Selected нет вовсе — 132 варианта, ни одного.
+       Значение сообщает подпись кнопки, а не заливка. До 2026-08-24 здесь стоял
+       мой `.is-preset` с синей заливкой — выдумка, поправил Роман.
+
+       Начертание тоже Regular, а не Bold: прод даёт 14/16.1/400, а `.btn-outline-sm`
+       берёт роль Heading5 (700). Переопределяем точечно — общую роль кнопки менять
+       нельзя, её носят настоящие кнопки страницы. */
+    .filters .filter-btn {
+      font-weight: 400;
+      letter-spacing: 0;
     }
-    .btn-outline-sm.style-secondary.is-preset:hover { background: var(--surface-main-default); }
     /* Экспорт шеврона приходит своим натуральным размером 9.414 × 6.121 — это глиф,
        а не бокс 16. Бокс даёт `.icon`, размер — картинке; так же сделано у
        `.chip-app__icon img` на поверхности приложения. */
     .filters .icon img { display: block; width: 9.414px; height: 6.121px; }
+
+    /* --- Тело выпадайки фильтра ---
+       Единица измерения стоит ПОСЛЕ пары полей, как на проде («от · ₽ · до · ₽»
+       у цены — там она у каждого поля, у площади одна на пару). Держим одну:
+       два одинаковых суффикса в узкой панели читаются как шум. */
+    .popover__unit {
+      flex: none;
+      font-size: var(--type-body2-size);
+      line-height: var(--type-body2-lh);
+      color: var(--text-secondary-default);
+    }
+    .popover__slider {
+      display: flex;
+      flex-direction: column;
+      gap: var(--unit2);
+      min-width: 280px;
+    }
+    .popover__slider-value {
+      font-size: var(--type-caption-size);
+      line-height: var(--type-caption-lh);
+      color: var(--text-secondary-default);
+    }
+    /* Дорожка — нативный `input[type=range]`: клавиатура, фокус и перетаскивание
+       достаются бесплатно. Тот же довод, что у слайдера на поверхности приложения. */
+    .popover__slider .range-input {
+      width: 100%;
+      accent-color: var(--control-main-primary-default);
+    }
     /* Хвост фильтров: сегмент + «Сбросить фильтры» как один неразрывный flex-элемент.
        Один широкий блок → чаще не влезает и переносится целиком на следующую строку
        (не форс-перенос, а нехватка места). Делит общий wrap-поток с чипами `.filters-left`,

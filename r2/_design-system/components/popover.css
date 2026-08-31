@@ -1,0 +1,81 @@
+/* === POPOVER (веб) ===
+ * Панель, привязанная к кнопке-триггеру. В ките ЦИАНа компонент называется так же
+ * (UI-KIT → Popover); у нас его не было вовсе — первым потребителем стал ряд
+ * фильтров вебового отчёта.
+ *
+ * Числа сняты с прода 2026-08-24 (my.cian.ru/competitors-report, `FilterItemPopover`):
+ * паддинг 20/16, радиус 4, тень `0 8px 16px rgba(0,0,0,.08)`, z-index 100.
+ *
+ * ⚠️ Радиус 4, а НЕ 8 как у кнопки-триггера. Это не описка замера: у панели и у
+ * кнопки радиусы разные, проверено по всем девяти выпадайкам.
+ *
+ * ⚠️ Ширина — по содержимому, а не фиксированная: на проде она гуляет от 135
+ * («Активные») до 353 (слайдер радиуса). Поэтому здесь только потолок, чтобы
+ * длинный вариант не растянул панель через пол-экрана.
+ */
+
+.popover {
+  position: absolute;
+  z-index: 100;
+  box-sizing: border-box;
+  min-width: 135px;
+  max-width: 360px;
+  padding: var(--unit5) var(--unit4);          /* 20 / 16 — с прода */
+  border-radius: var(--radius-m);              /* 4 */
+  background: var(--background-primary);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  font-family: var(--font-base);
+}
+
+/* Появление. Панель уже спозиционирована к моменту показа, поэтому анимируем
+   только прозрачность и короткий подъём — сдвиг по X сместил бы её относительно
+   триггера, к которому она привязана. */
+.popover {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.popover.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { transition: none; }
+}
+
+/* --- Подвал с кнопками ---
+ * Только у диапазонов и слайдера. У чекбоксовых фильтров подвала нет вовсе — они
+ * применяются сразу, так на проде. Кнопки идут в ряд, «Применить» первой.
+ */
+.popover__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+  margin-top: var(--unit4);
+}
+
+/* --- Вертикальная группа чекбоксов ---
+ * Прод: `checkbox-group vertical-group`. Зазор 12 — снят с расстояния между
+ * строками в панели «Материал дома» (11 вариантов, 465 высотой при паддинге 20).
+ */
+.popover__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit3);
+}
+
+/* --- Пара полей «от / до» --- */
+.popover__range {
+  display: flex;
+  align-items: center;
+  gap: var(--unit2);
+}
+.popover__range .input {
+  width: 100%;
+  min-width: 0;
+}
+.popover__range-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
