@@ -918,16 +918,22 @@
           + '</span></div>';
       }
       if (f.type === 'range') {
-        /* Единица живёт ВНУТРИ поля «до», а не висит после пары. В ките у DoubleInput
+        /* Единица живёт ВНУТРИ поля, а не висит после пары. В ките у DoubleInput
            для этого есть слот `toAdornments.right` — то есть это его штатное место,
            а не наша находка. До 2026-09-01 у нас был свой `.popover__unit` снаружи
-           контрола: такого в ките нет вовсе. */
-        return '<div class="popover__range">' + [['from', 'от'], ['to', 'до']].map(function (b) {
+           контрола: такого в ките нет вовсе.
+
+           В паре единица одна и стоит у «до» — она замыкает диапазон. В колонке
+           (`stack`) она нужна КАЖДОМУ полю: строки читаются порознь, и «от 25 000 000»
+           без знака валюты — просто число. */
+        return '<div class="popover__range' + (f.stack ? ' popover__range--stack' : '') + '">'
+          + [['from', 'от'], ['to', 'до']].map(function (b) {
           var val = draft && draft[b[0]] != null ? draft[b[0]] : '';
+          var единица = f.unit && (f.stack || b[0] === 'to');
           return '<span class="popover__range-field"><span class="input input-m">'
             + '<input class="input__control" type="text" inputmode="numeric"'
             + ' data-bound="' + b[0] + '" placeholder="' + b[1] + '" value="' + val + '">'
-            + (f.unit && b[0] === 'to' ? '<span class="input__adornment">' + escHtml(f.unit) + '</span>' : '')
+            + (единица ? '<span class="input__adornment">' + escHtml(f.unit) + '</span>' : '')
             + '</span></span>';
         }).join('') + '</div>';
       }

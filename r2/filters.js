@@ -110,7 +110,13 @@ var AppFilters = (function () {
       chip: function (v) { return rangeLabel(v, 'м²'); },
       match: function (c, v) { return inRange(parseDesc(c).area, v); } },
 
-    { key: 'price', label: 'Цена', type: 'range', title: 'Цена', unit: '₽',
+    /* `stack` — поля идут КОЛОНКОЙ во всю ширину, а не парой в ряд. Это не вкус:
+       в паре на каждое поле остаётся ~60px полезной ширины, а «25000000» требует 74
+       — обе границы обрезаются прямо при вводе (замер 2026-09-01). Так же и на
+       проде, и по той же причине: у денег восемь-девять знаков.
+       ⚠️ Единица при этом стоит в КАЖДОМ поле: у колонки нет «последнего поля пары»,
+       к которому её можно было бы отнести. */
+    { key: 'price', label: 'Цена', type: 'range', title: 'Цена', unit: '₽', stack: true,
       chip: function (v) { return rangeLabel(v, 'млн ₽', mln); },
       match: function (c, v) { return inRange(num(c.currentPrice), v); } },
 
