@@ -937,12 +937,19 @@
             + '</span></span>';
         }).join('') + '</div>';
       }
-      /* Слайдер: подпись значения сверху, дорожка под ней — как на проде. */
+      /* Слайдер: подпись значения сверху, дорожка под ней — как на проде.
+         Сама дорожка — компонент ДС `components/slider.*`, снятый с кита; до
+         2026-09-01 тут стоял голый `<input type=range>` с `accent-color`, то есть
+         ползунок в отрисовке браузера. */
       var v = draft != null ? draft : f.start;
       return '<div class="popover__slider">'
         + '<span class="popover__slider-value">' + escHtml(f.format(v)) + '</span>'
-        + '<input class="range-input" type="range" min="' + f.min + '" max="' + f.max
-        + '" step="' + f.step + '" value="' + v + '">'
+        + '<span class="slider">'
+          + '<span class="slider__rail"></span><span class="slider__track"></span>'
+          + '<input class="slider__input" type="range" min="' + f.min + '" max="' + f.max
+          + '" step="' + f.step + '" value="' + v + '"'
+          + ' aria-label="' + escHtml(f.title) + '">'
+        + '</span>'
         + '</div>';
     }
 
@@ -974,11 +981,18 @@
       /* Шеврон переворачивается на открытой выпадайке (макет 980:65101: у обоих
          триггеров он смотрит вверх). Состояние держит `aria-expanded` — тот же
          атрибут отдаёт его и скринридеру, поэтому второго флага не нужно. */
-      btn.setAttribute('aria-expanded', 'true');
       var pop = openPopover({
         anchor: btn, content: html, ariaLabel: f.title,
         onClose: function () { btn.setAttribute('aria-expanded', 'false'); }
       });
+      /* Повторный клик по тому же триггеру — компонент закрыл панель и вернул
+         `null`. Атрибут снял его же `onClose`, ставить его тут нечего. */
+      if (!pop) return;
+      btn.setAttribute('aria-expanded', 'true');
+      /* Полосу заполнения двигает скрипт компонента, и монтировать его надо ПОСЛЕ
+         вставки панели в документ: до этого у дорожки нет ширины и расчёт даст ноль. */
+      var slider = pop.el.querySelector('.slider');
+      if (slider) mountSlider(slider);
       /* Модификатор ставим ДО пересчёта места: у списка свои поля (4/0 против 20/16),
          то есть другая ширина, а от неё зависит переворот у правого края экрана. */
       if (f.type === 'chips' && f.single) {
@@ -1023,9 +1037,9 @@
           draft[field.dataset.bound] = raw === '' ? null : Number(raw);
           return;
         }
-        var slider = e.target.closest('.range-input');
-        if (slider) {
-          draft = Number(slider.value);
+        var range = e.target.closest('.slider__input');
+        if (range) {
+          draft = Number(range.value);
           var out = pop.el.querySelector('.popover__slider-value');
           if (out) out.textContent = f.format(draft);
         }

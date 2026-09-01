@@ -1,0 +1,110 @@
+/* === SLIDER (веб) ===
+ * Дорожка со значением. Компонент есть в ките ЦИАНа — `UI-Kit/Slider/Slider`, — и
+ * числа ниже сняты с него живьём (сторибук, история `slider--single-story`,
+ * 2026-09-01), а не подобраны на глаз.
+ *
+ * ⚠️ До 2026-09-01 у нас на вебе слайдера не было вовсе: в выпадайке радиуса стоял
+ * голый `<input type="range">` с `accent-color`. Браузер рисует его по-своему —
+ * дорожка вчетверо толще, ручка синяя и вдвое меньше. Нашёл Роман.
+ * ⚠️ Заодно неверна запись в шапке `app/slider.css`: «в ките ЦИАН такого компонента
+ * нет ни в вебе, ни в iOS-библиотеке». В вебе — есть. Исправлено там же.
+ *
+ * Анатомия кита:
+ *   корень      padding 13/0, высота 28, cursor pointer
+ *   rail        2px во всю ширину, `--background-secondary` (#f3f5fa), БЕЗ скругления
+ *   track       2px, `--control-main-primary-default` (#006cfd), тоже без скругления
+ *   ручка       20×20, белая, круг, тень в три слоя по rgba(0,0,0,.1)
+ *   состояний   у ручки нет: hover и active в ките дают ту же тень
+ *
+ * Собран на нативном `<input type="range">`: клавиатура, фокус, тач и доступность
+ * достаются бесплатно, а нам остаётся раскрасить. Ручку везёт браузер, полосу
+ * заполнения двигает `slider.js` — CSS не умеет считать положение ручки.
+ * Тот же приём, что на поверхности приложения (`app/slider.css`).
+ */
+
+.slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 28px;
+  padding: 13px 0;
+  cursor: pointer;
+}
+
+/* Полоса и заполнение — отдельные узлы, а не градиент на дорожке: градиент
+   пересчитывается при каждом кадре перетаскивания и на длинной дорожке заметно
+   дёргается. Здесь двигается одна ширина. */
+.slider__rail,
+.slider__track {
+  position: absolute;
+  top: 13px;
+  left: 0;
+  height: 2px;
+}
+.slider__rail {
+  right: 0;
+  background: var(--background-secondary);
+}
+.slider__track {
+  width: 0;                                  /* ширину в px ставит slider.js */
+  background: var(--control-main-primary-default);
+}
+
+/* Нативный инпут лежит поверх: своя дорожка у него прозрачная, видна только ручка. */
+.slider__input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.slider__input:focus { outline: none; }
+
+.slider__input::-webkit-slider-runnable-track {
+  height: 2px;
+  background: transparent;
+}
+/* `margin-top` центрует ручку относительно дорожки: (2 − 20) / 2 = −9. Ровно то же
+   значение стоит у ручки в ките — там оно взято из той же арифметики. */
+.slider__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -9px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--background-primary);
+  box-shadow: 0 3px 1px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.slider__input::-moz-range-track { height: 2px; background: transparent; border: 0; }
+.slider__input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--background-primary);
+  box-shadow: 0 3px 1px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/* ⚠️ Кольцо фокуса — НАШЕ, в ките его нет: там у ручки одна тень на все состояния.
+   Но нативный `outline` мы сняли вместе с оформлением, и без замены ползунок стал
+   бы недостижим глазом с клавиатуры. Добавляем только на `:focus-visible`, то есть
+   мышью оно не появляется. */
+.slider__input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 3px 1px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1),
+              0 3px 8px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--stroke-control-focused);
+}
+.slider__input:focus-visible::-moz-range-thumb {
+  box-shadow: 0 3px 1px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1),
+              0 3px 8px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--stroke-control-focused);
+}

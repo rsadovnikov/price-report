@@ -130,7 +130,7 @@
   var shown = comparable.slice(0, n);
   /* Пресет тот же, что на экране подборки: новый конкурент обязан там найтись,
      иначе строка-предложение ведёт в список, где обещанного объекта нет. */
-  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, AppPreset.from(base.desc));
+  var marks = AppUpdates.allocate(ALL_COMPETITORS, n, u, base.desc);
   var priceIdx = marks.priceIdx, removedIdx = marks.removedIdx, fresh = marks.fresh;
 
   /* --- Конкуренты --- */

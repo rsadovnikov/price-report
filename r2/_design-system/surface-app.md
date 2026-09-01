@@ -75,15 +75,20 @@
 | 3 | Segmented Control | `segmented.css` | ✓ с экрана настройки 563:69622 → `components/app/segmented.css` |
 | 4 | Tabs Control | `tabs.css` | ✓ с экрана 563:68191 → `components/app/tabs.css` |
 | 5 | Chips Control | `chips.css` | ✓ Small с экрана 393:82207, Medium с раскладки фильтров 64:39578 → `components/app/chips.css` |
-| 6 | Slider | **нет** | ✓ с раскладки фильтров 64:39578 → `components/app/slider.css` + `slider.js` |
+| 6 | Slider | `components/slider.css` (с 2026-09-01) | ✓ с раскладки фильтров 64:39578 → `components/app/slider.css` + `slider.js` |
 | 7 | Rating Control | **нет** | нет |
 | 8 | Tag Group | **нет** (близко `badges.css` → `.label`, но это другое) | нет |
 | 9 | Date Picker | **нет** | нет |
 | 10 | Inputs | `inputs.css` | ✓ с экрана настройки 563:69622 → `components/app/inputs.css` |
 | 11 | Entry Points | **нет** — это строка-вход в раздел | ✓ с экрана 667:19930 → `components/app/entry-point.css` |
 
-Шесть из одиннадцати имеют вебовый аналог, пять — нет. Это и есть первая половина
+Семь из одиннадцати имеют вебовый аналог, четыре — нет. Это и есть первая половина
 водораздела: то, чего в вебе не существует, придётся заводить с нуля.
+
+⚠️ Было «шесть из одиннадцати»: у Slider вебовый аналог появился 2026-09-01 —
+`components/slider.css`, снятый с `UI-Kit/Slider/Slider`. До этого в вебе стоял голый
+`input[type=range]`, то есть ползунок в отрисовке браузера, а в шапке `app/slider.css`
+значилось, что в ките ЦИАНа слайдера нет вовсе. Проверено не было.
 
 На 2026-08-22 не сняты четыре из одиннадцати: Selectable Controls (веб-аналог есть),
 Rating Control, Tag Group и Date Picker (аналога нет). Buttons сняты частично —

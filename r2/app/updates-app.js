@@ -5,10 +5,14 @@
  * конкурентов. Взято из вебового отчёта (report.js, markUpdates) и повторено
  * здесь, потому что мобильные экраны показывают те же изменения.
  *
- *   AppUpdates.allocate(ALL_COMPETITORS, n, u, preset)
+ *   AppUpdates.allocate(ALL_COMPETITORS, n, u, desc)
  *     -> { priceIdx, removedIdx, fresh, freshIds }
  *
- * `preset` — предустановка фильтров по объекту агента (`AppPreset.from(desc)`).
+ * `desc` — описание объекта агента. Кандидата судит `AppFilters.inPreset`, то есть
+ * ровно то правило, которым строится сама подборка.
+ * ⚠️ До 2026-09-01 сюда передавали разобранный пресет и сверяли `AppPreset.matches`.
+ * Тот знает вид жилья, комнаты и площадь — и разошёлся с выдачей, как только у
+ * «До метро» появился порог по умолчанию. Разбор — в `filters.js`, `inPreset`.
  * Нужна новым конкурентам: они обязаны лежать внутри предустановленной выдачи.
  *
  * Почему отдельный файл. До 2026-08-23 правило жило внутри `report-app.js`, и
@@ -23,7 +27,7 @@
 var AppUpdates = (function () {
   'use strict';
 
-  function allocate(list, n, u, preset) {
+  function allocate(list, n, u, desc) {
     var left = u > 0 ? u : 0;
     var shown = (list || []).slice(0, n);
     var priceIdx = -1, removedIdx = -1, i;
@@ -59,7 +63,7 @@ var AppUpdates = (function () {
     var freshIds = [];
     for (i = n; i < list.length && freshIds.length < left; i++) {
       if (list[i].removed) continue;
-      if (preset && !AppPreset.matches(list[i], preset)) continue;
+      if (desc != null && !AppFilters.inPreset(list[i], desc)) continue;
       freshIds.push(i);
     }
 
