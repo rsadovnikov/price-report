@@ -123,6 +123,18 @@
           + '" type="button" data-option="' + esc(o) + '">' + esc(o) + '</button>';
       }).join('') + '</div>';
     }
+    /* Порог одним числом («До метро»). На поверхности приложения это то же поле
+       ввода, что у диапазона, — просто одно: макет 980:65194 вебовый, но контрол
+       в нём тот же Input с суффиксом, и заводить ради одной поверхности второй
+       способ спросить число незачем. */
+    if (f.type === 'number') {
+      return '<div class="filter-sheet__row">'
+        + '<label class="input-app filter-sheet__input">'
+        + '<input class="input-app__control" type="text" inputmode="numeric" data-num'
+        + ' value="' + esc(v != null ? v : '') + '">'
+        + (f.unit ? '<span class="input-app__suffix">' + esc(f.unit) + '</span>' : '')
+        + '</label></div>';
+    }
     if (f.type === 'range') {
       var pair = [['from', 'от'], ['to', 'до']].map(function (p) {
         var val = v && v[p[0]] != null ? v[p[0]] : '';
@@ -189,7 +201,10 @@
       var val = opt.dataset.option;
       if (!draft) draft = [];
       if (f.single) {
-        draft = draft.indexOf(val) >= 0 ? [] : [val];
+        /* У `always`-фильтра (период) повторный тап по выбранному чипу ничего не
+           снимает: пустого состояния у него нет. */
+        var было = draft.indexOf(val) >= 0;
+        draft = (было && f.always) ? draft : (было ? [] : [val]);
         content.querySelectorAll('[data-option]').forEach(function (b) {
           b.classList.toggle('chip-app--selected', draft.indexOf(b.dataset.option) >= 0);
         });
@@ -201,6 +216,13 @@
     });
 
     content.addEventListener('input', function (e) {
+      var num = e.target.closest('[data-num]');
+      if (num) {
+        var digits = num.value.replace(/[^\d]/g, '');
+        num.value = digits;
+        draft = digits === '' ? null : Number(digits);
+        return;
+      }
       var field = e.target.closest('[data-bound]');
       if (!field) return;
       if (!draft) draft = { from: null, to: null };
@@ -222,7 +244,13 @@
      агент, который её снял, хотел увидеть больше, а не то же самое. Радиус
      остаётся: он не бывает пустым. */
   function resetFilters() {
-    state = { radius: state.radius };
+    /* Остаются `always` — радиус и период: у них нет пустого состояния. По флагу,
+       а не по имени: следующий такой фильтр иначе тихо исчезнет из ряда. */
+    var keep = {};
+    FILTERS.forEach(function (f) {
+      if (f.always) keep[f.key] = state[f.key] != null ? state[f.key] : f.start;
+    });
+    state = keep;
     renderFresh();
   }
 

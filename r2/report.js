@@ -861,20 +861,47 @@
        в ряду приложения. До 2026-08-24 здесь стоял текстовый символ `▾`: он рисуется
        ЗАЛИТЫМ треугольником шрифта, а в ките глиф — открытая галка. Нашёл Роман. */
     var CHEV = '_design-system/assets/icons/chevron-down-small-16.svg';
+    var CHECK = '_design-system/assets/icons/check-16.svg';
 
+    /* Подпись — отдельным узлом, и это не украшательство разметки. Пока фильтр
+       открыт, его кнопка обязана дожить до закрытия: к ней привязана панель и на
+       ней держится перевёрнутый шеврон. Перерисовка ряда целиком её заменяла —
+       панель оставалась висеть у узла, которого в документе больше нет. Поэтому
+       после применения меняется ТОЛЬКО текст подписи (`setFilterLabel`), а ряд
+       целиком перерисовывается лишь там, где меняется его состав: вкладка и сброс. */
     function renderFilterRow() {
       var host = document.getElementById('filtersFacets');
       if (!host) return;
       host.innerHTML = AppFilters.row(activeTab).map(function (f) {
         return '<button class="btn-outline-sm style-secondary filter-btn" type="button"'
-          + ' data-facet="' + f.key + '" aria-haspopup="dialog">'
-          + escHtml(AppFilters.label(f, filterState))
-          + ' <span class="icon"><img src="' + CHEV + '" alt=""></span></button>';
+          + ' data-facet="' + f.key + '" aria-haspopup="dialog" aria-expanded="false">'
+          + '<span class="filter-btn__label">' + escHtml(AppFilters.label(f, filterState)) + '</span>'
+          + '<span class="icon"><img src="' + CHEV + '" alt=""></span></button>';
       }).join('');
     }
 
-    /* Тело выпадайки. Три вида — ровно те, что на проде. */
+    function setFilterLabel(btn, f) {
+      var el = btn.querySelector('.filter-btn__label');
+      if (el) el.textContent = AppFilters.label(f, filterState);
+    }
+
+    /* Тело выпадайки. Четыре вида, и вид решает КОНТРОЛ, а не мой вкус:
+       набор → чекбоксы, одно из списка → строки с галкой, диапазон → пара полей,
+       порог → одно поле, радиус → дорожка. */
     function filterBody(f, draft) {
+      /* Одиночный выбор — список Suggest (макет 980:64958): строка, галка справа
+         у выбранной, никаких чекбоксов. Чекбокс обещает набор, а набрать здесь
+         можно ровно одно — до 2026-09-01 период и метро врали об этом квадратом. */
+      if (f.type === 'chips' && f.single) {
+        return '<div class="popover__list" role="listbox">' + f.options.map(function (o) {
+          var on = !!(draft && draft.indexOf(o) >= 0);
+          return '<button class="popover__option" type="button" role="option"'
+            + ' aria-selected="' + on + '" data-option="' + escHtml(o) + '">'
+            + '<span class="popover__option-text">' + escHtml(o) + '</span>'
+            + (on ? '<span class="popover__option-check"><img src="' + CHECK + '" alt=""></span>' : '')
+            + '</button>';
+        }).join('') + '</div>';
+      }
       if (f.type === 'chips') {
         return '<div class="popover__group">' + f.options.map(function (o, i) {
           var on = draft && draft.indexOf(o) >= 0;
@@ -883,15 +910,26 @@
             + '<span class="checkbox__label">' + escHtml(o) + '</span></label>';
         }).join('') + '</div>';
       }
+      if (f.type === 'number') {
+        return '<div class="popover__number"><span class="input input-m">'
+          + '<input class="input__control" type="text" inputmode="numeric" data-num'
+          + ' value="' + (draft != null ? draft : '') + '">'
+          + (f.unit ? '<span class="input__adornment">' + escHtml(f.unit) + '</span>' : '')
+          + '</span></div>';
+      }
       if (f.type === 'range') {
+        /* Единица живёт ВНУТРИ поля «до», а не висит после пары. В ките у DoubleInput
+           для этого есть слот `toAdornments.right` — то есть это его штатное место,
+           а не наша находка. До 2026-09-01 у нас был свой `.popover__unit` снаружи
+           контрола: такого в ките нет вовсе. */
         return '<div class="popover__range">' + [['from', 'от'], ['to', 'до']].map(function (b) {
           var val = draft && draft[b[0]] != null ? draft[b[0]] : '';
-          return '<span class="popover__range-field"><span class="input">'
+          return '<span class="popover__range-field"><span class="input input-m">'
             + '<input class="input__control" type="text" inputmode="numeric"'
             + ' data-bound="' + b[0] + '" placeholder="' + b[1] + '" value="' + val + '">'
+            + (f.unit && b[0] === 'to' ? '<span class="input__adornment">' + escHtml(f.unit) + '</span>' : '')
             + '</span></span>';
-        }).join('') + (f.unit ? '<span class="popover__unit">' + escHtml(f.unit) + '</span>' : '')
-        + '</div>';
+        }).join('') + '</div>';
       }
       /* Слайдер: подпись значения сверху, дорожка под ней — как на проде. */
       var v = draft != null ? draft : f.start;
@@ -912,21 +950,40 @@
         : f.type === 'range' ? { from: cur.from, to: cur.to }
         : cur;
 
+      /* Кнопки нужны там, где выбор бывает НЕЗАКОНЧЕННЫМ: диапазон без второй
+         границы, число без цифры, дорожка, которую ещё возят. Галка и строка
+         списка законченны сами по себе — там кнопок нет вовсе, так на проде. */
       var needsApply = f.type !== 'chips';
+      /* Колонкой, во всю ширину, кнопки Medium (44) — прод и макет 980:65194.
+         «Сбросить» — secondary с голубой заливкой, а не ghost: заливка есть и на
+         проде (#e6f0ff), и в макете. */
       var html = filterBody(f, draft)
         + (needsApply
           ? '<div class="popover__footer">'
-            + '<button class="btn-primary-sm" type="button" data-action="apply">Применить</button>'
-            + '<button class="btn-ghost-sm" type="button" data-action="reset">Сбросить</button>'
+            + '<button class="btn-primary-md" type="button" data-action="apply">Применить</button>'
+            + '<button class="btn-secondary-md" type="button" data-action="reset">Сбросить</button>'
             + '</div>'
           : '');
 
-      var pop = openPopover({ anchor: btn, content: html, ariaLabel: f.title });
+      /* Шеврон переворачивается на открытой выпадайке (макет 980:65101: у обоих
+         триггеров он смотрит вверх). Состояние держит `aria-expanded` — тот же
+         атрибут отдаёт его и скринридеру, поэтому второго флага не нужно. */
+      btn.setAttribute('aria-expanded', 'true');
+      var pop = openPopover({
+        anchor: btn, content: html, ariaLabel: f.title,
+        onClose: function () { btn.setAttribute('aria-expanded', 'false'); }
+      });
+      /* Модификатор ставим ДО пересчёта места: у списка свои поля (4/0 против 20/16),
+         то есть другая ширина, а от неё зависит переворот у правого края экрана. */
+      if (f.type === 'chips' && f.single) {
+        pop.el.classList.add('popover--list');
+        pop.reposition();
+      }
 
       function commit() {
         if (AppFilters.isFilled(f, draft)) filterState[f.key] = draft;
         else delete filterState[f.key];
-        renderFilterRow();
+        setFilterLabel(btn, f);     // ряд не перерисовываем: панель привязана к кнопке
         visibleCount = 10;          // новая выдача начинается с первой страницы
         renderTableB();
         updateResultsCounter();
@@ -934,24 +991,24 @@
       }
 
       pop.el.addEventListener('change', function (e) {
-        var box = e.target.closest('[data-option]');
+        var box = e.target.closest('input[data-option]');
         if (!box || f.type !== 'chips') return;
         var val = box.dataset.option;
         if (!draft) draft = [];
-        if (f.single) {
-          draft = box.checked ? [val] : [];
-          pop.el.querySelectorAll('[data-option]').forEach(function (b) {
-            b.checked = draft.indexOf(b.dataset.option) >= 0;
-          });
-        } else {
-          var i = draft.indexOf(val);
-          if (box.checked && i < 0) draft.push(val);
-          if (!box.checked && i >= 0) draft.splice(i, 1);
-        }
+        var i = draft.indexOf(val);
+        if (box.checked && i < 0) draft.push(val);
+        if (!box.checked && i >= 0) draft.splice(i, 1);
         commit();                   // чекбоксы применяются сразу — так на проде
       });
 
       pop.el.addEventListener('input', function (e) {
+        var num = e.target.closest('[data-num]');
+        if (num) {
+          var digits = num.value.replace(/[^\d]/g, '');
+          num.value = digits;
+          draft = digits === '' ? null : Number(digits);
+          return;
+        }
         var field = e.target.closest('[data-bound]');
         if (field) {
           if (!draft) draft = { from: null, to: null };
@@ -969,6 +1026,19 @@
       });
 
       pop.el.addEventListener('click', function (e) {
+        /* Строка списка: выбор одиночный, значит он закончен в тот же тап —
+           применяем и закрываем. У `always`-фильтра повторный тап по выбранной
+           НИЧЕГО не снимает: пустого состояния у него нет, и «снять» означало бы
+           показать кнопку без значения. */
+        var opt = e.target.closest('.popover__option');
+        if (opt) {
+          var val = opt.dataset.option;
+          var было = !!(draft && draft.indexOf(val) >= 0);
+          if (!(было && f.always)) draft = было ? [] : [val];
+          commit();
+          pop.close();
+          return;
+        }
         if (e.target.closest('[data-action="apply"]')) { commit(); pop.close(); return; }
         if (e.target.closest('[data-action="reset"]')) {
           /* Сброс — движение в один шаг: чистит фильтр, обновляет выдачу и закрывает.
@@ -992,8 +1062,14 @@
     function resetAllFilters() {
       /* Сброс полный: предустановка по объекту НЕ возвращается — она стартовое
          предположение, а не ограничение, и агент, который её снял, хотел увидеть
-         больше. Радиус остаётся: он не бывает пустым. То же правило в приложении. */
-      filterState = { radius: filterState.radius };
+         больше. Остаются `always` — радиус и период: у них нет пустого состояния,
+         сбрасывать их некуда. Перебираем по флагу, а не по имени: следующий такой
+         фильтр иначе тихо исчезнет из ряда. То же правило в приложении. */
+      var keep = {};
+      AppFilters.list.forEach(function (f) {
+        if (f.always) keep[f.key] = filterState[f.key] != null ? filterState[f.key] : f.start;
+      });
+      filterState = keep;
       renderFilterRow();
       visibleCount = 10;
       renderTableB();
