@@ -65,8 +65,10 @@ var AppFilters = (function () {
 
   var LIST = [
     /* `always` — фильтр не бывает пустым: радиус показывает значение с первого
-       кадра. ⚠️ На проде у радиуса «Сбросить» ЕСТЬ, а в макете шторки приложения
-       (64:39747) в шапке только крестик. Поверхности тут расходятся намеренно. */
+       кадра. «Сбросить» у него при этом ЕСТЬ на обеих поверхностях и возвращает к
+       базовой настройке, а не гасит (Роман, 2026-09-01): сбросить в пусто значило бы
+       показать кнопку без значения. ⚠️ В макете шторки приложения (64:39747) в шапке
+       один крестик — макет тут отменён решением, а не недосмотрен. */
     { key: 'radius', label: 'Радиус', type: 'slider', title: 'Радиус от оцениваемого объекта',
       always: true, min: 200, max: 20000, step: 100, start: 2000,
       format: function (v) { return v >= 1000 ? String(v / 1000).replace('.', ',') + ' км' : v + ' м'; },
@@ -208,13 +210,22 @@ var AppFilters = (function () {
 
   /* Предустановка по объекту агента: радиус всегда, комнаты и площадь — из
      описания. Цену, год и материал не предустанавливаем (см. preset-app.js). */
+  /* Базовая настройка `always`-фильтра — 2 км, 15 минут, «за 7 дней».
+     Отдаём КОПИЕЙ: у периода это массив, и положить его в состояние по ссылке
+     значило бы отдать всем экранам один и тот же объект из таблицы. Спрашивают её
+     четыре места (предустановка, оба «Сбросить фильтры», «Сбросить» у самого
+     фильтра), поэтому она здесь, а не по копии на каждой поверхности. */
+  function start(f) {
+    return Array.isArray(f.start) ? f.start.slice() : f.start;
+  }
+
   function preset(desc) {
     var p = AppPreset.from(desc || '');
     /* Все `always` — сразу со значением: у них нет пустого состояния по определению.
        Перечислять их поимённо нельзя, иначе следующий такой фильтр заведут, а сюда
        дописать забудут — и он приедет на экран пустым. */
     var s = {};
-    LIST.forEach(function (f) { if (f.always) s[f.key] = f.start; });
+    LIST.forEach(function (f) { if (f.always) s[f.key] = start(f); });
     if (p.rooms) s.rooms = p.rooms.map(function (n) { return n + '-комн.'; });
     if (p.area) s.area = { from: p.area.from, to: p.area.to };
     return s;
@@ -247,5 +258,5 @@ var AppFilters = (function () {
   }
 
   return { list: LIST, byKey: BY_KEY, row: row, isFilled: isFilled,
-           label: label, preset: preset, passes: passes, inPreset: inPreset };
+           label: label, start: start, preset: preset, passes: passes, inPreset: inPreset };
 })();

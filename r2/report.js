@@ -1063,7 +1063,7 @@
         if (e.target.closest('[data-action="reset"]')) {
           /* Сброс — движение в один шаг: чистит фильтр, обновляет выдачу и закрывает.
              Подтверждать нечего, а показывать панель с пустым выбором незачем. */
-          draft = f.always ? f.start : null;
+          draft = f.always ? AppFilters.start(f) : null;
           commit();
           pop.close();
         }
@@ -1082,12 +1082,12 @@
     function resetAllFilters() {
       /* Сброс полный: предустановка по объекту НЕ возвращается — она стартовое
          предположение, а не ограничение, и агент, который её снял, хотел увидеть
-         больше. Остаются `always` — радиус и период: у них нет пустого состояния,
+         больше. Остаются `always` — радиус, до метро и период: пустого состояния нет,
          сбрасывать их некуда. Перебираем по флагу, а не по имени: следующий такой
          фильтр иначе тихо исчезнет из ряда. То же правило в приложении. */
       var keep = {};
       AppFilters.list.forEach(function (f) {
-        if (f.always) keep[f.key] = filterState[f.key] != null ? filterState[f.key] : f.start;
+        if (f.always) keep[f.key] = filterState[f.key] != null ? filterState[f.key] : AppFilters.start(f);
       });
       filterState = keep;
       renderFilterRow();
