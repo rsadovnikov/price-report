@@ -52,23 +52,30 @@
 }
 
 /* Картинка забирает всё свободное место: на низком экране ужимается она, а не
-   текст. В макете на 812 выходит 335×251. */
+   текст. В макете на 812 выходит 335×251.
+
+   Обводка отделяет кадр от белой карточки (правка Романа 2026-09-03): на видео
+   PDF-отчёта верх и низ белые, и без линии кадр растворяется в шторке. Та же роль,
+   что у кольца в стопке фото, — отделять там, где иначе не видно границы.
+   Габарит она не двигает: `box-sizing: border-box` из base.css. */
 .onboarding-app__image {
   flex: 1;
   min-height: 0;
   width: 100%;
-  border-radius: var(--radius-l);
+  border: 1px solid var(--stroke-divider-default);
+  border-radius: var(--radius-xl);
   overflow: hidden;
 }
-.onboarding-app__image img {
+.onboarding-app__image img,
+.onboarding-app__image video {
   display: block;
   width: 100%; height: 100%;
   object-fit: cover;
 }
 
 /* Пока иллюстраций нет, в макете стоит серый шахматный плейсхолдер — повторяем
-   его, чтобы место было занято честно, а не пустотой. Заменить на картинку —
-   одна строка в данных шага. */
+   его, чтобы место было занято честно, а не пустотой. Заменить на картинку или
+   видео — одна строка в данных шага. */
 .onboarding-app__image--placeholder {
   background:
     repeating-conic-gradient(var(--surface-neutral-default) 0% 25%, var(--background-primary) 0% 50%)

@@ -8,7 +8,11 @@
  *       { title: 'Обзор конкурентов объекта',
  *         note:  'Все похожие объекты в одном месте…',
  *         button: 'И это ещё не всё',
- *         image: 'photos/onb-1.jpg' },       // нет image — серый плейсхолдер, как в макете
+ *         image: 'photos/onb-1.jpg' },       // нет image и нет video — серый плейсхолдер, как в макете
+ *       { title: 'Отчёт для собственника',
+ *         video:  'media/onb-3.mp4',         // вместо картинки; играет сам, без звука, в цикле
+ *         poster: 'media/onb-3.jpg',         // первый кадр, пока файл грузится
+ *         … },
  *       …
  *     ],
  *     onClose: function (step) {}            // step — на каком шаге закрыли, с нуля
@@ -37,9 +41,20 @@ function openOnboarding(config) {
     var dots = steps.map(function (_, j) {
       return '<span class="onboarding-app__dot' + (j === i ? ' onboarding-app__dot--active' : '') + '"></span>';
     }).join('');
+    /* Видео крутится в цикле (решение Романа 2026-09-03): шаг живёт столько, сколько
+       на него смотрят, и замерший последний кадр читался бы как остановка. Стык кадров
+       ролик держит сам — петля показывает его каждый оборот.
+       `muted` + `playsinline` обязательны: без них iOS автозапуск не даст.
+       При `prefers-reduced-motion` сам не стартует: показываем постер и контролы —
+       ролик остаётся доступен, но движение начинает человек, а не страница. */
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var media = s.video
+      ? '<video src="' + esc(s.video) + '"' + (s.poster ? ' poster="' + esc(s.poster) + '"' : '')
+        + ' muted playsinline loop preload="auto"' + (calm ? ' controls' : ' autoplay') + '></video>'
+      : s.image ? '<img src="' + esc(s.image) + '" alt="">' : '';
     return '<div class="onboarding-app">'
-      + '<div class="onboarding-app__image' + (s.image ? '' : ' onboarding-app__image--placeholder') + '">'
-        + (s.image ? '<img src="' + esc(s.image) + '" alt="">' : '')
+      + '<div class="onboarding-app__image' + (media ? '' : ' onboarding-app__image--placeholder') + '">'
+        + media
       + '</div>'
       + '<div class="onboarding-app__text">'
         + '<h2 class="onboarding-app__title">' + esc(s.title) + '</h2>'
