@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609031540">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609031540">
-  <link rel="stylesheet" href="report.css?v=202609031540">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609031652">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609031652">
+  <link rel="stylesheet" href="report.css?v=202609031652">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>if (new URLSearchParams(location.search).has('activate')) document.documentElement.classList.add('activating');</script>
 </head>
@@ -602,27 +602,27 @@
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609031540"></script>
-<script src="_design-system/components/sidebar.js?v=202609031540"></script>
-<script src="_design-system/components/promo-modal.js?v=202609031540"></script>
+<script src="_design-system/components/header.js?v=202609031652"></script>
+<script src="_design-system/components/sidebar.js?v=202609031652"></script>
+<script src="_design-system/components/promo-modal.js?v=202609031652"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609031540"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609031540"></script>
-<script src="mock-scenario.js?v=202609031540"></script>
-<script src="mock-connect.js?v=202609031540"></script>
+<script src="_mock-data/mock.js?v=202609031652"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609031652"></script>
+<script src="mock-scenario.js?v=202609031652"></script>
+<script src="mock-connect.js?v=202609031652"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609031540"></script>
-<script src="filters.js?v=202609031540"></script>
-<script src="_design-system/components/popover.js?v=202609031540"></script>
-<script src="_design-system/components/slider.js?v=202609031540"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609031540"></script>
-<script src="_design-system/components/toast.js?v=202609031540"></script>
-<script src="_design-system/components/textarea.js?v=202609031540"></script>
-<script src="_design-system/components/spinner.js?v=202609031540"></script>
-<script src="report.js?v=202609031540"></script>
+<script src="preset.js?v=202609031652"></script>
+<script src="filters.js?v=202609031652"></script>
+<script src="_design-system/components/popover.js?v=202609031652"></script>
+<script src="_design-system/components/slider.js?v=202609031652"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609031652"></script>
+<script src="_design-system/components/toast.js?v=202609031652"></script>
+<script src="_design-system/components/textarea.js?v=202609031652"></script>
+<script src="_design-system/components/spinner.js?v=202609031652"></script>
+<script src="report.js?v=202609031652"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 

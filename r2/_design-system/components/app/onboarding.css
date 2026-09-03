@@ -59,12 +59,36 @@
    что у кольца в стопке фото, — отделять там, где иначе не видно границы.
    Габарит она не двигает: `box-sizing: border-box` из base.css. */
 .onboarding-app__image {
+  position: relative;
   flex: 1;
   min-height: 0;
   width: 100%;
   border: 1px solid var(--stroke-divider-default);
   border-radius: var(--radius-xl);
   overflow: hidden;
+}
+
+/* Внутренняя тень по кромке — из макета `2143:16929`.
+
+   Чисел эффекта макет не отдаёт, поэтому сняты с рендера: по столбцу в однородной
+   плашке затемнение идёт 3.1% на кромке → 2.0% на 10px → 1.2% на 18 → 0 к 40.
+   Прогнали пять пар «размытие × ступень палитры» и сравнили профили: `48px` при
+   `--transparent-black50a` (#0000000f, 6%) сходится с макетом в пределах 0.4 п.п., то
+   есть точнее, чем различает 8-битный цвет. 10% (`--shadow-default`) даёт полтора раза
+   пережатую кромку — мимо.
+   ⚠️ Семантического токена под тень ВНУТРЬ в ДС нет: `--shadow-default` занят внешними.
+   Поэтому здесь примитив — дырка в системе, а не вкусовщина.
+
+   Отдельным слоем, а не `box-shadow` на самом контейнере: inset-тень рисуется под
+   содержимым, и видео с картинкой закрыли бы её целиком. Та же ловушка, из-за которой
+   кольцо в `photo-stack` пришлось делать псевдоэлементом. */
+.onboarding-app__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 48px var(--transparent-black50a);
+  pointer-events: none;
 }
 .onboarding-app__image img,
 .onboarding-app__image video {
