@@ -199,14 +199,14 @@
   document.getElementById('all-competitors').setAttribute('href', listHref);
   document.getElementById('tracking-hint-link').setAttribute('href', listHref);
 
-  /* А строка-предложение — сразу на вкладку «Подборка»: новый конкурент живёт там,
+  /* А строка-предложение — сразу на вкладку «Активные»: новый конкурент живёт там,
      а не среди отслеживаемых. */
   var suggestQs = new URLSearchParams(qs);
   suggestQs.set('tab', 'selection');
   document.getElementById('suggest-link').setAttribute('href', 'competitors-app.html?' + suggestQs);
 
   /* Кнопка нулевого состояния ведёт туда же: выбирать конкурентов негде, кроме
-     подборки — вкладка «Отслеживаются» на этом экране как раз и пуста. */
+     подборки — вкладка «Отслеживаемые» на этом экране как раз и пуста. */
   document.getElementById('empty-choose').setAttribute('href', 'competitors-app.html?' + suggestQs);
 
   /* --- Плавающая копия входа в отчёт ---

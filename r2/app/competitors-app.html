@@ -18,31 +18,31 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Конкуренты объекта — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202609031706">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/tabs.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/chips.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/competitor-card.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/price-history.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/bottom-bar.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/snackbar.css?v=202609041659">
   <!-- Фильтры выбираются в шторке: она сама, поля «от / до», слайдер радиуса
        и панель с «Применить» -->
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202609031706">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202609031706">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/inputs.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/slider.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202609041659">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202609041659">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202609031706"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202609041659"></script>
 
   <style>
     body {
@@ -57,8 +57,8 @@
        уже отбит своим паддингом. Снизу 4 — это зазор до ряда фильтров, а не низ
        шапки. */
     .tabs-row { padding: var(--unit3) 0 var(--unit1); }
-    /* Низ шапки — 12, и несёт его ПОСЛЕДНИЙ ВИДИМЫЙ блок. На «Подборке» и
-       «Архивных» это ряд фильтров со своими 12; на «Отслеживаются» фильтров нет,
+    /* Низ шапки — 12, и несёт его ПОСЛЕДНИЙ ВИДИМЫЙ блок. На «Активных» и
+       «Архивных» это ряд фильтров со своими 12; на «Отслеживаемых» фильтров нет,
        и низ остаётся за табами — а там стояли 4 зазора, и пилюля почти упиралась
        в срез карточки (нашёл Роман 2026-08-24). Правило было записано для случая
        «под табами идут фильтры», и случай без них никто не проверил.
@@ -76,7 +76,7 @@
          не меняет, они по содержимому. */
       flex: 1;
     }
-    /* Место под нижнюю плашку — только там, где она есть (вкладка «Отслеживаются»):
+    /* Место под нижнюю плашку — только там, где она есть (вкладка «Отслеживаемые»):
        75 плашка + отступы. */
     .competitors-list--with-bottom-bar {
       padding-bottom: calc(99px + env(safe-area-inset-bottom));
@@ -129,15 +129,15 @@
     <div class="tabs-row">
       <div class="tabs-app" role="tablist">
         <button class="tab-app tab-app--active" type="button" role="tab" aria-selected="true" data-tab="tracked">
-          Отслеживаются <span class="tab-app__count" id="tracked-count">0</span>
+          Отслеживаемые <span class="tab-app__count" id="tracked-count">0</span>
         </button>
-        <button class="tab-app" type="button" role="tab" aria-selected="false" data-tab="selection">Подборка</button>
+        <button class="tab-app" type="button" role="tab" aria-selected="false" data-tab="selection">Активные</button>
         <button class="tab-app" type="button" role="tab" aria-selected="false" data-tab="archive">Архивные</button>
       </div>
     </div>
 
     <!-- Фильтры одним рядом с горизонтальным скроллом (решение Романа 2026-08-23;
-         в макете было два ряда с общим скроллом). Виден только на «Подборке» и
+         в макете было два ряда с общим скроллом). Виден только на «Активных» и
          «Архивных» — как в вебовом отчёте, где это тоже один общий ряд на две
          вкладки. -->
     <div class="chips-scroll-app" id="filters" hidden>
@@ -224,23 +224,23 @@
   <a class="btn-app btn-app--medium btn-app--primary btn-app--main" id="create-report" href="owner-report-app.html">Создать</a>
 </div>
 
-<script src="../_design-system/components/app/snackbar.js?v=202609031706"></script>
-<script src="../_design-system/components/app/sheet.js?v=202609031706"></script>
-<script src="../_design-system/components/app/slider.js?v=202609031706"></script>
+<script src="../_design-system/components/app/snackbar.js?v=202609041659"></script>
+<script src="../_design-system/components/app/sheet.js?v=202609041659"></script>
+<script src="../_design-system/components/app/slider.js?v=202609041659"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="../_mock-data/mock.js?v=202609031706"></script>
-<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202609031706"></script>
-<script src="mock-scenario.js?v=202609031706"></script>
-<script src="mock-connect.js?v=202609031706"></script>
-<script src="competitor-card-app.js?v=202609031706"></script>
+<script src="../_mock-data/mock.js?v=202609041659"></script>
+<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202609041659"></script>
+<script src="mock-scenario.js?v=202609041659"></script>
+<script src="mock-connect.js?v=202609041659"></script>
+<script src="competitor-card-app.js?v=202609041659"></script>
 <!-- Предустановка фильтров по объекту — общая на весь раздел -->
-<script src="preset.js?v=202609031706"></script>
-<script src="filters.js?v=202609031706"></script>
+<script src="preset.js?v=202609041659"></script>
+<script src="filters.js?v=202609041659"></script>
 <!-- Раскладка апдейтов — общая с экраном обзора -->
-<script src="updates-app.js?v=202609031706"></script>
-<script src="competitors-app.js?v=202609031706"></script>
+<script src="updates-app.js?v=202609041659"></script>
+<script src="competitors-app.js?v=202609041659"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202609031706"></script>
+<script src="dev-reset.js?v=202609041659"></script>
 </body>
 </html>

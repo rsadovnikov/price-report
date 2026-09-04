@@ -145,7 +145,11 @@
      не страницей, а встроенным просмотрщиком со своей панелью — окно в окне.
      Страница в семпле одна, так что картинка показывает отчёт целиком. */
   var PDF_FILE = '../pdf-report.pdf';
-  var PDF_NAME = 'report-1';
+  /* Имя одно на две роли: подпись в шапке модалки и имя файла, который уходит в
+     «Поделиться». Раньше их было два — «report-1» в шапке и «report-1.pdf» при
+     отправке, — и расширение дописывалось в момент шаринга. Правка Романа
+     2026-09-04: в шапке стоит то же, что получит собственник. */
+  var PDF_NAME = 'report.pdf';
 
   document.getElementById('create-pdf').addEventListener('click', function () {
     openSheet({
@@ -172,7 +176,7 @@
     if (!navigator.share) return openPdfTab();
 
     fetch(PDF_FILE).then(function (r) { return r.blob(); }).then(function (blob) {
-      var file = canFiles ? new File([blob], PDF_NAME + '.pdf', { type: 'application/pdf' }) : null;
+      var file = canFiles ? new File([blob], PDF_NAME, { type: 'application/pdf' }) : null;
       if (file && navigator.canShare({ files: [file] })) {
         return navigator.share({ files: [file], title: 'Отчёт о цене и конкурентах' });
       }

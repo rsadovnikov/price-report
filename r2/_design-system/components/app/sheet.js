@@ -111,7 +111,7 @@ function openSheet(config) {
           + '<img class="statusbar-app__indicators" src="' + icons + 'statusbar-indicators.svg" alt="">'
           + '</div>'
         : '')
-      + '<div class="sheet-app__bar' + (barAction ? ' sheet-app__bar--action' : '') + '">'
+      + '<div class="sheet-app__bar">'
         + '<button class="sheet-app__close" type="button" data-action="close" aria-label="Закрыть">'
           + '<img src="' + icons + 'close-24.svg" alt=""></button>'
         + (config.barTitle ? '<h2 class="sheet-app__bar-title">' + esc(config.barTitle) + '</h2>' : '')

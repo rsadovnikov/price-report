@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609031706">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609031706">
-  <link rel="stylesheet" href="report.css?v=202609031706">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609041659">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609041659">
+  <link rel="stylesheet" href="report.css?v=202609041659">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>if (new URLSearchParams(location.search).has('activate')) document.documentElement.classList.add('activating');</script>
 </head>
@@ -172,9 +172,9 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" id="tabInReport">Отслеживаются <span class="tab-counter" id="tabInReportCounter">0</span></div>
-      <div class="tab" id="tabSelection">Подборка конкурентов</div>
-      <div class="tab" id="tabArchive">Архивные</div>
+      <div class="tab active" id="tabInReport">Отслеживаемые <span class="tab-counter" id="tabInReportCounter">0</span></div>
+      <div class="tab" id="tabSelection">Активные конкуренты</div>
+      <div class="tab" id="tabArchive">Архивные конкуренты</div>
     </div>
 
     <!-- Ценность архива (виден только на вкладке «Архивные», над общим рядом фильтров) -->
@@ -192,7 +192,7 @@
          этом же ряду, но виден только на «Архивных» (toggle его display в обработчиках вкладок).
          Если будете делать фильтры функциональными — состояние остального ряда применяется к
          обеим вкладкам, а «За N дней» — только к архиву. -->
-    <!-- Микро-онбординг подборки (вкладка «Подборка конкурентов») -->
+    <!-- Микро-онбординг подборки (вкладка «Активные конкуренты») -->
     <div class="tracking-banner" id="selectionBanner" style="display:none">
       <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#paint0_angular_19_23450_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
@@ -233,7 +233,7 @@
       <span id="counterText"></span>
     </div>
 
-    <!-- Микро-онбординг отслеживания (вкладка «Отслеживаются», ≥1 объект) -->
+    <!-- Микро-онбординг отслеживания (вкладка «Отслеживаемые», ≥1 объект) -->
     <div class="tracking-banner" id="trackingBanner" style="display:none">
       <span class="tracking-banner__radar" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#paint0_angular_19_23449_clip_path)" data-figma-skip-parse="true"><g transform="matrix(0 0.00699977 -0.00699977 0 9.99996 9.99977)"><foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(23, 32, 58, 1) 0deg,rgba(23, 32, 58, 0) 5.19231deg,rgba(23, 32, 58, 0) 327.115deg,rgba(23, 32, 58, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><circle cx="9.99996" cy="9.99977" r="7.69975" data-figma-gradient-fill="{&#34;type&#34;:&#34;GRADIENT_ANGULAR&#34;,&#34;stops&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;stopsVar&#34;:[{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.014423076994717121},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:0.0},&#34;position&#34;:0.90865385532379150},{&#34;color&#34;:{&#34;r&#34;:0.090196080505847931,&#34;g&#34;:0.12549020349979401,&#34;b&#34;:0.22745098173618317,&#34;a&#34;:1.0},&#34;position&#34;:1.0}],&#34;transform&#34;:{&#34;m00&#34;:3.9657493902548000e-15,&#34;m01&#34;:-13.999547958374023,&#34;m02&#34;:16.999731063842773,&#34;m10&#34;:13.999547958374023,&#34;m11&#34;:3.9657493902548000e-15,&#34;m12&#34;:3.0},&#34;opacity&#34;:1.0,&#34;blendMode&#34;:&#34;NORMAL&#34;,&#34;visible&#34;:true}" stroke="#17203A" stroke-width="1.39995"/>
@@ -281,7 +281,7 @@
       <button id="rowHoverBtn" type="button"></button>
     </div>
 
-    <!-- Добавить больше объектов (вкладка «Отслеживаются») -->
+    <!-- Добавить больше объектов (вкладка «Отслеживаемые») -->
     <div id="addMoreWrap" style="display:none;justify-content:flex-start;padding:8px 0 0 24px">
       <button class="btn-secondary-lg" id="btnAddMore" type="button">Добавить больше объектов</button>
     </div>
@@ -292,7 +292,7 @@
       <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
     </div>
 
-    <!-- Конец подборки → переход в архив (вкладка «Подборка», активные кончились).
+    <!-- Конец подборки → переход в архив (вкладка «Активные», активные кончились).
          Тот же бар, что «N новых конкурентов», но не sticky. -->
     <div class="new-competitors-bar archive-endmarker" id="archiveEndMarker" style="display:none">
       <div class="ncb-stack" id="aemStack"></div>
@@ -302,7 +302,7 @@
 
   </main>
 
-  <!-- Sticky-уведомление о новых конкурентах (вкладка «Отслеживаются», newCount > 0).
+  <!-- Sticky-уведомление о новых конкурентах (вкладка «Отслеживаемые», newCount > 0).
        Липнет к низу вьюпорта, пока секция списка на экране; после — докуется вплотную
        к низу карточки (вне main — иначе его padding-bottom оставляет зазор 32px). -->
   <div class="new-competitors-bar" id="newCompetitorsBar" style="display:none">
@@ -536,9 +536,9 @@
 
 <!-- ===== STICKY TABS BAR (appears on scroll, same time as table legend) ===== -->
 <div class="sticky-tabs-bar" id="stickyTabsBar">
-  <div class="tab active" id="stickyTabInReport">Отслеживаются <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
-  <div class="tab" id="stickyTabSelection">Подборка конкурентов</div>
-  <div class="tab" id="stickyTabArchive">Архивные</div>
+  <div class="tab active" id="stickyTabInReport">Отслеживаемые <span class="tab-counter" id="stickyTabInReportCounter">0</span></div>
+  <div class="tab" id="stickyTabSelection">Активные конкуренты</div>
+  <div class="tab" id="stickyTabArchive">Архивные конкуренты</div>
 </div>
 
 <!-- ===== STICKY TABLE HEADER (appears on scroll) ===== -->
@@ -602,27 +602,27 @@
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609031706"></script>
-<script src="_design-system/components/sidebar.js?v=202609031706"></script>
-<script src="_design-system/components/promo-modal.js?v=202609031706"></script>
+<script src="_design-system/components/header.js?v=202609041659"></script>
+<script src="_design-system/components/sidebar.js?v=202609041659"></script>
+<script src="_design-system/components/promo-modal.js?v=202609041659"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609031706"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609031706"></script>
-<script src="mock-scenario.js?v=202609031706"></script>
-<script src="mock-connect.js?v=202609031706"></script>
+<script src="_mock-data/mock.js?v=202609041659"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609041659"></script>
+<script src="mock-scenario.js?v=202609041659"></script>
+<script src="mock-connect.js?v=202609041659"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609031706"></script>
-<script src="filters.js?v=202609031706"></script>
-<script src="_design-system/components/popover.js?v=202609031706"></script>
-<script src="_design-system/components/slider.js?v=202609031706"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609031706"></script>
-<script src="_design-system/components/toast.js?v=202609031706"></script>
-<script src="_design-system/components/textarea.js?v=202609031706"></script>
-<script src="_design-system/components/spinner.js?v=202609031706"></script>
-<script src="report.js?v=202609031706"></script>
+<script src="preset.js?v=202609041659"></script>
+<script src="filters.js?v=202609041659"></script>
+<script src="_design-system/components/popover.js?v=202609041659"></script>
+<script src="_design-system/components/slider.js?v=202609041659"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609041659"></script>
+<script src="_design-system/components/toast.js?v=202609041659"></script>
+<script src="_design-system/components/textarea.js?v=202609041659"></script>
+<script src="_design-system/components/spinner.js?v=202609041659"></script>
+<script src="report.js?v=202609041659"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 
