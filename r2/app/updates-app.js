@@ -7,6 +7,8 @@
  *
  *   AppUpdates.allocate(ALL_COMPETITORS, n, u, desc)
  *     -> { priceIdx, removedIdx, fresh, freshIds }
+ *   AppUpdates.flagged(marks, i)   — есть ли у объекта апдейт
+ *   AppUpdates.hoist(ids, marks)   — те, у кого есть, наверх списка
  *
  * `desc` — описание объекта агента. Кандидата судит `AppFilters.inPreset`, то есть
  * ровно то правило, которым строится сама подборка.
@@ -70,5 +72,26 @@ var AppUpdates = (function () {
     return { priceIdx: priceIdx, removedIdx: removedIdx, fresh: left, freshIds: freshIds };
   }
 
-  return { allocate: allocate };
+  /* Есть ли у объекта апдейт. «Новый конкурент» сюда НЕ входит: он не отслеживается,
+     а лежит в подборке — в списке отслеживаемых его нет вовсе. */
+  function flagged(marks, i) {
+    return !!marks && (i === marks.priceIdx || i === marks.removedIdx);
+  }
+
+  /* Апдейты — наверх списка (просьба Романа 2026-09-04): агент заходит в раздел за
+     тем, что изменилось, и искать это глазами по всему списку он не должен.
+
+     Порядок ВНУТРИ групп сохраняется — это стабильная перестановка, а не сортировка
+     по признаку: у отслеживаемых свой порядок (как их набирал агент), и ломать его
+     ради апдейтов незачем. Тем же двумя проходами это сделано в вебовом отчёте
+     (`report.js`, «Апдейты — наверх списка»); здесь правило записано один раз на два
+     экрана приложения, чтобы обзор и список не разошлись — та же причина, по которой
+     в этом модуле лежит и сама раскладка. */
+  function hoist(ids, marks) {
+    var up = [], rest = [];
+    (ids || []).forEach(function (i) { (flagged(marks, i) ? up : rest).push(i); });
+    return up.concat(rest);
+  }
+
+  return { allocate: allocate, flagged: flagged, hoist: hoist };
 })();

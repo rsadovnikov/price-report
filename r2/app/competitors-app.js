@@ -427,8 +427,13 @@
 
   function render() {
     var onTracked = current === 'tracked';
-    var ids = onTracked ? [...tracked].sort(function (a, b) { return a - b; })
-            : current === 'archive' ? ARCHIVE : SELECTION;
+    /* У отслеживаемых порядок — по позиции в общей выдаче, и поверх него апдейты
+       поднимаются наверх (`AppUpdates.hoist`, просьба Романа 2026-09-04): агент
+       приходит сюда за тем, что изменилось. Правило то же, что на обзоре и в вебовом
+       отчёте, и живёт оно в одном месте — `updates-app.js`. */
+    var ids = onTracked
+      ? AppUpdates.hoist([...tracked].sort(function (a, b) { return a - b; }), marks)
+      : current === 'archive' ? ARCHIVE : SELECTION;
     /* «Отслеживаемые» фильтры не трогают: это выбор агента, а не выдача. */
     if (!onTracked) {
       ids = ids.filter(function (i) { return passesFilters(ALL_COMPETITORS[i]); });

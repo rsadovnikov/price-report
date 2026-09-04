@@ -144,10 +144,20 @@
   }
 
   var listEl = document.getElementById('competitors');
-  listEl.innerHTML = shown.map(function (c, i) {
+  /* Показываем не сам срез, а его ИНДЕКСЫ в `ALL_COMPETITORS` — в них же считает
+     раскладку `AppUpdates`, и в них же говорит соседний экран. Раньше флаг ставился
+     по позиции внутри `shown` (то есть внутри сравнимых), и это работало только пока
+     первые n сравнимых совпадают с первыми n всего массива. Совпадение данных, а не
+     правило: стоило бы несравнимому объекту попасть в начало — и флаг уехал бы на
+     чужую строку, как это уже было до общего модуля (2026-08-23). */
+  var order = AppUpdates.hoist(shown.map(function (c) {
+    return ALL_COMPETITORS.indexOf(c);
+  }), marks);
+  listEl.innerHTML = order.map(function (idx) {
+    var c = ALL_COMPETITORS[idx];
     var photo = c.photos && c.photos[0];
-    var mark = i === priceIdx ? 'Цена изменилась'
-             : i === removedIdx ? 'Сняли с публикации ' + removedDate(c)
+    var mark = idx === priceIdx ? 'Цена изменилась'
+             : idx === removedIdx ? 'Сняли с публикации ' + removedDate(c)
              : null;
     return '<a class="ad-row-app' + (mark ? ' ad-row-app--badged' : '') + '"'
       + ' href="' + esc(listHref) + '">'
