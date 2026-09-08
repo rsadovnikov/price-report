@@ -9,7 +9,7 @@
  *
  *   AppPreset.parse('1-комн. кв., 37,5 м², 10/22 этаж')  -> { rooms, area, floor }
  *   AppPreset.from(desc)     -> { rooms: ['1'], area: { from: 32, to: 44 } }
- *   AppPreset.matches(c, p)  -> проходит ли объект пресет
+ *   AppPreset.comparable(c, desc) -> сравнимо ли объявление с объектом по природе
  *
  * Разбор терпит оба формата: «1-комн. кв., 37,5 м²» из «Моих объявлений» и
  * «1-комн., 32 м²» из данных конкурентов — между «комн.» и запятой может стоять
@@ -63,24 +63,6 @@ var AppPreset = (function () {
     return out;
   }
 
-  function matches(c, preset) {
-    if (!preset) return true;
-    var p = parse(c.desc);
-    if (preset.apart != null && p.apart !== preset.apart) return false;
-    if (preset.rooms && preset.rooms.length) {
-      var ok = preset.rooms.some(function (x) {
-        return x === '6+' ? p.rooms >= 6 : p.rooms === Number(x);
-      });
-      if (!ok) return false;
-    }
-    if (preset.area) {
-      if (isNaN(p.area)) return false;
-      if (preset.area.from != null && p.area < preset.area.from) return false;
-      if (preset.area.to != null && p.area > preset.area.to) return false;
-    }
-    return true;
-  }
-
   /* Сравнимо ли объявление с объектом ПО ПРИРОДЕ — отдельно от фильтров.
      Фильтры агент сбрасывает, и это законно: он хочет увидеть больше. А вот
      «покажите мне квартиры вместо апартаментов» сбросом не делается — это не
@@ -92,16 +74,23 @@ var AppPreset = (function () {
     return parse(c.desc).apart === p.apart;
   }
 
-  /* Радиус по умолчанию — 2 км (решение Романа 2026-08-23; в вебе до этого стояло
-     «Радиус 3 км»). Значение живёт здесь, потому что его спрашивает предустановка;
-     подпись чипа строит таблица `FILTERS` в `filters.js`. */
-  var RADIUS_DEFAULT = 2000;
+  /* Модуль подчищен в два захода — и оба раза убиралось одно и то же: копия правила,
+     которая никем не вызывалась и потому тихо расходилась с живым местом.
 
-  /* `row` отсюда убран 2026-09-04. Ряд фильтров обе поверхности рисуют из
-     `AppFilters.row` (`filters.js`), а эта копия никем не вызывалась и успела
-     разойтись с таблицей и по порядку, и по подписи «Тип дома» — то есть работала
-     ровно так, как предупреждает протокол: неиспользуемое читается как рабочий
-     сценарий, и следующий пошёл бы править её. Порядок ряда теперь в одном месте. */
-  return { parse: parse, from: from, matches: matches, comparable: comparable,
-           radiusDefault: RADIUS_DEFAULT, areaTolerance: AREA_TOLERANCE };
+     2026-09-04 — `row`. Ряд фильтров обе поверхности рисуют из `AppFilters.row`
+     (`filters.js`), а эта копия успела разойтись с таблицей и по порядку, и по
+     подписи «Тип дома».
+
+     2026-09-08 — `matches`, `RADIUS_DEFAULT` и экспорты `radiusDefault` /
+     `areaTolerance`. `matches` заменён на `AppFilters.inPreset` ещё 2026-09-01 и с тех
+     пор не звался; `RADIUS_DEFAULT` был второй копией числа — живой дефолт радиуса
+     стоит в `filters.js` (`start: 2000`), и комментарий над ним уже врал, утверждая,
+     что предустановка спрашивает значение отсюда.
+
+     Правило, ради которого это записано: **неиспользуемое читается как рабочий
+     сценарий**, и следующий пошёл бы править копию вместо оригинала.
+
+     ⚠️ `AREA_TOLERANCE` остаётся — константа живая, её читает `from()`. Мёртв был
+     только её экспорт наружу. */
+  return { parse: parse, from: from, comparable: comparable };
 })();
