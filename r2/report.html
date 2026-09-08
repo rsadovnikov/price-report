@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609081433">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609081433">
-  <link rel="stylesheet" href="report.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609081603">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609081603">
+  <link rel="stylesheet" href="report.css?v=202609081603">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>if (new URLSearchParams(location.search).has('activate')) document.documentElement.classList.add('activating');</script>
 </head>
@@ -614,32 +614,47 @@
   </span>
 </button>
 
+<!-- ===== TELEGRAM FAB =====
+     Кругляш 52 в правом нижнем углу окна, макет 2338:54054. Прилеплен к углу при любой
+     ширине и стоит поверх содержимого страницы.
+     По клику НИЧЕГО не делает (решение Романа 2026-09-08) — это заглушка под будущий
+     переход в Telegram, поэтому у неё нет ни обработчика, ни ссылки.
+     ⚠️ Наезжает на «Отчёт для собственника»: обе кнопки висят в одном углу. Роман
+     посмотрел и сказал оставить пока так.
+     Глиф — Icons/Social/24/Telegram, один путь; инлайном с currentColor, а не файлом:
+     в экспорте цвет запечён белым, а тут он обязан идти за цветом кнопки. -->
+<button class="tg-fab" id="tgFab" type="button" aria-label="Написать в Telegram">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M22.9388 4.61259C23.1239 3.77556 22.899 3.06227 22.131 3.00165L22.1311 3.00413C21.8751 2.9841 21.5588 3.03602 21.1772 3.18053L2.03111 10.4386C1.41439 10.6724 0.110697 11.4687 1.9308 12.03L6.65142 13.4844L7.56519 13.0564L18.3671 6.37169C18.4868 6.29808 18.6174 6.25096 18.7338 6.22931C19.0823 6.16896 19.312 6.35222 18.8081 6.79387L9.68765 14.7875C9.61112 14.854 9.60643 14.8983 9.59946 14.9642L9.59892 14.9693V19.9555L12.7327 17.1346L17.5765 20.586C18.5113 21.2519 19.287 21.1274 19.51 20.1189L22.9388 4.61259Z" fill="currentColor"/>
+  </svg>
+</button>
+
 <div class="price-tooltip" id="priceTooltip">
   <div class="price-tooltip-title">История цены</div>
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609081433"></script>
-<script src="_design-system/components/sidebar.js?v=202609081433"></script>
-<script src="_design-system/components/promo-modal.js?v=202609081433"></script>
+<script src="_design-system/components/header.js?v=202609081603"></script>
+<script src="_design-system/components/sidebar.js?v=202609081603"></script>
+<script src="_design-system/components/promo-modal.js?v=202609081603"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609081433"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609081433"></script>
-<script src="mock-scenario.js?v=202609081433"></script>
-<script src="mock-connect.js?v=202609081433"></script>
+<script src="_mock-data/mock.js?v=202609081603"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609081603"></script>
+<script src="mock-scenario.js?v=202609081603"></script>
+<script src="mock-connect.js?v=202609081603"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609081433"></script>
-<script src="filters.js?v=202609081433"></script>
-<script src="_design-system/components/popover.js?v=202609081433"></script>
-<script src="_design-system/components/slider.js?v=202609081433"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609081433"></script>
-<script src="_design-system/components/toast.js?v=202609081433"></script>
-<script src="_design-system/components/textarea.js?v=202609081433"></script>
-<script src="_design-system/components/spinner.js?v=202609081433"></script>
-<script src="report.js?v=202609081433"></script>
+<script src="preset.js?v=202609081603"></script>
+<script src="filters.js?v=202609081603"></script>
+<script src="_design-system/components/popover.js?v=202609081603"></script>
+<script src="_design-system/components/slider.js?v=202609081603"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609081603"></script>
+<script src="_design-system/components/toast.js?v=202609081603"></script>
+<script src="_design-system/components/textarea.js?v=202609081603"></script>
+<script src="_design-system/components/spinner.js?v=202609081603"></script>
+<script src="report.js?v=202609081603"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 
