@@ -326,28 +326,42 @@
       return c;
     }
 
+    /* Стопка кадров для хвостовых блоков. Показываем ЧЕТЫРЕ, а не всё: дальше кадр
+       пришлось бы сужать ещё, а стопка обязана уместиться в ширину фото ленты. Число
+       не про счёт — в макете 393:73449 кадров четыре при подписи «3 новых возможных
+       конкурента».
+       Класс `photo-stack--N` несёт ЧИСЛО кадров, а размеры под него живут в `report.css`:
+       кадр и нахлёст меняются так, чтобы ширина стопки оставалась прежней (2334:53153).
+       Меняешь потолок — правь и таблицу размеров там, иначе стопка вылезет из колонки. */
+    var STACK_MAX = 4;
+    function fillStack(el, ids) {
+      if (!el) return;
+      var use = ids.slice(0, STACK_MAX);
+      for (var n = 1; n <= STACK_MAX; n++) el.classList.remove('photo-stack--' + n);
+      el.classList.add('photo-stack--' + use.length);
+      el.innerHTML = use.map(function(idx) {
+        return '<img src="' + coverPhoto(idx) + '" onerror="this.src=\'https://placehold.co/80x48\'" alt="">';
+      }).join('');
+    }
+
     // === Sticky-бар «N новых возможных конкурентов» (низ вкладки «Отслеживаемые») ===
     function updateNewCompetitorsBar() {
       var bar = document.getElementById('newCompetitorsBar');
       if (!bar) return;
-      var section = document.querySelector('.report-section');
       var fresh = [];
       newIds.forEach(function(i) { if (!checkedIds.has(i)) fresh.push(i); });
       if (activeTab !== 'in-report' || fresh.length === 0) {
         bar.style.display = 'none';
-        if (section) section.classList.remove('no-bottom-gap');
-        return;
+        return false;
       }
-      if (section) section.classList.add('no-bottom-gap');
       // Стопка — обложки самих новых конкурентов (те же, что в таблицах)
-      document.getElementById('ncbStack').innerHTML = fresh.map(function(idx) {
-        return '<img src="' + coverPhoto(idx) + '" onerror="this.src=\'https://placehold.co/48x48\'" alt="">';
-      }).join('');
+      fillStack(document.getElementById('ncbStack'), fresh);
       var n = fresh.length;
       var word = n === 1 ? 'новый возможный конкурент'
         : (n < 5 ? 'новых возможных конкурента' : 'новых возможных конкурентов');
       document.getElementById('ncbPill').textContent = n + ' ' + word;
       bar.style.display = 'flex';
+      return true;
     }
     // «Посмотреть» → вкладка «Активные» (новые отсортированы наверх), доскролл к вкладкам
     document.querySelector('#newCompetitorsBar [data-action="view-new"]')
@@ -357,23 +371,50 @@
         scrollToTabs();
       });
 
-    // === Маркер конца подборки → переход в архив (низ вкладки «Активные») ===
+    // === «Больше возможных конкурентов» (низ «Отслеживаемых», когда новых нет) ===
+    /* Второй хвост той же вкладки и альтернатива бару выше: новостей нет, но подборка
+       не пуста — зовём в неё. Показываем только когда агент уже кого-то отслеживает:
+       на пустом списке этот призыв дублировал бы плейсхолдер вкладки.
+       До 2026-09-08 здесь стояла кнопка «Добавить больше объектов» (btn-secondary-lg);
+       заменена блоком по макету 373:48388. */
+    function updateMoreCompetitorsBar() {
+      var el = document.getElementById('moreCompetitorsBar');
+      if (!el) return;
+      // Тизер — кандидаты подборки: ещё не отслеживаются и не сняты с публикации.
+      var teaser = [];
+      for (var i = 0; i < ALL_COMPETITORS.length && teaser.length < STACK_MAX; i++) {
+        if (!checkedIds.has(i) && !removedIds.has(i)) teaser.push(i);
+      }
+      if (activeTab !== 'in-report' || newCount() > 0 || checkedIds.size === 0 || teaser.length === 0) {
+        el.style.display = 'none';
+        return;
+      }
+      fillStack(document.getElementById('mcbStack'), teaser);
+      el.style.display = 'flex';
+    }
+    document.querySelector('#moreCompetitorsBar [data-action="view-more"]')
+      .addEventListener('click', function(e) {
+        e.preventDefault();
+        tabSelection.click();
+        scrollToTabs(); // доскролл наверх к вкладкам — видно, что открыта «Активные»
+      });
+
+    // === Блок конца подборки → переход в архив (низ вкладки «Активные») ===
     // Показываем, когда активные конкуренты кончились (нет «Показать ещё») и есть архив.
     // Стопка — тизер фото первых архивных. Ведёт на вкладку «Архивные».
     function updateArchiveEndMarker() {
       var el = document.getElementById('archiveEndMarker');
-      if (!el) return;
+      if (!el) return false;
       var teaser = [];
-      removedIds.forEach(function(i) { if (!checkedIds.has(i) && teaser.length < 3) teaser.push(i); });
+      removedIds.forEach(function(i) { if (!checkedIds.has(i) && teaser.length < STACK_MAX) teaser.push(i); });
       var poolExhausted = (visibleCount >= selectionPoolCount());
       if (activeTab !== 'selection' || !poolExhausted || teaser.length === 0) {
         el.style.display = 'none';
-        return;
+        return false;
       }
-      document.getElementById('aemStack').innerHTML = teaser.map(function(idx) {
-        return '<img src="' + coverPhoto(idx) + '" onerror="this.src=\'https://placehold.co/48x48\'" alt="">';
-      }).join('');
+      fillStack(document.getElementById('aemStack'), teaser);
       el.style.display = 'flex';
+      return true;
     }
     document.querySelector('#archiveEndMarker [data-action="view-archive"]')
       .addEventListener('click', function(e) {
@@ -688,10 +729,16 @@
         selectionBanner.style.display = (activeTab === 'selection') ? 'flex' : 'none';
       }
 
-      // Sticky-бар «N новых возможных конкурентов» — та же точка ре-рендера
-      updateNewCompetitorsBar();
-      // Маркер конца подборки → архив (низ «Подборки», когда активные кончились)
-      updateArchiveEndMarker();
+      // Хвостовые блоки лент — та же точка ре-рендера
+      var barShown = updateNewCompetitorsBar();   // «N новых возможных конкурентов»
+      updateMoreCompetitorsBar();                 // «Больше возможных» — когда новых нет
+      var archShown = updateArchiveEndMarker();   // конец подборки → архив
+      /* Нижний зазор секции снимают ОБА блока, что кончают ленту: свой отступ снизу
+         они держат сами, а пустая обёртка кнопок под ними добавила бы ещё 48. Класс
+         ставится здесь, в одном месте: пока им распоряжался только бар новых, второй
+         такой блок снимал бы то, что поставил первый. */
+      var section = document.querySelector('.report-section');
+      if (section) section.classList.toggle('no-bottom-gap', barShown || archShown);
 
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
@@ -705,7 +752,8 @@
       document.getElementById('tabInReportCounter').textContent = checkedIds.size;
       document.getElementById('stickyTabInReportCounter').textContent = checkedIds.size;
       // Каунтер новых конкурентов на табе «Активные» убран (по команде Романа) —
-      // вкладка без бейджа. newCount() по-прежнему используется баром и кнопкой «Добавить больше».
+      // вкладка без бейджа. newCount() по-прежнему решает, какой из двух хвостовых
+      // блоков «Отслеживаемых» показать — бар новых или «Больше возможных конкурентов».
     }
 
     // === СВОРАЧИВАНИЕ БАЗОВОГО ОБЪЕКТА (эксперимент) ===
@@ -1311,23 +1359,20 @@
     }
 
     function updateShowMoreBtn() {
-      var addMoreWrap = document.getElementById('addMoreWrap');
+      /* Хвостовые блоки лент (бар новых, «Больше возможных», конец подборки) считают
+         свою видимость сами — updateNewCompetitorsBar / updateMoreCompetitorsBar /
+         updateArchiveEndMarker. Здесь только кнопки. */
       if (activeTab === 'in-report') {
         btnShowMore.style.display = 'none';
         btnAddLink.style.display = 'none';
-        // Прячем «Добавить больше объектов», если показан бар «N новых возможных конкурентов»
-        // (newCount() > 0) — не дублируем призыв добрать конкурентов.
-        if (addMoreWrap) addMoreWrap.style.display = (checkedIds.size > 0 && newCount() === 0) ? 'flex' : 'none';
       } else if (activeTab === 'archive') {
         // Архив показываем целиком (без пагинации и «добавить по ссылке»).
         btnShowMore.style.display = 'none';
         btnAddLink.style.display = 'none';
-        if (addMoreWrap) addMoreWrap.style.display = 'none';
       } else {
         // «Показать ещё» — пока в подборке остались нескрытые конкуренты (с учётом архивного фильтра)
         btnShowMore.style.display = visibleCount >= selectionPoolCount() ? 'none' : '';
         btnAddLink.style.display = '';
-        if (addMoreWrap) addMoreWrap.style.display = 'none';
       }
     }
 
@@ -2021,15 +2066,6 @@
           syncMeta();
           renderPersistentBtns();
         }
-      });
-    })();
-
-    // === V-next: «Добавить больше объектов» → вкладка подборки ===
-    (function() {
-      var b = document.getElementById('btnAddMore');
-      if (b) b.addEventListener('click', function() {
-        tabSelection.click();
-        scrollToTabs(); // доскролл наверх к вкладкам — видно, что открыта «Активные»
       });
     })();
 

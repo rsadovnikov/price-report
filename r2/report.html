@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609081314">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609081314">
-  <link rel="stylesheet" href="report.css?v=202609081314">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609081433">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609081433">
+  <link rel="stylesheet" href="report.css?v=202609081433">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>if (new URLSearchParams(location.search).has('activate')) document.documentElement.classList.add('activating');</script>
 </head>
@@ -281,9 +281,32 @@
       <button id="rowHoverBtn" type="button"></button>
     </div>
 
-    <!-- Добавить больше объектов (вкладка «Отслеживаемые») -->
-    <div id="addMoreWrap" style="display:none;justify-content:flex-start;padding:8px 0 0 24px">
-      <button class="btn-secondary-lg" id="btnAddMore" type="button">Добавить больше объектов</button>
+    <!-- Конец «Отслеживаемых», когда новых конкурентов нет: переход в подборку.
+         Макет 373:48388 — тот же каркас .tail-bar, что у бара новых конкурентов. -->
+    <div class="tail-bar" id="moreCompetitorsBar" style="display:none">
+      <div class="tail-bar__cell"><div class="photo-stack" id="mcbStack"></div></div>
+      <div class="tail-bar__body">
+        <span class="tail-bar__title">Больше возможных конкурентов</span>
+        <a href="#" class="tail-bar__link" data-action="view-more">Посмотреть</a>
+      </div>
+    </div>
+
+    <!-- Конец подборки → переход в архив (вкладка «Активные», активные кончились).
+         Макет 393:70288 / 897:165875: строка отбита разделителями во всю ширину карточки,
+         кадры архивных приглушены, под строкой с зазором 8 — ссылка «Добавить по прямой
+         ссылке». Это ОДИН блок и он же конец списка: пока он показан, обёртка кнопок
+         хвоста скрыта (`no-bottom-gap`), иначе «Добавить по ссылке» задваивалось бы. -->
+    <div class="tail-block" id="archiveEndMarker" style="display:none">
+      <div class="tail-ruled">
+        <div class="tail-bar">
+          <div class="tail-bar__cell"><div class="photo-stack photo-stack--muted" id="aemStack"></div></div>
+          <div class="tail-bar__body">
+            <span class="tail-bar__title">Это всё, что нашли. Но есть ещё похожие архивные объявления</span>
+            <a href="#" class="tail-bar__link" data-action="view-archive">Посмотреть</a>
+          </div>
+        </div>
+      </div>
+      <a href="#" class="tail-block__link" data-action="add-by-link">Добавить по прямой ссылке</a>
     </div>
 
     <!-- Action Buttons -->
@@ -292,23 +315,17 @@
       <button id="btnAddLink" class="btn-ghost-sm">Добавить по ссылке</button>
     </div>
 
-    <!-- Конец подборки → переход в архив (вкладка «Активные», активные кончились).
-         Тот же бар, что «N новых конкурентов», но не sticky. -->
-    <div class="new-competitors-bar archive-endmarker" id="archiveEndMarker" style="display:none">
-      <div class="ncb-stack" id="aemStack"></div>
-      <span class="aem-title">Это всё, что нашлось</span>
-      <a href="#" class="ncb-link aem-link" data-action="view-archive">Архивные объявления<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10" stroke="#005EDE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    </div>
-
   </main>
 
   <!-- Sticky-уведомление о новых конкурентах (вкладка «Отслеживаемые», newCount > 0).
        Липнет к низу вьюпорта, пока секция списка на экране; после — докуется вплотную
        к низу карточки (вне main — иначе его padding-bottom оставляет зазор 32px). -->
-  <div class="new-competitors-bar" id="newCompetitorsBar" style="display:none">
-    <div class="ncb-stack" id="ncbStack"></div>
-    <span class="label label-warning ncb-pill" id="ncbPill"></span>
-    <a href="#" class="ncb-link" data-action="view-new">Посмотреть</a>
+  <div class="tail-bar tail-bar--sticky tail-bar--badge" id="newCompetitorsBar" style="display:none">
+    <div class="tail-bar__cell"><div class="photo-stack" id="ncbStack"></div></div>
+    <div class="tail-bar__body tail-bar__body--badge">
+      <span class="label label-warning" id="ncbPill"></span>
+      <a href="#" class="tail-bar__link" data-action="view-new">Посмотреть</a>
+    </div>
   </div>
 
   </div><!-- /report-card -->
@@ -602,27 +619,27 @@
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609081314"></script>
-<script src="_design-system/components/sidebar.js?v=202609081314"></script>
-<script src="_design-system/components/promo-modal.js?v=202609081314"></script>
+<script src="_design-system/components/header.js?v=202609081433"></script>
+<script src="_design-system/components/sidebar.js?v=202609081433"></script>
+<script src="_design-system/components/promo-modal.js?v=202609081433"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609081314"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609081314"></script>
-<script src="mock-scenario.js?v=202609081314"></script>
-<script src="mock-connect.js?v=202609081314"></script>
+<script src="_mock-data/mock.js?v=202609081433"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609081433"></script>
+<script src="mock-scenario.js?v=202609081433"></script>
+<script src="mock-connect.js?v=202609081433"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609081314"></script>
-<script src="filters.js?v=202609081314"></script>
-<script src="_design-system/components/popover.js?v=202609081314"></script>
-<script src="_design-system/components/slider.js?v=202609081314"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609081314"></script>
-<script src="_design-system/components/toast.js?v=202609081314"></script>
-<script src="_design-system/components/textarea.js?v=202609081314"></script>
-<script src="_design-system/components/spinner.js?v=202609081314"></script>
-<script src="report.js?v=202609081314"></script>
+<script src="preset.js?v=202609081433"></script>
+<script src="filters.js?v=202609081433"></script>
+<script src="_design-system/components/popover.js?v=202609081433"></script>
+<script src="_design-system/components/slider.js?v=202609081433"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609081433"></script>
+<script src="_design-system/components/toast.js?v=202609081433"></script>
+<script src="_design-system/components/textarea.js?v=202609081433"></script>
+<script src="_design-system/components/spinner.js?v=202609081433"></script>
+<script src="report.js?v=202609081433"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 

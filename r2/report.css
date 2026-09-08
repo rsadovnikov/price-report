@@ -894,59 +894,165 @@
     }
 
     /* === NEW COMPETITORS BAR (sticky-уведомление внизу «Отслеживаемых») === */
-    .new-competitors-bar {
+    /* === ХВОСТОВЫЕ БЛОКИ ЛЕНТ ===
+       Три блока в конце списков собраны ОДНИМ каркасом — макеты 393:73449 (новые
+       конкуренты), 373:48388 (переход в подборку), 897:165874 (переход в архив).
+       Устройство одно: ячейка 102 со стопкой кадров, зазор 12, дальше колонка
+       «подпись сверху, ссылка снизу». Подпись поэтому начинается на 114 во всех
+       трёх — сколько бы кадров ни пришло в стопку.
+       ⚠️ До 2026-09-08 блоков было два и они шли строкой: стопка · пилюля · ссылка,
+       кадры 48 с нахлёстом 12. Именно этот ряд Роман назвал «разъезжается». */
+    /* ⚠️ Ячейка и зазор считаны не с макета, а с ТАБЛИЦЫ, под которой блок стоит
+       (правка Романа 2026-09-08: «текст в таблице и текст в блоке должны быть на
+       одной линии»). В макете ячейка 102 и зазор 12 — но там над блоком нет ленты
+       с колонками, а здесь есть, и врозь они читаются как сбой.
+       Колонка фото в таблице — 104 = 80 фото + 12 + 12 паддинга ячейки, дальше
+       колонка описания со своими 12 слева. Значит от левого края кадра до текста
+       ровно 104: у нас это ячейка 80 (ширина стопки из четырёх) плюс зазор 24
+       (12 справа у фото + 12 слева у описания). Левый отступ бара 24 ставит кадры
+       туда же, где фото строк. Числа не прибиты в проверке — `smoke-list-tails`
+       сверяет координаты блока с координатами таблицы. */
+    .tail-bar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: var(--background-primary);
+      padding: 0 24px;
+      /* Высота стопки = высота текстовой колонки рядом: подпись 20 + ссылка 20.
+         Так во всех макетах — кадр ровно по тексту, а не «примерно». */
+      --tail-stack-h: 40px;
+    }
+    /* У бара новых сверху пилюля: 24 + зазор 4 + ссылка 20 = 48, и кадры тоже 48
+       (макеты 2334:53077 … 2334:53096). Строка от этого 72, а не 64. */
+    .tail-bar--badge { --tail-stack-h: 48px; }
+    /* Бар новых конкурентов липнет к низу вьюпорта, пока список на экране; после —
+       докуется вплотную к низу карточки. Разделитель сверху отделяет его от
+       содержимого, проезжающего под ним; в макете его нет — там бар не липкий. */
+    .tail-bar--sticky {
       position: sticky;
       bottom: 0;
       z-index: 40; /* выше строк таблицы и hover-кнопок */
+      border-top: 1px solid var(--stroke-divider-neutral);
+    }
+    /* Ячейка фиксированной ширины — она же держит высоту строки: 12 + 40 + 12 = 64.
+       Стопка прижата влево, а не центрована как в макете: кадров бывает от одного до
+       четырёх, и при центровке блок съезжал бы от колонки фото на каждом числе по-своему. */
+    .tail-bar__cell {
+      flex: none;
+      width: 80px;
+      padding: 12px 0;
       display: flex;
       align-items: center;
-      gap: 16px;
-      background: var(--background-primary);
-      border-top: 1px solid var(--stroke-divider-neutral);
-      padding: 12px 24px;
+      justify-content: flex-start;
     }
-    .ncb-stack {
+    .tail-bar__body {
       display: flex;
-      flex: none;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      min-width: 0;
     }
-    .ncb-stack img {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-l);
-      border: 2px solid #fff;
-      object-fit: cover;
-      display: block;
-    }
-    .ncb-stack img + img { margin-left: -12px; }
-    /* Пилюля бара — тот же DS-компонент .label.label-warning, что и бейдж
-       «Цена изменилась»; отступ сверху ей не нужен, поэтому .badge-update не вешаем.
-       Собственных стилей у .ncb-pill не осталось — класс только маркирует роль. */
-    .ncb-link {
-      color: #005EDE;
-      font-size: 16px;
-      line-height: 24px;
-      font-weight: 700;
-      text-decoration: none;
-      font-feature-settings: 'liga' off, 'clig' off;
-    }
-    .ncb-link:hover { text-decoration: underline; }
-    /* Маркер «Это всё, что нашлось» — тот же бар, что «новые конкуренты», но не sticky. */
-    .archive-endmarker {
-      position: static;
-      border-top: none;
-    }
-    .aem-title {
-      font-size: 16px;
-      line-height: 24px;
-      font-weight: 700;
+    /* У бара новых сверху пилюля, а не подпись, и ей нужен зазор 4 (макет 393:80541).
+       Сама пилюля — DS-компонент .label.label-warning, тот же, что бейдж «Цена
+       изменилась»; отступ сверху ей не нужен, поэтому .badge-update не вешаем. */
+    .tail-bar__body--badge { gap: 4px; }
+    .tail-bar__title {
+      font-size: 14px;
+      line-height: 20px;
       color: var(--text-primary-default);
       font-feature-settings: 'liga' off, 'clig' off;
     }
-    .aem-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    /* ⚠️ Body2 обычного начертания, а не Heading5. В `links.css` экшн-ссылка ДС
+       только жирная, а в макете все три «Посмотреть» набраны Body2 regular —
+       это дырка в ките, а не наша вольность. Красим у экрана и говорим вслух. */
+    .tail-bar__link {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-main-default);
+      text-decoration: none;
+      font-feature-settings: 'liga' off, 'clig' off;
     }
+    .tail-bar__link:hover { text-decoration: underline; }
+    /* Строка конца подборки отбита разделителями во всю ширину карточки — они идут по
+       её краю, а не по краю бара, поэтому лежат на обёртке, а не на .tail-bar. */
+    .tail-ruled {
+      align-self: stretch;
+      border-top: 1px solid var(--stroke-divider-default);
+      border-bottom: 1px solid var(--stroke-divider-default);
+    }
+    /* Блок конца подборки = отбитая строка плюс ссылка под ней, зазор 8 (макеты
+       393:70288 / 897:165875). Свои 20 снизу он держит сам, а нижний зазор секции при
+       нём снимается (`no-bottom-gap`): блок и есть конец списка, обёртка кнопок под
+       ним добавляла бы ещё 48 пустоты. */
+    .tail-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding-bottom: 20px;
+    }
+    /* ⚠️ Ссылка стоит на 12 ЛЕВЕЕ стопки, и это не описка макета: она выровнена по
+       левому краю КОЛОНКИ фото, а стопка — по левому краю самого фото. Отступ 12 тот
+       же, что у ячейки таблицы, поэтому и сдвиг такой же.
+       Набрана Heading5, как экшн-ссылка ДС (`links.css`), но живёт здесь: на этом месте
+       у нас стоит кнопка `btn-ghost-sm` «Добавить по ссылке», и пока блок показан,
+       обёртка кнопок скрыта — контрол на экране остаётся один. */
+    .tail-block__link {
+      margin-left: 12px;
+      padding: 4px 0;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: var(--text-main-default);
+      text-decoration: none;
+      font-feature-settings: 'liga' off, 'clig' off;
+    }
+    .tail-block__link:hover { text-decoration: underline; }
+
+    /* === СТОПКА КАДРОВ ===
+       Блок говорит «вот эти объекты», а не показывает каждый, — поэтому кадры идут
+       внахлёст, а не в ряд.
+       ⚠️ **Ширина стопки постоянна, меняются кадр и нахлёст** (состояния 2334:53153,
+       собраны Романом 2026-09-08). Один кадр занимает всю ширину, дальше кадры сужаются
+       и наезжают друг на друга — но правый край стоит на месте. Иначе блок дышал бы
+       вширь на каждое число найденных, а он стоит под лентой с фиксированными колонками.
+
+         кадров │ кадр │ нахлёст │ итого
+         ───────┼──────┼─────────┼──────
+              1 │  80  │    —    │  80
+              2 │  44  │    8    │  80
+              3 │  32  │    8    │  80
+              4 │  32  │   16    │  80
+
+       ⚠️ В макете коробка 78, а не 80, и нахлёсты дробные (10 / 9 / 16.667) — там она
+       ни к чему не привязана. У нас привязана: 80 — это ширина фото в строке ленты
+       (`.col-photo` минус паддинги), и от этого все нахлёсты становятся целыми и
+       кратными четырём. Радиус в макете 2.667 (остаток масштабирования группы) —
+       у нас токен `--radius-m`.
+       База — случай четырёх кадров, он же потолок (`STACK_MAX` в `report.js`).
+       Белое кольцо вырезает кадр из того, что под ним. Отдельного правила первому
+       кадру не нужно: его кольцо приходится на белый фон и не видно — ровно тот
+       случай, что разбирался в `photo-stack.css` поверхности приложения. */
+    .photo-stack { display: flex; align-items: center; width: 80px; }
+    .photo-stack img {
+      box-sizing: border-box;
+      flex: none;
+      width: 32px;
+      height: var(--tail-stack-h);
+      border-radius: var(--radius-m);
+      border: 1px solid var(--background-primary);
+      object-fit: cover;
+      display: block;
+    }
+    .photo-stack img + img { margin-left: -16px; }
+    .photo-stack--1 img { width: 80px; }
+    .photo-stack--2 img { width: 44px; }
+    .photo-stack--2 img + img { margin-left: -8px; }
+    .photo-stack--3 img { width: 32px; }
+    .photo-stack--3 img + img { margin-left: -8px; }
+    /* Кадры архивных приглушены — в макете это mix-blend-luminosity (897:165881). */
+    .photo-stack--muted img { filter: grayscale(1); }
 
     /* === CUSTOM SCROLLBAR === */
     /* ЗАКОНСЕРВИРОВАНО (эксперимент): кастомный скроллбар под легендой верхней таблицы
