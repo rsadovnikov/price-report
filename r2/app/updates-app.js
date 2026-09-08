@@ -104,10 +104,18 @@ var AppUpdates = (function () {
      разойтись им нельзя; в вебе своя точка сборки (`report.js`, renderTableB), и она
      сверяется с этой тестом, а не копированием строки. */
   function priceLabel(c) {
-    var delta = String((c && c.priceDelta) || '').trim();
-    var amount = delta.replace(/[−+-]/g, '').trim();
+    /* 🔴 Берём ПОСЛЕДНЕЕ изменение (`priceHistory[0]`), а не `priceDelta` (правка Романа
+       2026-09-08). `priceDelta` — это разница со СТАРТОВОЙ ценой, сумма всех изменений
+       за срок размещения; бейдж же сообщает новость «цена только что поменялась», и
+       рядом с ней тотал за три месяца читается как одно последнее движение. У объекта
+       с двумя снижениями цифры расходятся в разы.
+       `priceHistory[0]` — самая свежая запись (`mock.js`, history: массив идёт от
+       свежего к старому), `delta` в ней считается относительно предыдущей цены, а
+       `isUp` уже готов — знак разбирать не нужно. */
+    var last = c && c.priceHistory && c.priceHistory[0];
+    var amount = last ? String(last.delta || '').replace(/[−+-]/g, '').trim() : '';
     if (!amount) return 'Цена изменилась';
-    return 'Цена ' + (delta.charAt(0) === '+' ? 'увеличилась' : 'уменьшилась') + ' на ' + amount + ' ₽';
+    return 'Цена ' + (last.isUp ? 'увеличилась' : 'уменьшилась') + ' на ' + amount + ' ₽';
   }
 
   return { allocate: allocate, flagged: flagged, hoist: hoist, priceLabel: priceLabel };
