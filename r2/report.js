@@ -494,12 +494,11 @@
         var dyn = document.querySelector('#tableA .col-current-price .price-tooltip-trigger');
         var delta = hist && hist[0] ? hist[0].delta : null;
         if (delta) {
-          // Знак «+» = цена росла; иконки и модификатор те же, что у конкурентов (renderTableB).
+          // Знак «+» = цена росла; иконка та же, что у конкурентов (renderTableB).
           var isUp = delta.charAt(0) === '+';
           if (cell) cell.setAttribute('data-history', JSON.stringify(hist));
           if (dl) {
             dl.textContent = delta + ' ₽';
-            dl.classList.toggle('price-delta--up', isUp);
             dl.style.display = '';
           }
           if (dyn) {
@@ -623,7 +622,7 @@
         +   updateBadge
         + '</td>'
         + '<td class="col-start-price"><div class="price-main">' + d.startPrice + '\u00a0\u20bd</div><div class="price-per-m">' + d.startPricePerM + '\u00a0\u20bd/м\u00b2</div></td>'
-        + '<td class="col-current-price" data-comp-idx="' + idx + '"><div class="price-main-row"><div class="price-main">' + d.currentPrice + ' \u20bd</div>' + (d.priceDelta ? '<span class="price-tooltip-trigger">' + (d.priceDelta.startsWith('+') ? DYN_ICON_NEG : DYN_ICON_POS) + '</span>' : '') + '</div><div class="price-per-m">' + d.currentPricePerM + ' \u20bd/м\u00b2</div>' + (d.priceDelta ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + ' \u20bd</div>' : '') + '</td>'
+        + '<td class="col-current-price" data-comp-idx="' + idx + '"><div class="price-main-row"><div class="price-main">' + d.currentPrice + ' \u20bd</div>' + (d.priceDelta ? '<span class="price-tooltip-trigger">' + (d.priceDelta.startsWith('+') ? DYN_ICON_NEG : DYN_ICON_POS) + '</span>' : '') + '</div><div class="price-per-m">' + d.currentPricePerM + ' \u20bd/м\u00b2</div>' + (d.priceDelta ? '<div class="price-delta">' + d.priceDelta + ' \u20bd</div>' : '') + '</td>'
         + '<td class="col-dynamics"></td>'
         + '<td class="col-duration"><div class="duration-days">' + pluralDays(removedIds.has(idx) ? daysOnMarket(d.date, removedDates[idx]) : daysSincePublished(d.date)) + '</div><div class="duration-date">' + stripCurrentYear(d.date) + '</div></td>'
         + '<td class="col-metro metro-cell"><div class="metro-station"><svg class="metro-icon metro-green" width="13" height="9" viewBox="0 0 13 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0637 0L6.50007 4.55805L3.93659 0L0.893419 7.44203H0V8.66667H4.64332V7.44203H3.64113L4.31065 5.67002L6.50007 8.66667L8.42224 5.85812L9.0637 7.44203H8.35797V8.66667H13V7.44203H12.1066L9.0637 0Z" fill="currentColor"/></svg> ' + d.metroStation + '</div><div class="metro-walk">' + BUS_ICON + ' ' + d.walkMin + ' мин</div></td>'
@@ -800,7 +799,7 @@
           var isRemoved = removedIds.has(idx);
         var comment = commentTexts[idx];
         var deltaHtml = d.priceDelta
-          ? '<div class="price-delta' + (d.priceDelta.startsWith('+') ? ' price-delta--up' : '') + '">' + d.priceDelta + '\u00a0\u20bd</div>'
+          ? '<div class="price-delta">' + d.priceDelta + '\u00a0\u20bd</div>'
           : '';
         var badgeHtml = isRemoved
           ? '<div class="label label-neutral badge-removed" style="margin-top:4px">Снято с публикации ' + (removedDates[idx] || '') + '</div>'
