@@ -863,22 +863,15 @@
       color: var(--text-primary-default);
       font-feature-settings: 'liga' off, 'clig' off;
     }
-    .tracking-banner__visit {
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: -0.2px;
-      font-weight: 700;
-      color: var(--text-primary-default);
-      font-feature-settings: 'liga' off, 'clig' off;
-    }
     .tracking-banner__period { color: var(--text-secondary-default); }
-    /* Режим «есть апдейты»: текст баннера «Отслеживаются» — bold (как строка визита). */
-    .tracking-banner__text.is-changed { font-weight: 700; letter-spacing: -0.2px; }
+    /* Режим «есть апдейты» отличается только текстом: тот же Body2 400, что и дефолтный
+       (макет 393:73427). Жирного начертания у плашки нет ни в одном состоянии. */
     .tracking-banner__radar {
       flex: none;
       width: 24px;
       height: 24px;
       display: inline-flex;
+      color: var(--icon-secondary-default);
       transform-origin: center;
       animation: radar-spin 2.4s linear infinite;
     }

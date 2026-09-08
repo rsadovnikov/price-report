@@ -572,7 +572,7 @@
     var selectionBanner = document.getElementById('selectionBanner');
     // Текст баннера «Отслеживаемые» зависит от наличия апдейтов у конкурентов — тот же признак,
     // что рисует красный каунтер в «Моих объявлениях» (TOTAL_UPDATES > 0, прокинуто через ?u=):
-    //   есть апдейты → «Что изменилось с вашего прошлого визита, N дней назад» (срок серым, текст bold);
+    //   есть апдейты → «Что изменилось с вашего прошлого визита, N дней назад» (срок серым);
     //   нет         → дефолт про мониторинг (остаётся из разметки).
     (function() {
       var textEl = trackingBanner && trackingBanner.querySelector('.tracking-banner__text');
@@ -583,7 +583,6 @@
          расходиться в переносах ей незачем. */
       var period = days === 1 ? 'вчера'
         : days + '\u00A0' + (days < 5 ? 'дня' : 'дней') + '\u00A0назад';
-      textEl.classList.add('is-changed');
       textEl.innerHTML = 'Что изменилось с вашего прошлого визита, '
         + '<span class="tracking-banner__period">' + period + '</span>';
     })();
