@@ -608,7 +608,15 @@
         // Красный — только если снятие произошло как апдейт; изначально архивный (добавленный
         // из подборки) сохраняет серый статус.
         if (removedIds.has(idx)) updateBadge = '<div class="label ' + (removedUpdateIds.has(idx) ? 'label-warning badge-update' : 'label-neutral badge-removed') + '">Снято с публикации ' + removedDates[idx] + '</div>';
-        else if (priceUpdatedIds.has(idx)) updateBadge = '<div class="label label-warning badge-update">Цена изменилась</div>';
+        /* Сумма изменения прямо в бейдже (правка Романа 2026-09-08). Знак не пишем:
+           «на 300 000 ₽» — величина, а не направление; направление несут дельта в
+           колонке цены и стрелка на иконке динамики. Ту же подпись собирает
+           `AppUpdates.priceLabel` для двух экранов приложения — сверяются тестом. */
+        else if (priceUpdatedIds.has(idx)) {
+          var сумма = String(d.priceDelta || '').replace(/[−+-]/g, '').trim();
+          updateBadge = '<div class="label label-warning badge-update">Цена изменилась'
+            + (сумма ? ' на ' + сумма + ' ₽' : '') + '</div>';
+        }
       } else {
         if (newIds.has(idx)) updateBadge = '<div class="label label-warning badge-update">Новый конкурент</div>';
         else if (removedIds.has(idx)) updateBadge = '<div class="label label-neutral badge-removed">Снято с публикации ' + removedDates[idx] + '</div>';

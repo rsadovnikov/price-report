@@ -156,7 +156,7 @@
   listEl.innerHTML = order.map(function (idx) {
     var c = ALL_COMPETITORS[idx];
     var photo = c.photos && c.photos[0];
-    var mark = idx === priceIdx ? 'Цена изменилась'
+    var mark = idx === priceIdx ? AppUpdates.priceLabel(c)
              : idx === removedIdx ? 'Сняли с публикации ' + removedDate(c)
              : null;
     return '<a class="ad-row-app' + (mark ? ' ad-row-app--badged' : '') + '"'

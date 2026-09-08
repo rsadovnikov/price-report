@@ -93,5 +93,17 @@ var AppUpdates = (function () {
     return up.concat(rest);
   }
 
-  return { allocate: allocate, flagged: flagged, hoist: hoist };
+  /* Подпись бейджа «Цена изменилась» — с суммой изменения (правка Романа 2026-09-08).
+     Знак не показываем: «на 300 000 ₽» — это величина, а не направление, направление
+     видно по самой цене «было → стало» и по стрелке иконки динамики. Тот же приём, что
+     в истории цены (`competitor-card-app.js`) и в вебовом тултипе: знак несёт стрелка.
+     Живёт здесь, потому что бейдж рисуют ДВА экрана приложения — обзор и карточка, — и
+     разойтись им нельзя; в вебе своя точка сборки (`report.js`, renderTableB), и она
+     сверяется с этой тестом, а не копированием строки. */
+  function priceLabel(c) {
+    var amount = String((c && c.priceDelta) || '').replace(/[−+-]/g, '').trim();
+    return amount ? 'Цена изменилась на ' + amount + ' ₽' : 'Цена изменилась';
+  }
+
+  return { allocate: allocate, flagged: flagged, hoist: hoist, priceLabel: priceLabel };
 })();

@@ -306,7 +306,7 @@
       idx: idx,
       archived: mode === 'archive',
       topFlag: marks.freshIds.indexOf(idx) >= 0 ? 'Новый конкурент' : '',
-      priceFlag: idx === marks.priceIdx ? 'Цена изменилась' : '',
+      priceFlag: idx === marks.priceIdx ? AppUpdates.priceLabel(c) : '',
       statusFlag: idx === marks.removedIdx
         ? 'Сняли с публикации ' + CompetitorCardApp.removedDate(c) : '',
       head: remove,
