@@ -564,6 +564,14 @@
       font-weight: 700;
       line-height: 24px;
     }
+    /* ⚠️ Жирным в строке набрана ТОЛЬКО текущая цена (правка Романа 2026-09-09, сверено
+       с продом). Цена на старте и срок размещения идут обычным начертанием: жирный тут
+       работает как указатель на «сколько просят сейчас», а когда им набраны все три
+       колонки, указывать становится нечем. Парная правка — `.duration-days` ниже. */
+    .col-start-price .price-main,
+    .occ-start-price .price-main {
+      font-weight: 400;
+    }
     .price-per-m {
       font-size: 14px;
       line-height: 20px;
@@ -591,9 +599,11 @@
     .dynamics-icon { width: 35px; height: 27px; display: block; flex-shrink: 0; }
 
     /* Duration */
+    /* Вес 400, а не 700 — см. комментарий у `.price-main`: жирная в строке только
+       текущая цена. */
     .duration-days {
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 400;
       line-height: 24px;
     }
     .duration-date {
@@ -893,6 +903,56 @@
     @media (prefers-reduced-motion: reduce) {
       .tracking-banner__radar { animation: none; }
     }
+
+    /* === ОЦЕНКА ПОДБОРКИ (конец списка «Отслеживаемых», макет 2356:71684) ===
+       Ряд стоит В ЛЕНТЕ, поэтому равняется по её колонкам, а не по числам макета:
+       плитка шириной с колонку фото, зазор 24 — как у хвостовых баров. В макете
+       ячейка 102 и плитка 78, но там ряд нарисован отдельным блоком.
+       Звёзды — кнопки 36 с глифом 16; поставленная оценка красится цветом действия.
+       ⚠️ Состояния «оценка поставлена» в макете нет: золота в палитре ЦИАН тоже нет,
+       поэтому взят `--icon-main-default` — тот же цвет, что у ссылок рядом. */
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 24px;
+      border-top: 1px solid var(--stroke-divider-default);
+    }
+    .rating-row__cell { flex: none; width: 80px; }
+    .rating-row__badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 40px;
+      border-radius: var(--radius-l);
+      background: var(--surface-neutral-default);
+      color: var(--icon-secondary-default);
+    }
+    .rating-row__badge svg { display: block; }
+    .rating-row__body { display: flex; align-items: center; gap: 44px; min-width: 0; }
+    .rating-row__label {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-primary-default);
+    }
+    .rating-row__stars { display: flex; align-items: center; }
+    .rating-star {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: none;
+      border-radius: var(--radius-l);
+      background: transparent;
+      color: var(--icon-secondary-default);
+      cursor: pointer;
+    }
+    .rating-star svg { display: block; }
+    .rating-star:hover { background: var(--surface-neutral-default); }
+    .rating-star.is-on { color: var(--icon-main-default); }
 
     /* === NEW COMPETITORS BAR (sticky-уведомление внизу «Отслеживаемых») === */
     /* === ХВОСТОВЫЕ БЛОКИ ЛЕНТ ===

@@ -64,6 +64,10 @@
 
     // === ПАРАМЕТРЫ И СЛУЧАЙНОСТЬ ===
     var REPORT_PARAMS = new URLSearchParams(location.search);
+    /* Вариант отчёта с нижней полкой (report-shelf.html → ?shelf=1). Флаг читаем
+       с <html>, а не из адреса: его туда поставил guard в шапке, и второе чтение
+       того же параметра завело бы второй источник правды. */
+    var SHELF = document.documentElement.getAttribute('data-shelf') === '1';
     // Теперь, когда сам объект стабилен, случаен только выбор — какие объекты попали в
     // отчёт и кому прилетел апдейт. Чтобы расклад можно было воспроизвести (показать тот
     // же кейс дважды, прислать ссылку), ?seed=… переводит выбор на детерминированный
@@ -371,24 +375,65 @@
       }).join('');
     }
 
+    /* === Оценка подборки (конец списка «Отслеживаемых», макет 2356:71684) ===
+       Пять кнопок собираются ИЗ ОДНОЙ строки: тот же глиф пять раз в разметке —
+       это пять мест, которые обязаны совпадать, и правку получило бы одно из них.
+       Оценка живёт только на экране: прототип её не хранит и никуда не шлёт. */
+    var STAR_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+      + '<path fill-rule="evenodd" clip-rule="evenodd" d="M7.99994 0.249998C8.39513 0.249995 8.75326 0.482725 8.91376 0.843852L10.6807 4.81948L14.6104 5.25611C14.9787 5.29704 15.2942 5.53829 15.4302 5.88302C15.5662 6.22775 15.5004 6.61942 15.2593 6.90079L12.576 10.0312L13.4806 14.5539C13.557 14.9361 13.4044 15.3279 13.0896 15.5577C12.7748 15.7875 12.3551 15.8135 12.0144 15.6242L7.99996 13.394L3.98565 15.6242C3.64492 15.8134 3.22525 15.7875 2.91042 15.5577C2.59559 15.3279 2.44298 14.9361 2.51942 14.5539L3.42396 10.0312L0.740743 6.90079C0.49957 6.61942 0.433774 6.22775 0.56977 5.88302C0.705765 5.53829 1.02125 5.29704 1.38957 5.25611L5.31924 4.81948L7.08614 0.843868C7.24664 0.482738 7.60476 0.250001 7.99994 0.249998Z" fill="currentColor"/></svg>';
+    var ratingRow = document.getElementById('ratingRow');
+    var RATING_MAX = 5;
+    (function buildRating() {
+      var box = document.getElementById('ratingStars');
+      if (!box) return;
+      var html = '';
+      for (var i = 1; i <= RATING_MAX; i++) {
+        html += '<button class="rating-star" type="button" data-rate="' + i + '"'
+          + ' aria-label="' + i + ' из ' + RATING_MAX + '">' + STAR_SVG + '</button>';
+      }
+      box.innerHTML = html;
+      box.addEventListener('click', function(e) {
+        var btn = e.target.closest('.rating-star');
+        if (!btn) return;
+        var value = +btn.getAttribute('data-rate');
+        // Оценка — это «столько звёзд и все левее», а не одна нажатая.
+        Array.prototype.forEach.call(box.querySelectorAll('.rating-star'), function(b) {
+          b.classList.toggle('is-on', +b.getAttribute('data-rate') <= value);
+        });
+      });
+    })();
+    // Вопрос про подборку уместен, только когда она собрана: на пустом списке
+    // спрашивать «насколько подходят эти конкуренты» не о чем.
+    function updateRatingRow() {
+      if (!ratingRow) return;
+      ratingRow.style.display =
+        (activeTab === 'in-report' && checkedIds.size > 0) ? 'flex' : 'none';
+    }
+
     // === Sticky-бар «N новых возможных конкурентов» (низ вкладки «Отслеживаемые») ===
+    /* Возвращает НАБОР и подпись, а не только «показан ли»: тем же набором рисует
+       свою левую карточку нижняя полка (вариант ?shelf=1). Считаем один раз здесь —
+       две версии отчёта не должны расходиться в том, что такое «новый конкурент». */
     function updateNewCompetitorsBar() {
       var bar = document.getElementById('newCompetitorsBar');
-      if (!bar) return;
       var fresh = [];
       newIds.forEach(function(i) { if (!checkedIds.has(i)) fresh.push(i); });
-      if (activeTab !== 'in-report' || fresh.length === 0) {
-        bar.style.display = 'none';
-        return false;
-      }
-      // Стопка — обложки самих новых конкурентов (те же, что в таблицах)
-      fillStack(document.getElementById('ncbStack'), fresh);
       var n = fresh.length;
       var word = n === 1 ? 'новый возможный конкурент'
         : (n < 5 ? 'новых возможных конкурента' : 'новых возможных конкурентов');
-      document.getElementById('ncbPill').textContent = n + ' ' + word;
+      var label = n + ' ' + word;
+      var out = { ids: fresh, label: label, shown: false };
+      if (!bar) return out;
+      if (activeTab !== 'in-report' || n === 0) {
+        bar.style.display = 'none';
+        return out;
+      }
+      // Стопка — обложки самих новых конкурентов (те же, что в таблицах)
+      fillStack(document.getElementById('ncbStack'), fresh);
+      document.getElementById('ncbPill').textContent = label;
       bar.style.display = 'flex';
-      return true;
+      out.shown = true;
+      return out;
     }
     // «Посмотреть» → вкладка «Активные» (новые отсортированы наверх), доскролл к вкладкам
     document.querySelector('#newCompetitorsBar [data-action="view-new"]')
@@ -406,18 +451,21 @@
        заменена блоком по макету 373:48388. */
     function updateMoreCompetitorsBar() {
       var el = document.getElementById('moreCompetitorsBar');
-      if (!el) return;
       // Тизер — кандидаты подборки: ещё не отслеживаются и не сняты с публикации.
       var teaser = [];
       for (var i = 0; i < ALL_COMPETITORS.length && teaser.length < STACK_MAX; i++) {
         if (!checkedIds.has(i) && !removedIds.has(i)) teaser.push(i);
       }
+      var out = { ids: teaser, shown: false };
+      if (!el) return out;
       if (activeTab !== 'in-report' || newCount() > 0 || checkedIds.size === 0 || teaser.length === 0) {
         el.style.display = 'none';
-        return;
+        return out;
       }
       fillStack(document.getElementById('mcbStack'), teaser);
       el.style.display = 'flex';
+      out.shown = true;
+      return out;
     }
     document.querySelector('#moreCompetitorsBar [data-action="view-more"]')
       .addEventListener('click', function(e) {
@@ -431,17 +479,21 @@
     // Стопка — тизер фото первых архивных. Ведёт на вкладку «Архивные».
     function updateArchiveEndMarker() {
       var el = document.getElementById('archiveEndMarker');
-      if (!el) return false;
       var teaser = [];
       removedIds.forEach(function(i) { if (!checkedIds.has(i) && teaser.length < STACK_MAX) teaser.push(i); });
+      var out = { ids: teaser, shown: false };
+      if (!el) return out;
+      /* Условие про исчерпанную подборку — только про ЭТОТ блок. Полка зовёт в архив
+         всю вкладку напролёт (макет 2361:73332), поэтому набор считается до проверки. */
       var poolExhausted = (visibleCount >= selectionPoolCount());
       if (activeTab !== 'selection' || !poolExhausted || teaser.length === 0) {
         el.style.display = 'none';
-        return false;
+        return out;
       }
       fillStack(document.getElementById('aemStack'), teaser);
       el.style.display = 'flex';
-      return true;
+      out.shown = true;
+      return out;
     }
     document.querySelector('#archiveEndMarker [data-action="view-archive"]')
       .addEventListener('click', function(e) {
@@ -794,16 +846,25 @@
         selectionBanner.style.display = (activeTab === 'selection') ? 'flex' : 'none';
       }
 
+      updateRatingRow();                          // оценка подборки — конец «Отслеживаемых»
       // Хвостовые блоки лент — та же точка ре-рендера
-      var barShown = updateNewCompetitorsBar();   // «N новых возможных конкурентов»
-      updateMoreCompetitorsBar();                 // «Больше возможных» — когда новых нет
-      var archShown = updateArchiveEndMarker();   // конец подборки → архив
+      var freshInfo = updateNewCompetitorsBar();  // «N новых возможных конкурентов»
+      var moreInfo = updateMoreCompetitorsBar();  // «Больше возможных» — когда новых нет
+      var archInfo = updateArchiveEndMarker();    // конец подборки → архив
+      /* Нижняя полка (вариант ?shelf=1) кормится ОТСЮДА ЖЕ и теми же наборами —
+         своих правил у неё нет, она только выбирает, какую карточку показать. */
+      ReportShelf.update({
+        tab: activeTab, tracked: checkedIds.size,
+        fresh: freshInfo, more: moreInfo, archive: archInfo, fillStack: fillStack
+      });
       /* Нижний зазор секции снимают ОБА блока, что кончают ленту: свой отступ снизу
          они держат сами, а пустая обёртка кнопок под ними добавила бы ещё 48. Класс
          ставится здесь, в одном месте: пока им распоряжался только бар новых, второй
-         такой блок снимал бы то, что поставил первый. */
+         такой блок снимал бы то, что поставил первый.
+         В варианте с полкой класс не ставим вовсе: полка стоит на «Активных» всегда,
+         а он прячет «Показать больше объектов». Нижний отступ там снимает shelf.css. */
       var section = document.querySelector('.report-section');
-      if (section) section.classList.toggle('no-bottom-gap', barShown || archShown);
+      if (section) section.classList.toggle('no-bottom-gap', !SHELF && (freshInfo.shown || archInfo.shown));
 
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
