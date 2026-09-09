@@ -570,6 +570,28 @@
     var emptyBState = document.getElementById('emptyBState');
     var trackingBanner = document.getElementById('trackingBanner');
     var selectionBanner = document.getElementById('selectionBanner');
+    /* Локатор — макет 2337:53367 («Radar Grey»): кольца 7.48 и 4.20, обводка 1.18, цвет
+       токеном через currentColor. Плашек с ним две («Отслеживаемые» и «Активные»), и
+       разметка тут ОДНА: пока иконка лежала в html дважды, правка иконки досталась
+       только первой плашке (нашёл Роман 2026-09-08). Хвост развёртки — угловой градиент
+       в foreignObject; кружки-обтравки заданы CSS-ом, а не clipPath по id, иначе копии
+       иконки принесли бы в документ повторяющиеся id. Через <use> на общий symbol не
+       работает вовсе: в клонированном поддереве foreignObject не рисуется (проверено
+       рендером — остаются только кольца). */
+    var RADAR_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">'
+      + '<g style="clip-path:circle(7.4843px at 12px 12px)"><g transform="matrix(0 0.00672917 -0.00672917 0 12 12)">'
+      + '<foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml"'
+      + ' style="background:conic-gradient(from 90deg,currentColor 0deg,transparent 5.19231deg,transparent 327.115deg,currentColor 360deg);height:100%;width:100%"></div>'
+      + '</foreignObject></g></g><circle cx="12" cy="12" r="7.4843" stroke="currentColor" stroke-width="1.18465"/>'
+      + '<g style="clip-path:circle(4.1978px at 12px 12px)"><g transform="matrix(0 0.00399167 -0.00399167 0 12 12)">'
+      + '<foreignObject x="-1200" y="-1200" width="2400" height="2400"><div xmlns="http://www.w3.org/1999/xhtml"'
+      + ' style="background:conic-gradient(from 90deg,transparent 0deg,transparent 297.692deg,currentColor 360deg);height:100%;width:100%"></div>'
+      + '</foreignObject></g></g><circle cx="12" cy="12" r="4.1978" stroke="currentColor" stroke-width="1.18465"/>'
+      + '<ellipse cx="12" cy="12" rx="1.16643" ry="1.18465" fill="currentColor"/></svg>';
+    Array.prototype.forEach.call(document.querySelectorAll('.tracking-banner__radar'), function(slot) {
+      slot.innerHTML = RADAR_SVG;
+    });
+
     // Текст баннера «Отслеживаемые» зависит от наличия апдейтов у конкурентов — тот же признак,
     // что рисует красный каунтер в «Моих объявлениях» (TOTAL_UPDATES > 0, прокинуто через ?u=):
     //   есть апдейты → «Что изменилось с вашего прошлого визита, N дней назад» (срок серым);
