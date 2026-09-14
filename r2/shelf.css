@@ -1,92 +1,202 @@
 /* ==========================================================================
-   НИЖНЯЯ ПОЛКА — вариант отчёта на report-shelf.html (report.html?shelf=1)
-   Макеты 2361:77577: «отслеживаются» 2356:71576, «отслеживаются / новые»
-   2360:72464, «активные» 2361:73332, «архивные» 2361:75645.
+   ВАРИАНТ ОТЧЁТА С НИЖНЕЙ ПОЛКОЙ — report-shelf.html (report.html?shelf=1)
+   Макет 2406:37569 (состояние «отслеживаются / новые»).
 
-   Смысл варианта: внизу ОДНА прилепленная сущность вместо четырёх. Полка держит
-   две карточки — слева переход в следующий список (и он же несёт новость о новых
-   конкурентах), справа вход в отчёт для собственника. Поэтому в этом режиме
-   гасятся оба хвостовых бара, блок конца подборки и плавающая кнопка отчёта:
-   всё, что полка забрала себе.
+   Устройство варианта (правка Романа 2026-09-10):
+   • новость о новых конкурентах — ПЕРВОЙ строкой списка, а не полкой внизу;
+   • внизу — полка с одной круглой кнопкой отчёта, прижатой к левому краю списка;
+   • кругляш Telegram встаёт на её линию и в её размер (44 против обычных 52).
+
+   Поэтому гасим ровно одно — плавающую кнопку отчёта: её заменила кнопка в полке.
+   Хвостовые блоки лент («Больше возможных конкурентов», конец подборки) работают
+   как в обычной версии. ⚠️ До этой правки полка забирала себе все четыре сущности,
+   и все четыре здесь гасились.
 
    Файл подключается всегда, но не делает НИЧЕГО без `data-shelf` на <html> —
-   его ставит FOUC-guard в шапке report.html по флагу в адресе.
+   его ставит FOUC-guard в шапке report.html. ⚠️ С 2026-09-14 полка — версия ПО
+   УМОЛЧАНИЮ: атрибут стоит всегда, кроме явного `?shelf=0` или запомненного выбора
+   обычной (⌘⇧S).
    ========================================================================== */
 
-html[data-shelf] #newCompetitorsBar,
-html[data-shelf] #moreCompetitorsBar,
-html[data-shelf] #archiveEndMarker,
 html[data-shelf] #ownerFab { display: none !important; }
 
-/* Низ карточки отдаём полке: она и есть конец списка. `.action-buttons` при этом
-   ОСТАЮТСЯ — в отличие от `no-bottom-gap`, который их прячет. Полка на «Активных»
-   стоит всегда, а «Показать больше объектов» там по-прежнему нужна. */
-html[data-shelf] .report-section { padding-bottom: 0; }
+/* Пустая обёртка кнопок не оставляет после себя места (правка Романа 2026-09-09:
+   «внизу не оставляем, просто скрываем»). На «Отслеживаемых» и «Архивных» обе кнопки
+   скрыты, но их обёртка держала свои 32 паддинга — под лентой висела пустая полоса.
+   Целиком прятать её нельзя: на «Активных» в ней живёт «Показать больше объектов».
+   Поэтому вертикальный отступ переезжает с обёртки на сами кнопки — пустая
+   схлопывается в ноль, полная остаётся прежних 88. */
+html[data-shelf] .action-buttons { padding-block: 0; }
+html[data-shelf] .action-buttons > * { margin-block: 16px; }
 
+/* === Новость о новых конкурентах — первая строка списка (макет 2406:37665) ===
+   Наверху это обычная строка ленты, а не липкая полка: прилипание и разделитель
+   сверху снимает `shelf.js`, убирая `--sticky`. */
+/* ⚠️ Отступ края таблицы от края карточки. Одно число на ДВА места: левую границу
+   разделителя под новостью и левое поле полки (кнопка встаёт ровно под список).
+   Замерено рендером и от ширины окна не зависит: карточка начинается на 244, таблица
+   на 256 — и на 1280, и на 1920. Зашить его двумя литералами значило бы дать им шанс
+   разъехаться при следующей правке. */
+html[data-shelf] { --shelf-inset: 12px; }
+
+html[data-shelf] .tail-bar--lead {
+  /* Кадры 32, а не 48: в строке теперь один этаж — пилюля и ссылка идут в ряд,
+     а не колонкой. Отсюда и высота строки 56 = 12 + 32 + 12. */
+  --tail-stack-h: 32px;
+  position: relative;
+}
+/* ⚠️ Разделитель — ЛИНИЕЙ, а не рамкой бара (правка Романа 2026-09-10: «девайдер
+   растягивается на полную»). Рамка рисуется по краю бара, а тот шириной во всю
+   карточку, тогда как строки ленты начинаются на 12 правее — от края таблицы. Линия
+   с тем же отступом слева садится ровно на разделители списка. */
+html[data-shelf] .tail-bar--lead::after {
+  content: '';
+  position: absolute;
+  left: var(--shelf-inset);
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--stroke-divider-default);
+}
+/* ⚠️ Зазор 76 между пилюлей и «Посмотреть» — число из макета, а не из сетки ленты:
+   ссылка там не садится ни на одну из колонок таблицы. Пилюля своей ширины (её задаёт
+   число новых), поэтому ссылка от неё и отсчитывается. */
+html[data-shelf] .tail-bar--lead .tail-bar__body--badge {
+  flex-direction: row;
+  align-items: center;
+  gap: 76px;
+}
+/* ⚠️ Здесь «Посмотреть» набрано Heading5 с шевроном — Action Link из кита, как в
+   макете. У остальных «Посмотреть» в лентах начертание обычное (Body2): это разные
+   применения, сводить их не стали. */
+html[data-shelf] .tail-bar--lead .tail-bar__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+html[data-shelf] .tail-bar--lead .tail-bar__link svg { display: block; flex: none; }
+
+/* === Полка: круглая кнопка отчёта === */
 .shelf {
-  /* Высота кадра в стопке. `.photo-stack` берёт её из переменной, а объявлена та
-     была только у `.tail-bar` — без своей полка получала кадры по пропорции
-     фотографии (55 вместо 40) и вылезала из карточки. */
-  --tail-stack-h: 40px;
-  position: sticky;
+  /* ⚠️ `fixed`, а не `sticky` (правка Романа 2026-09-09: «не оставляем, они уезжают
+     с экрана вниз»). Прилепленный sticky в конце секции перестаёт липнуть и остаётся
+     стоять в ленте. Полоса — от сайдбара (244, задан в `web.css`) до правого поля
+     страницы (16), как у `.owner-fab`. */
+  position: fixed;
+  left: 244px;
+  right: 16px;
   bottom: 0;
   z-index: 40;
   display: flex;
-  align-items: stretch;
-  gap: 12px;
-  padding: 8px 24px;
+  align-items: center;
+  /* ⚠️ Кнопка ПРИЖАТА ВЛЕВО, хотя в макете 2406:37569 она по центру полосы (455 при
+     полке 1176): правка Романа 2026-09-10 — примерил левое положение в консоли и
+     оставил его. Левое поле — не подобранное число, а тот же `--shelf-inset`, что
+     у разделителя: левый край кнопки садится ровно на левый край строк списка.
+     Правое поле держит резерв под кругляш Telegram: тот `fixed` и висит поверх полки,
+     в её раскладке не участвует — 36 от края окна + 44 своей ширины − 16 правого поля
+     полки = 64 её полосы он закрывает, плюс 16 зазора. */
+  justify-content: flex-start;
+  padding: 8px 80px 8px var(--shelf-inset);
   background: var(--background-primary);
 }
-.shelf__card {
+/* Тень, которую полка отбрасывает на список (правка Романа 2026-09-10, подобрана
+   пробником в консоли: высота 16, чёрный 5 %).
+   ⚠️ Это ГРАДИЕНТ над полкой, а не `box-shadow`: тень от бокса вылезала слева и
+   заезжала на боковое меню, а обрезать её `clip-path` значило заодно срезать тень
+   кнопки. Градиент шириной ровно в полку, по бокам вылезти не может.
+   ⚠️ Ступени 5 % в палитре нет; ближайшая — `--transparent-black50a` (6 %), её и
+   ведём: разница в 1 п.п. неразличима, а held-значение в коде — хуже. */
+.shelf::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 16px;
+  background: linear-gradient(to top, var(--transparent-black50a), var(--transparent-black0a));
+  pointer-events: none;
+}
+.shelf__report {
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 64px;
-  border: 1px solid var(--stroke-divider-default);
-  border-radius: var(--radius-l);
-  background: var(--background-primary);
-  text-decoration: none;
-  cursor: pointer;
-}
-/* Ширина левой карточки из макета: она не должна прыгать от длины подписи —
-   а подписи у трёх её состояний разной длины. */
-.shelf__card--list { flex: none; width: 402px; }
-.shelf__card--report { padding: 12px 16px; }
-/* Колонка фото — та же 102, что у ленты; стопка внутри своих 80 и стоит по центру. */
-.shelf__cell {
-  flex: none;
-  width: 102px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-.shelf__body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  min-width: 0;
-}
-.shelf__title {
+  min-height: 44px;
+  padding: 12px 28px;
+  /* Пилюля: в макете радиус 32, но на боксе 44 это уже полный круг — ведём токеном. */
+  border-radius: var(--radius-full);
+  background: var(--control-main-primary-default);
+  color: var(--text-inverted-default);
   font-size: 14px;
   line-height: 20px;
   font-weight: 700;
   letter-spacing: -0.2px;
-  color: var(--text-primary-default);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  /* Размытие 16 из макета; цвет тени ведём токеном (8 % против наших 10 % — разница
+     ниже различимой, а токен на тени в ДС один). */
+  box-shadow: 0 4px 16px var(--shadow-default);
+  transition: background-color 0.15s ease;
 }
-.shelf__link {
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-main-default);
+.shelf__report:hover { background: var(--control-main-primary-hovered); }
+.shelf__report:active { background: var(--control-main-primary-pressed); }
+.shelf__report:focus-visible {
+  outline: 2px solid var(--stroke-control-focused);
+  outline-offset: 2px;
 }
-.shelf__note {
-  font-size: 14px;
-  line-height: 20px;
+
+/* === Фактоид справа от кнопки (макет 2411:92677) ===
+   ⚠️ Начертание ПРЯМОЕ, хотя в макете курсив: Роман отменил его 2026-09-10, посмотрев
+   живьём. `Lato-Italic.woff2` при этом остался в ДС — объявленный, но не применённый
+   `@font-face` не грузится вовсе, так что страница от него не тяжелеет.
+   ⚠️ Текст в ПОТОКЕ, а не абсолютом. Абсолютным он был, пока кнопка обязана была
+   стоять по центру полосы: тогда любой текст в раскладке сдвинул бы центр. С левой
+   раскладкой центровать нечего, и поток строго лучше — длинный текст отталкивается
+   от правого поля и переносится, а не уезжает молча под кругляш Telegram.
+   Обёртка остаётся: она держит кнопку и её фактоид одной группой с зазором 12. */
+.shelf__center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.shelf__factoid {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--text-secondary-default);
+  pointer-events: none;
 }
-.shelf__icon {
-  flex: none;
-  display: block;
-  color: var(--icon-secondary-default);
+
+/* === Кругляш Telegram: та же линия и тот же размер, что у кнопки (макет 2406:37692) ===
+   44 вместо 52. Размер держат ПАДДИНГИ, как и в обычной версии: 14 + 16 + 14 по
+   вертикали, 12 + (16 + 4) + 12 по горизонтали. Меняется только глиф — 16 вместо 24.
+   Правый отступ 36 не трогаем: в макете кругляш в 16 от края секции, а та сама в 20
+   от края окна — те же 36. */
+html[data-shelf] .tg-fab {
+  box-shadow: 0 4px 16px var(--shadow-default);
+  transition: bottom 0.25s ease;
+}
+html[data-shelf] .tg-fab svg { width: 16px; height: 16px; }
+/* Класс ставит `shelf.js`: полка на экране → кругляш встаёт с ней в ряд (центры
+   совпадают: полка 60 у низа, кругляш 44 → 8 снизу); полки нет или она уехала →
+   кругляш возвращается на свои 24. */
+html.shelf-bar .tg-fab { bottom: 8px; }
+
+/* === Уход вниз: доскроллили до настройки отчёта — полке больше нечего сказать === */
+.shelf--ready { transition: transform 0.25s ease, visibility 0s; }
+.shelf.is-gone {
+  transform: translateY(100%);
+  /* Гасим ПОСЛЕ доезда — иначе полка пропадёт на месте вместо того, чтобы уехать. */
+  visibility: hidden;
+}
+.shelf--ready.is-gone { transition: transform 0.25s ease, visibility 0s 0.25s; }
+@media (prefers-reduced-motion: reduce) {
+  .shelf--ready,
+  .shelf--ready.is-gone,
+  html[data-shelf] .tg-fab { transition: none; }
 }

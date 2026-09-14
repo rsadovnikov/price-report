@@ -312,12 +312,18 @@
       min-width: 100%;
     }
     table th,
+    /* ⚠️ Разделитель строк — `--stroke-divider-default` (#d0d8e9), а не `--neutral`
+       (#f3f5fa): на светлом фоне тот почти не читался (правка Романа 2026-09-10 —
+       «разделители какие-то очень светлые»). В макете у ячеек ленты стоит именно
+       divider/default, и шапка легенды снизу тоже отбита им — теперь линии сошлись.
+       `.owner-comp-table` в блоке отчёта для собственника осталась на `--neutral`:
+       там своя, более плотная сетка, и про неё речи не было. */
     table td {
       padding: 12px;
       vertical-align: top;
       font-size: 14px;
       line-height: 20px;
-      border-top: 1px solid var(--stroke-divider-neutral);
+      border-top: 1px solid var(--stroke-divider-default);
       border-bottom: none;
       white-space: nowrap;
     }
@@ -342,7 +348,11 @@
        распирали колонку до 104, а пустая colspan-шапка легенды держала 86 → легенда
        съезжала на 18px относительно данных. 104 выравнивает шапку и данные. */
     .col-photo { width: 104px; min-width: 104px; }
-    .col-desc { width: 260px; min-width: 260px; }
+    /* 300, как на проде: замер Романа 2026-09-10 — у нас стояло 260 против продовых 300
+       (там `padding: 0 12px`, у нас 12 со всех сторон, то есть под текст в обоих случаях
+       остаётся ширина минус 24). `.occ-desc` в блоке отчёта для собственника осталась
+       260: там своя, более узкая сетка, и про неё речи не было. */
+    .col-desc { width: 300px; min-width: 300px; }
     .col-start-price { width: 150px; min-width: 150px; }
     .col-current-price { width: 170px; min-width: 170px; }
     .col-dynamics { width: 40px; min-width: 40px; }

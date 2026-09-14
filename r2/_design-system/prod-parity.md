@@ -35,7 +35,7 @@ node tools/cdp-eval.mjs storybook <файл-с-выражением> --nav "<url
 1. **Интерактивные состояния замером не снимаются.** `dispatchEvent` не поднимает `:hover`,
    `.focus()` не даёт `:focus-visible`. Читать правила из `document.styleSheets` — там же видны
    имена токенов, которых в вычисленном значении уже нет. Подробно —
-   в [measure-production.md](../../../.claude/skills/cian-layout/references/measure-production.md).
+   в [measure-production.md](../../../.claude/skills/cian-prod-to-figma/references/measure-production.md).
 2. **Нет пропа у компонента — смотреть его атом.** `indeterminate` не у `Checkbox`, а у
    `CheckToggle`, из которого кит собирает чекбоксы, ячейки и чипсы.
 3. **Foundation важнее рендера компонента.** Если компонент расходится со своей же страницей

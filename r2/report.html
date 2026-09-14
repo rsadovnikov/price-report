@@ -5,34 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609091700">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609091700">
-  <link rel="stylesheet" href="report.css?v=202609091700">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/spinner.css?v=202609141306">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609141306">
+  <link rel="stylesheet" href="report.css?v=202609141306">
   <!-- Вариант с нижней полкой (report-shelf.html → ?shelf=1). Без флага файл ничего не делает. -->
-  <link rel="stylesheet" href="shelf.css?v=202609091700">
+  <link rel="stylesheet" href="shelf.css?v=202609141306">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>(function(){var q=new URLSearchParams(location.search);
     if (q.has('activate')) document.documentElement.classList.add('activating');
     /* Полку включаем ДО первой отрисовки: иначе хвостовые бары и кнопка отчёта,
-       которые она собой заменяет, успевают мигнуть на экране. */
-    if (q.get('shelf') === '1') document.documentElement.setAttribute('data-shelf','1');}());</script>
+       которые она собой заменяет, успевают мигнуть на экране.
+
+       Выбор версии ЗАПОМИНАЕТСЯ (просьба Романа 2026-09-10: «переключаться, не меняя
+       урл»). Держать флаг в адресе на показе не выходит: `index.html` уводит в
+       `report.html` без него, и версия терялась на первом же переходе внутрь
+       прототипа. Поэтому адрес — команда, память — состояние: параметр в адресе
+       главнее и он же записывается, без параметра берём запомненное.
+       `?shelf=0` — не просто «обычная версия», а СБРОС памяти в обычную.
+       Ключ объявлен здесь и отсюда его читает `dev-shelf.js`: guard отрабатывает
+       первым, поэтому источник правды у ключа один.
+
+       ⚠️ ПО УМОЛЧАНИЮ — ПОЛКА (решение Романа 2026-09-14: «сделаем дефолтной вторую
+       версию»). Ничего не выбрано — пустая память или хранилище недоступно — значит
+       полка; обычная версия открывается только явным `0`. */
+    window.SHELF_FLAG_KEY = 'v-next:shelf';
+    var on = true;
+    if (q.has('shelf')) {
+      on = q.get('shelf') !== '0';
+      try { localStorage.setItem(window.SHELF_FLAG_KEY, on ? '1' : '0'); } catch (_) {}
+    } else {
+      try { on = localStorage.getItem(window.SHELF_FLAG_KEY) !== '0'; } catch (_) {}
+    }
+    if (on) document.documentElement.setAttribute('data-shelf','1');}());</script>
 </head>
 <body>
 
@@ -646,28 +667,30 @@
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609091700"></script>
-<script src="_design-system/components/sidebar.js?v=202609091700"></script>
-<script src="_design-system/components/promo-modal.js?v=202609091700"></script>
+<script src="_design-system/components/header.js?v=202609141306"></script>
+<script src="_design-system/components/sidebar.js?v=202609141306"></script>
+<script src="_design-system/components/promo-modal.js?v=202609141306"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609091700"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609091700"></script>
-<script src="mock-scenario.js?v=202609091700"></script>
-<script src="mock-connect.js?v=202609091700"></script>
+<script src="_mock-data/mock.js?v=202609141306"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609141306"></script>
+<script src="mock-scenario.js?v=202609141306"></script>
+<script src="mock-connect.js?v=202609141306"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609091700"></script>
-<script src="filters.js?v=202609091700"></script>
-<script src="_design-system/components/popover.js?v=202609091700"></script>
-<script src="_design-system/components/slider.js?v=202609091700"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609091700"></script>
-<script src="_design-system/components/toast.js?v=202609091700"></script>
-<script src="_design-system/components/textarea.js?v=202609091700"></script>
-<script src="_design-system/components/spinner.js?v=202609091700"></script>
-<script src="shelf.js?v=202609091700"></script>
-<script src="report.js?v=202609091700"></script>
+<script src="preset.js?v=202609141306"></script>
+<script src="filters.js?v=202609141306"></script>
+<script src="_design-system/components/popover.js?v=202609141306"></script>
+<script src="_design-system/components/slider.js?v=202609141306"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609141306"></script>
+<script src="_design-system/components/toast.js?v=202609141306"></script>
+<script src="_design-system/components/textarea.js?v=202609141306"></script>
+<script src="_design-system/components/spinner.js?v=202609141306"></script>
+<script src="shelf.js?v=202609141306"></script>
+<!-- ⌘⇧S переключает версию отчёта (обычная ↔ с полкой). Инструмент показа. -->
+<script src="dev-shelf.js?v=202609141306"></script>
+<script src="report.js?v=202609141306"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 

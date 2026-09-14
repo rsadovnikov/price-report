@@ -849,22 +849,23 @@
       updateRatingRow();                          // оценка подборки — конец «Отслеживаемых»
       // Хвостовые блоки лент — та же точка ре-рендера
       var freshInfo = updateNewCompetitorsBar();  // «N новых возможных конкурентов»
-      var moreInfo = updateMoreCompetitorsBar();  // «Больше возможных» — когда новых нет
+      updateMoreCompetitorsBar();                 // «Больше возможных» — когда новых нет
       var archInfo = updateArchiveEndMarker();    // конец подборки → архив
-      /* Нижняя полка (вариант ?shelf=1) кормится ОТСЮДА ЖЕ и теми же наборами —
-         своих правил у неё нет, она только выбирает, какую карточку показать. */
+      /* Нижняя полка (вариант ?shelf=1) кормится ОТСЮДА ЖЕ и тем же набором — своих
+         правил у неё нет. С 2026-09-09 ей нужен только набор новых: переход в
+         следующий список из полки убран, и наборы двух других хвостов ей не идут. */
       ReportShelf.update({
-        tab: activeTab, tracked: checkedIds.size,
-        fresh: freshInfo, more: moreInfo, archive: archInfo, fillStack: fillStack
+        tracked: checkedIds.size, fresh: freshInfo, fillStack: fillStack
       });
       /* Нижний зазор секции снимают ОБА блока, что кончают ленту: свой отступ снизу
          они держат сами, а пустая обёртка кнопок под ними добавила бы ещё 48. Класс
          ставится здесь, в одном месте: пока им распоряжался только бар новых, второй
          такой блок снимал бы то, что поставил первый.
-         В варианте с полкой класс не ставим вовсе: полка стоит на «Активных» всегда,
-         а он прячет «Показать больше объектов». Нижний отступ там снимает shelf.css. */
+         ⚠️ В варианте с полкой бар новых стоит НЕ в конце ленты, а первой её строкой
+         (правка Романа 2026-09-10) — значит нижний зазор он там не снимает. Конец
+         подборки снимает в обеих версиях: он и там кончает список. */
       var section = document.querySelector('.report-section');
-      if (section) section.classList.toggle('no-bottom-gap', !SHELF && (freshInfo.shown || archInfo.shown));
+      if (section) section.classList.toggle('no-bottom-gap', (!SHELF && freshInfo.shown) || archInfo.shown);
 
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
@@ -1323,16 +1324,21 @@
     // содержимому). Классы взаимоисключающие: у обоих свой transform, и вместе они
     // спорили бы за одно свойство.
     function updateOwnerFab() {
+      /* Порог один на двоих: та же строка первого шага уводит вниз и плавающую кнопку,
+         и нижнюю полку варианта `?shelf=1`. Полке отдаём сам ПОРОГ, а не класс кнопки:
+         класс завязан ещё и на пустой отбор, а полка уезжает в любом случае — на
+         секции отчёта ей больше нечего делать. */
+      var reached = ownerPanelReached();
+      ReportShelf.setLanded(reached);
       if (!ownerFabEl) return;
       var nothingToShow = checkedIds.size === 0;
       ownerFabEl.classList.toggle('owner-fab--hidden', nothingToShow);
-      ownerFabEl.classList.toggle('owner-fab--landed', !nothingToShow && ownerPanelReached());
+      ownerFabEl.classList.toggle('owner-fab--landed', !nothingToShow && reached);
     }
 
     // Видимость зависит от прокрутки, а не только от состояния отбора, — значит
     // пересчитывать надо и на скролле. Через rAF: обработчик дёргается сотнями раз.
     (function watchOwnerFab() {
-      if (!ownerFabEl) return;
       var queued = false;
       function onScroll() {
         if (queued) return;
