@@ -645,22 +645,48 @@
       slot.innerHTML = RADAR_SVG;
     });
 
-    // Текст баннера «Отслеживаемые» зависит от наличия апдейтов у конкурентов — тот же признак,
-    // что рисует красный каунтер в «Моих объявлениях» (TOTAL_UPDATES > 0, прокинуто через ?u=):
-    //   есть апдейты → «Что изменилось с вашего прошлого визита, N дней назад» (срок серым);
-    //   нет         → дефолт про мониторинг (остаётся из разметки).
-    (function() {
-      var textEl = trackingBanner && trackingBanner.querySelector('.tracking-banner__text');
-      if (!textEl || !(TOTAL_UPDATES > 0)) return;
+    /* Плашки «Отслеживаемых» и «Активных» — два состояния одного устройства:
+         спокойно → текст из разметки про мониторинг и крутящийся локатор;
+         есть что показать → «Что изменилось с вашего прошлого визита, N дней назад»
+         (срок серым), локатора нет, слева 12.
+       Когда «есть что показать», решает каждая плашка по-своему: «Отслеживаемые» — есть
+       ли апдейты вообще (TOTAL_UPDATES, тот же признак, что красный каунтер в «Моих
+       объявлениях»), «Активные» — остались ли новые конкуренты (newCount).
+       ⚠️ Решение Романа 2026-09-14: при изменениях локатора нет — крутящийся радар говорит
+       «следим», а плашка уже показывает результат слежения. Сперва это касалось только
+       «Отслеживаемых», в тот же день — и «Активных».
+       ⚠️ Срок визита ОДИН на обе плашки: визит у агента один, и две плашки на соседних
+       вкладках с «вчера» и «5 дней назад» спорили бы друг с другом. Поэтому он считается
+       здесь один раз, а не внутри каждой плашки.
+       Локатор прячется `hidden`, а не удаляется: «Активные» возвращаются в спокойное
+       состояние, когда агент забрал всех новых в отслеживаемые, — удалённый узел вернуть
+       было бы нечем. Промежутка скрытый слот не держит: у `display: none` нет флекс-бокса. */
+    var VISIT_PERIOD = (function() {
       var days = 1 + Math.floor(Math.random() * 10);
       /* Неразрывные пробелы: срок либо целиком в строке, либо целиком на следующей.
-         Правило то же, что на поверхности приложения (2026-08-22) — фраза одна, и
-         расходиться в переносах ей незачем. */
-      var period = days === 1 ? 'вчера'
-        : days + '\u00A0' + (days < 5 ? 'дня' : 'дней') + '\u00A0назад';
-      textEl.innerHTML = 'Что изменилось с вашего прошлого визита, '
-        + '<span class="tracking-banner__period">' + period + '</span>';
+         Правило то же, что на поверхности приложения (2026-08-22). */
+      return days === 1 ? 'вчера' : days + '\u00A0' + (days < 5 ? 'дня' : 'дней') + '\u00A0назад';
     })();
+    function setBannerChanged(banner, changed) {
+      var textEl = banner && banner.querySelector('.tracking-banner__text');
+      if (!textEl) return;
+      if (textEl.dataset.idle === undefined) textEl.dataset.idle = textEl.innerHTML;
+      textEl.innerHTML = changed
+        ? 'Что изменилось с вашего прошлого визита, <span class="tracking-banner__period">' + VISIT_PERIOD + '</span>'
+        : textEl.dataset.idle;
+      var radar = banner.querySelector('.tracking-banner__radar');
+      if (radar) radar.hidden = changed;
+      banner.classList.toggle('tracking-banner--no-icon', changed);
+    }
+    setBannerChanged(trackingBanner, TOTAL_UPDATES > 0);
+    /* Состояние «Активных» живое: новые уходят в отслеживаемые по клику агента и
+       возвращаются отменой. ⚠️ Зовётся из ДВУХ мест — из `renderTableB` и из `syncMeta`:
+       добавление с плавающей кнопки ленту не перерисовывает, а только пересчитывает
+       счётчики, и плашка, висевшая лишь на отрисовке, оставалась бы «Что изменилось…»
+       после того, как агент забрал последнего нового. */
+    function updateSelectionBanner() {
+      setBannerChanged(selectionBanner, newCount() > 0);
+    }
     var scrollbarMain = document.getElementById('scrollbarMain');
     var scrollbarTrack = document.getElementById('scrollbarTrack');
     var scrollbarThumb = document.getElementById('scrollbarThumb');
@@ -846,6 +872,7 @@
       if (selectionBanner) {
         selectionBanner.style.display = (activeTab === 'selection') ? 'flex' : 'none';
       }
+      updateSelectionBanner();
 
       updateRatingRow();                          // оценка подборки — конец «Отслеживаемых»
       // Хвостовые блоки лент — та же точка ре-рендера
@@ -2019,6 +2046,7 @@
 
       function syncMeta() {
         updateTabLabels();
+        updateSelectionBanner();   // та же пара «счётчик вкладки ↔ плашка» — см. функцию
         updateResultsCounter();
         updateFooter();
         updateOwnerReportBlock();

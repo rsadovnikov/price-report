@@ -50,7 +50,7 @@ window.ReportShelf = (function () {
   el.innerHTML =
       '<span class="shelf__center">'
     +   '<a href="#" class="shelf__report" id="shelfReportCard">Создать отчёт для собственника</a>'
-    +   '<span class="shelf__factoid" id="shelfFactoid">77% агентов отметили,<br>что отчёт помогает в переговорах</span>'
+    +   '<span class="shelf__factoid" id="shelfFactoid">77% риелторов уже отметили, что наглядный отчёт<br>помогает убедить собственника снизить цену</span>'
     + '</span>';
 
   var card = document.querySelector('.report-card');

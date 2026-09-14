@@ -870,9 +870,19 @@
       gap: 8px;
       margin: 8px 24px 0px 24px;
       padding: 8px;
+      /* 40 = 8 + иконка 24 + 8. Высоту до 2026-09-14 держала иконка, а с апдейтами
+         локатора больше нет — без минимума плашка сжималась бы до 36 (строка 20 + 8 + 8)
+         и прыгала бы по высоте при смене состояния. */
+      box-sizing: border-box;
+      min-height: 40px;
       background: var(--surface-neutral-default);
       border-radius: var(--radius-xl);
     }
+    /* Плашка без иконки (при апдейтах локатор убран, см. report.js) — слева 12, а не 8
+       (правка Романа 2026-09-14). Паддинг 8 рассчитан под иконку: у неё свои поля внутри
+       бокса 24, а голый текст на 8 прилипает к краю. Класс ставит report.js — через
+       `:has()` пришлось бы перечислять все виды иконок, включая архивную. */
+    .tracking-banner--no-icon { padding-left: 12px; }
     .tracking-banner__lines {
       display: flex;
       flex-direction: column;
