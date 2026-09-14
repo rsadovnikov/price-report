@@ -2014,12 +2014,13 @@
       }
 
       function applyBtn(idx) {
-        if (activeTab === 'in-report') {
+        /* Уже отслеживаемый объект — одна и та же красная «Перестать отслеживать» на всех
+           вкладках (правка Романа 2026-09-14). До этого в «Активных» у добавленной строки
+           стояла серая «Отслеживается»: маркер, который по клику тоже снимал объект, то
+           есть действие без названия. */
+        if (activeTab === 'in-report' || checkedIds.has(idx)) {
           btn.className = 'btn-negative-secondary-sm visible';
           btn.textContent = 'Перестать отслеживать';
-        } else if (checkedIds.has(idx)) {
-          btn.className = 'btn-secondary-sm visible';
-          btn.textContent = 'Отслеживается';
         } else {
           btn.className = 'btn-primary-sm visible';
           btn.textContent = 'Добавить';
@@ -2030,7 +2031,7 @@
         var idx = parseInt(tr.getAttribute('data-idx'), 10);
         if (isNaN(idx)) return;
         // Добавленная строка в «Активных» — плавающую кнопку не показываем: на ней уже
-        // висит персистентная «Отслеживается». Заливка строки держится классом .row-added.
+        // висит персистентная «Перестать отслеживать». Заливка строки — классом .row-added.
         if ((activeTab === 'selection' || activeTab === 'archive') && checkedIds.has(idx)) { hide(); return; }
         hoverIdx = idx;
         // Подсветка строки держится классом, а не только :hover — чтобы не гасла,
@@ -2161,9 +2162,10 @@
         }, 300);
       }
 
-      // Персистентные кнопки «Отслеживается» — по одной на каждую добавленную строку в
-      // «Активных». Плавают у правого края секции (как #rowHoverBtn), но остаются. Чисто
-      // визуальный маркер «уже добавлен»; клик снимает объект из отслеживаемых.
+      // Персистентные кнопки «Перестать отслеживать» — по одной на каждую добавленную строку
+      // в «Активных». Плавают у правого края секции (как #rowHoverBtn), но остаются. Вид и
+      // текст те же, что у кнопки по наведению на «Отслеживаемых»: действие одно — снять
+      // объект, — и называться оно должно одинаково (правка Романа 2026-09-14).
       function renderPersistentBtns() {
         var old = section.querySelectorAll('.persistent-track-btn');
         Array.prototype.forEach.call(old, function(b) { if (b.parentNode) b.parentNode.removeChild(b); });
@@ -2175,8 +2177,8 @@
           if (isNaN(idx) || !checkedIds.has(idx)) return;
           var b = document.createElement('button');
           b.type = 'button';
-          b.className = 'btn-secondary-sm persistent-track-btn';
-          b.textContent = 'Отслеживается';
+          b.className = 'btn-negative-secondary-sm persistent-track-btn';
+          b.textContent = 'Перестать отслеживать';
           b.setAttribute('data-idx', String(idx));
           section.appendChild(b);
           var rr = tr.getBoundingClientRect();
