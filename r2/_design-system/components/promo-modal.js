@@ -8,6 +8,8 @@
  *                               // (слайд { title, image, width, height, alt, bodyHeight }); см. promo-modal.md
  *                               // Слайд может переопределить: { layout: 'promo' } — смешанная карусель;
  *                               // { nextLabel: '…' } — своя подпись «Дальше» на этом слайде.
+ *                               // { content: '<div>…</div>' } — своя вёрстка тела вместо картинки
+ *                               // (HTML страницы, компонент его не экранирует и не стилизует).
  *   finishLabel: 'Готово',     // лейбл «Дальше» на последнем слайде
  *   nextLabel:  'Дальше',
  *   prevLabel:  'Назад',
@@ -60,7 +62,8 @@ function openPromoModal(config) {
          до загрузки картинки нулевой высоты, и модалка прыгает, когда та доедет. */
       slide.innerHTML = '<div class="promo-modal__header"><div class="heading1">' + (s.title || '') + '</div></div>'
         + '<div class="promo-modal__body"' + (s.bodyHeight ? ' style="min-height:' + s.bodyHeight + 'px"' : '') + '>'
-          + (s.image
+          + (s.content ? s.content
+            : s.image
             ? '<img class="promo-modal__art" src="' + s.image + '" width="' + s.width + '" height="' + s.height + '" alt="' + (s.alt || '') + '">'
             : '<div class="promo-modal__image--placeholder promo-modal__art" style="width:100%;height:333px"></div>')
         + '</div>';

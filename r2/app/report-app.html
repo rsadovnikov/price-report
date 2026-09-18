@@ -18,27 +18,27 @@
   <link rel="apple-touch-icon" href="../_design-system/assets/app-icon-180.png">
   <title>Обзор конкурентов — приложение</title>
 
-  <link rel="stylesheet" href="../_design-system/tokens.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/base.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/empty-state.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202609181400">
+  <link rel="stylesheet" href="../_design-system/tokens.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/tokens/surface-app.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/base.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/screen.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/navbar.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/cells.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/badge.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/empty-state.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/list-tail.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/entry-point.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/facts.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/screen-footer.css?v=202609181501">
   <!-- Кнопка онбординга — обычная btn-app, поэтому нужны и стили кнопок:
        на этом экране их раньше не было, все действия шли entry-point'ами. -->
-  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202609181400">
-  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202609181400">
+  <link rel="stylesheet" href="../_design-system/components/app/buttons.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/sheet.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/onboarding.css?v=202609181501">
+  <link rel="stylesheet" href="../_design-system/components/app/page-transition.css?v=202609181501">
   <!-- Направление перехода (вперёд/назад) — в <head> и без defer: `pagereveal`
        приходит раньше конца парсинга, позже вешать слушатель уже поздно. -->
-  <script src="../_design-system/components/app/page-transition.js?v=202609181400"></script>
+  <script src="../_design-system/components/app/page-transition.js?v=202609181501"></script>
 
   <style>
     /* Компоновка экрана. Всё, что тут осталось, — это раскладка карточек:
@@ -130,6 +130,66 @@
     .report-cta__lead { padding: 0 var(--unit5); margin: 0; color: var(--text-primary-default); }
     .report-cta__entry { padding: 0 var(--unit5); }
     .report-cta__facts { padding: 0 var(--unit5); }
+
+    /* Первый шаг онбординга — карточки пользы (макет 2751:137754). Разметка — в
+       report-app.js (`BENEFITS`), шаг со своей вёрсткой умеет компонент онбординга.
+       Карточка: паддинг 20, зазор 12, скругление 12, иллюстрация 70 справа. */
+    .onb-benefits { display: flex; flex-direction: column; gap: var(--unit2); }
+    .onb-benefit {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--unit3);
+      padding: var(--unit5);
+      border-radius: var(--radius-xl);
+      background: var(--surface-main-default);
+      overflow: hidden;
+    }
+    .onb-benefit__text {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      font-size: var(--type-h5-size);
+      line-height: var(--type-h5-lh);
+      letter-spacing: var(--type-h5-ls);
+      font-weight: 400;
+      color: var(--text-primary-default);
+    }
+    .onb-benefit__text b { font-weight: var(--type-h5-weight); }
+    .onb-benefit__art { position: relative; flex: none; display: block; width: 70px; height: 70px; }
+    /* Радар в макете шире своего бокса на 1,5 с каждой стороны — внешнее кольцо. */
+    .onb-benefit__art--radar { width: 73px; height: 73px; margin: -1.5px; }
+
+    /* Третья карточка — промо: синяя, паддинг 16, текст Body2 инвертом, под ним
+       подпись-источник Caption через 12. ⚠️ Синий #0054fd — Brand/Синий макета, в
+       палитре ДС его нет (ближайший --brand-lapis #006cfd), поэтому числом.
+       Подложка под «×2» — вектор, прижатый к правому краю по центру карточки. */
+    .onb-benefit--promo { padding: var(--unit4); background: #0054fd; }
+    .onb-benefit__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--unit3); }
+    .onb-benefit--promo .onb-benefit__text {
+      font-size: var(--type-body2-size);
+      line-height: var(--type-body2-lh);
+      letter-spacing: var(--type-body2-ls);
+      color: var(--text-inverted-default);
+    }
+    .onb-benefit--promo .onb-benefit__text b { font-weight: 700; }
+    /* Подпись-источник приглушена прозрачностью 50 % — так в макете (правка 2026-09-18). */
+    .onb-benefit__source {
+      margin: 0;
+      font-size: var(--type-caption-size);
+      line-height: var(--type-caption-lh);
+      color: var(--text-inverted-default);
+      opacity: 0.5;
+    }
+    .onb-benefit__back {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 92px;
+      height: 106px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -362,21 +422,21 @@
 
 </div>
 
-<script src="../_design-system/components/app/sheet.js?v=202609181400"></script>
-<script src="../_design-system/components/app/onboarding.js?v=202609181400"></script>
+<script src="../_design-system/components/app/sheet.js?v=202609181501"></script>
+<script src="../_design-system/components/app/onboarding.js?v=202609181501"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="../_mock-data/mock.js?v=202609181400"></script>
-<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202609181400"></script>
-<script src="mock-scenario.js?v=202609181400"></script>
-<script src="mock-connect.js?v=202609181400"></script>
+<script src="../_mock-data/mock.js?v=202609181501"></script>
+<script src="../_mock-data/datasets/cian-secondary/listings.js?v=202609181501"></script>
+<script src="mock-scenario.js?v=202609181501"></script>
+<script src="mock-connect.js?v=202609181501"></script>
 <!-- Предустановка фильтров по объекту — общая на весь раздел -->
-<script src="preset.js?v=202609181400"></script>
-<script src="filters.js?v=202609181400"></script>
+<script src="preset.js?v=202609181501"></script>
+<script src="filters.js?v=202609181501"></script>
 <!-- Раскладка апдейтов — общая с экраном конкурентов -->
-<script src="updates-app.js?v=202609181400"></script>
-<script src="report-app.js?v=202609181400"></script>
+<script src="updates-app.js?v=202609181501"></script>
+<script src="report-app.js?v=202609181501"></script>
 <!-- ⌘⇧R — сброс демо-состояния и возврат к первому входу -->
-<script src="dev-reset.js?v=202609181400"></script>
+<script src="dev-reset.js?v=202609181501"></script>
 </body>
 </html>

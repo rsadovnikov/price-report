@@ -1807,3 +1807,73 @@
   html.activating #stickyTableHeader,
   html.activating .shelf { display: none !important; }
 
+
+/* === Карточки пользы — первый слайд онбординга «Чем полезен этот сервис» ===
+   Макет 2690:129422. Разметка — `BENEFITS` в report.js (helpTrigger), в тело
+   PromoModal она попадает через `content`. Блок 576: две карточки 280 через 16,
+   под ними через 16 синяя промо-карточка во всю ширину. */
+.help-benefits { display: flex; flex-direction: column; gap: var(--unit4); width: 100%; }
+.help-benefits__row { display: flex; gap: var(--unit4); }
+/* Карточка: иконка сверху, текст прижат к низу — у первой текст короче, и в макете
+   он стоит по нижней линии второй (justify-between при общей высоте 194).
+   Вертикальный паддинг 23 — из макета, им и набирается 194. */
+.help-benefit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--unit5);
+  padding: 23px var(--unit6);
+  border-radius: var(--radius-xxl);
+  background: var(--surface-main-default);
+  color: var(--text-primary-default);
+}
+.help-benefit__icon { display: block; width: 48px; height: 48px; }
+/* Кольцо радара в макете шире бокса 48 на 1 с каждой стороны. */
+.help-benefit__icon--radar { width: 50px; height: 50px; margin: -1px; }
+.help-benefit__title,
+.help-benefit__text { margin: 0; }
+.help-benefit__title {
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+}
+.help-benefit__text {
+  font-size: var(--type-body2-size);
+  line-height: var(--type-body2-lh);
+  letter-spacing: var(--type-body2-ls);
+}
+
+/* Промо: синяя, паддинг 16/24, скругление 12, текст Heading5 инвертом, под ним
+   через 12 подпись Caption, справа плитка «×2» 70.
+   ⚠️ Синий #0054fd — Brand/Синий макета, в палитре ДС его нет (ближайший
+   --brand-lapis #006cfd), поэтому числом — как и в приложении (report-app.html).
+   Подложка под плиткой — svg из двух векторов макета: левый край на 474, сверху −7,
+   правый вылезает за карточку на 2 и срезается её overflow. */
+.help-promo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--unit3);
+  padding: var(--unit4) var(--unit6);
+  border-radius: var(--radius-xl);
+  background: #0054fd;
+  color: var(--text-inverted-default);
+  overflow: hidden;
+}
+.help-promo__back { position: absolute; left: 474px; top: -7px; pointer-events: none; }
+.help-promo__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--unit3); }
+.help-promo__text,
+.help-promo__source { margin: 0; }
+.help-promo__text {
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-lh);
+  letter-spacing: var(--type-h5-ls);
+  font-weight: var(--type-h5-weight);
+}
+.help-promo__source {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-lh);
+}
+.help-promo__x2 { position: relative; flex: none; display: block; width: 70px; height: 70px; }

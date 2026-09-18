@@ -13,10 +13,17 @@
  *         video:  'media/onb-3.mp4',         // вместо картинки; играет сам, без звука, в цикле
  *         poster: 'media/onb-3.jpg',         // первый кадр, пока файл грузится
  *         … },
+ *       { title:   'Чем полезен этот сервис',
+ *         content: '<div>…</div>',           // своя вёрстка вместо картинки и пояснения:
+ *         button:  'Ок, как с ним работать' },//   заголовок встаёт НАД ней, точки и кнопка — свои
  *       …
  *     ],
  *     onClose: function (step) {}            // step — на каком шаге закрыли, с нуля
  *   }) -> { close, el, go }
+ *
+ * `content` — HTML-строка от страницы, компонент её не экранирует и не стилизует:
+ * у такого шага своя раскладка (макет 2751:137754 — карточки пользы), и держать её
+ * в компоненте значило бы тащить в ДС вёрстку одного экрана.
  *
  * Кнопка последнего шага закрывает карусель — отдельного «Готово» в макете нет,
  * там на третьем шаге просто своя подпись («Будем разбираться»).
@@ -47,6 +54,18 @@ function openOnboarding(config) {
        `muted` + `playsinline` обязательны: без них iOS автозапуск не даст.
        При `prefers-reduced-motion` сам не стартует: показываем постер и контролы —
        ролик остаётся доступен, но движение начинает человек, а не страница. */
+    var dotsRow = '<div class="onboarding-app__dots" role="tablist" aria-label="Шаг ' + (i + 1) + ' из ' + steps.length + '">'
+        + dots
+      + '</div>';
+    if (s.content) {
+      return '<div class="onboarding-app onboarding-app--content">'
+        + '<div class="onboarding-app__lead">'
+          + '<h2 class="onboarding-app__title">' + esc(s.title) + '</h2>'
+          + s.content
+        + '</div>'
+        + dotsRow
+      + '</div>';
+    }
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var media = s.video
       ? '<video src="' + esc(s.video) + '"' + (s.poster ? ' poster="' + esc(s.poster) + '"' : '')
@@ -60,9 +79,7 @@ function openOnboarding(config) {
         + '<h2 class="onboarding-app__title">' + esc(s.title) + '</h2>'
         + '<p class="onboarding-app__note">' + esc(s.note) + '</p>'
       + '</div>'
-      + '<div class="onboarding-app__dots" role="tablist" aria-label="Шаг ' + (i + 1) + ' из ' + steps.length + '">'
-        + dots
-      + '</div>'
+      + dotsRow
     + '</div>';
   }
 

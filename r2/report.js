@@ -2801,15 +2801,42 @@
   (function helpTrigger() {
     var link = document.querySelector('[data-action="open-help"]');
     if (!link || typeof openPromoModal !== 'function') return;
-    /* Первый слайд — по макету Figma 2690:129422 (2026-09-18): лейаут 'window', иллюстрация
-       экспортом @2x (карточки с 3D-иконками + фактоид), текст картинки — в alt. Тело 420 —
-       как в макете (модалка 600): без него высоту задали бы слайды-плейсхолдеры ниже.
+    /* Первый слайд — по макету Figma 2690:129422: лейаут 'window', тело — живая вёрстка
+       (`content`), а не картинка. До вечера 2026-09-18 здесь стоял экспорт всей вёрстки
+       одной картинкой с текстом в alt; переписано по команде Романа вслед за приложением.
+       Картинками остались только иконки 48 (вторая — ₽ в облачке, с вечера 18-го вместо человечка) и плитка «×2» (шрифта Grtsk в ДС нет), подложка
+       под плиткой — два вектора макета в одном svg. Стили — report.css, «Карточки пользы».
+       Тело 420 — как в макете (модалка 600): без него высоту задали бы слайды-плейсхолдеры.
        Второй и третий — прежние плейсхолдеры в лейауте 'promo', до своих макетов. */
+    var BENEFITS =
+        '<div class="help-benefits">'
+      +   '<div class="help-benefits__row">'
+      +     '<div class="help-benefit">'
+      +       '<img class="help-benefit__icon help-benefit__icon--radar" src="media/web-help-benefit-radar.png?v=1" width="50" height="50" alt="">'
+      +       '<div><p class="help-benefit__title">Следите за всеми конкурентами</p>'
+      +       '<p class="help-benefit__text">на&nbsp;одной странице и&nbsp;держите ситуацию на&nbsp;рынке под&nbsp;контролем</p></div>'
+      +     '</div>'
+      +     '<div class="help-benefit">'
+      +       '<img class="help-benefit__icon" src="media/web-help-benefit-price.png?v=1" width="48" height="48" alt="">'
+      +       '<div><p class="help-benefit__title">Ведите переговоры о&nbsp;цене</p>'
+      +       '<p class="help-benefit__text">не&nbsp;на&nbsp;основе ощущений<br>и&nbsp;ожиданий клиента, а&nbsp;опираясь на&nbsp;реальные данные</p></div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<div class="help-promo">'
+      +     '<svg class="help-promo__back" width="104" height="116" viewBox="0 0 104 116" fill="none" aria-hidden="true">'
+      +       '<path d="M0 31.3489C0 22.5056 6.42391 14.9722 15.1562 13.575L100 0V116L15.1562 102.425C6.4239 101.028 0 93.4944 0 84.6511V31.3489Z" fill="#F4631B"/>'
+      +       '<path transform="translate(4 12)" d="M0 21.8479C0 14.0275 6.00832 7.51933 13.8038 6.89569L100 0V92L13.8038 85.1043C6.0083 84.4807 0 77.9725 0 70.1521V21.8479Z" fill="#F1AF11"/>'
+      +     '</svg>'
+      +     '<div class="help-promo__body">'
+      +       '<p class="help-promo__text">Собственники снижают цену в&nbsp;два раза чаще,<br>если им показывают отчёт о&nbsp;конкурентах</p>'
+      +       '<p class="help-promo__source">на&nbsp;основе опроса агентов на&nbsp;Циане</p>'
+      +     '</div>'
+      +     '<img class="help-promo__x2" src="media/web-help-benefit-x2.png?v=1" width="70" height="70" alt="">'
+      +   '</div>'
+      + '</div>';
     var slides = [
-      { layout: 'window', title: 'Чем полезен этот сервис',
-        image: 'media/web-help-onb-1.png?v=1', width: 576, height: 318, bodyHeight: 420,
-        nextLabel: 'Ок, как с ним работать',
-        alt: 'Следите за всеми конкурентами в одном месте и держите ситуацию на рынке под контролем. Ведите переговоры о цене не на основе ощущений и ожиданий клиента, а опираясь на реальные данные. Собственники снижают цену в два раза чаще, если им показывают отчёт о конкурентах — на основе опроса агентов.' },
+      { layout: 'window', title: 'Чем полезен этот сервис', content: BENEFITS, bodyHeight: 420,
+        nextLabel: 'Как это работает' },
       { layout: 'promo', image: '', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },
       { layout: 'promo', image: '', title: 'Отчёт для собственника', text: 'Соберите наглядный отчёт по выбранным конкурентам. 77% агентов отмечают, что он помогает в разговоре с собственником о цене.' },
     ];
