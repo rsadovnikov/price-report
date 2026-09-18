@@ -10,7 +10,8 @@
  *         button: 'И это ещё не всё',
  *         image: 'photos/onb-1.jpg' },       // нет image и нет video — серый плейсхолдер, как в макете
  *       { title: 'Отчёт для собственника',
- *         video:  'media/onb-3.mp4',         // вместо картинки; играет сам, без звука, в цикле
+ *         video:  'media/onb-3.mp4',         // вместо картинки; играет сам, без звука, в цикле,
+ *                                            //   поверх — полоска прогресса по currentTime
  *         poster: 'media/onb-3.jpg',         // первый кадр, пока файл грузится
  *         … },
  *       { title:   'Чем полезен этот сервис',
@@ -67,9 +68,13 @@ function openOnboarding(config) {
       + '</div>';
     }
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* Полоска прогресса поверх ролика (макет 830:89439): видно, где сейчас видео и
+       когда петля пошла сначала. При `calm` её нет — там свои контролы с ползунком,
+       и вторая полоса легла бы на него. */
     var media = s.video
       ? '<video src="' + esc(s.video) + '"' + (s.poster ? ' poster="' + esc(s.poster) + '"' : '')
         + ' muted playsinline loop preload="auto"' + (calm ? ' controls' : ' autoplay') + '></video>'
+        + (calm ? '' : '<span class="onboarding-app__progress" aria-hidden="true"></span>')
       : s.image ? '<img src="' + esc(s.image) + '" alt="">' : '';
     return '<div class="onboarding-app">'
       + '<div class="onboarding-app__image' + (media ? '' : ' onboarding-app__image--placeholder') + '">'
@@ -97,7 +102,10 @@ function openOnboarding(config) {
     ariaLabel: config.ariaLabel || 'Что умеет сервис',
     content: body(0),
     footer: footer(0),
-    onClose: function () { if (config.onClose) config.onClose(idx); }
+    onClose: function () {
+      cancelAnimationFrame(raf);
+      if (config.onClose) config.onClose(idx);
+    }
   });
 
   var panel = sheet.el.querySelector('.sheet-app');
@@ -106,11 +114,32 @@ function openOnboarding(config) {
   var contentEl = sheet.el.querySelector('.sheet-app__content');
   var footerEl = sheet.el.querySelector('.screen-footer-app');
 
+  /* Полоска идёт за `currentTime` каждый кадр, а не по `timeupdate`: то событие
+     приходит раза четыре в секунду, и полоса ползла бы ступеньками. Конец ролика
+     отдельно ловить не нужно: на петле `currentTime` сам падает в ноль, и полоса
+     возвращается к началу вместе с ним. Цикл живёт, пока на шаге есть ролик, и
+     гаснет при перелистывании и закрытии. */
+  var raf = 0;
+  function trackProgress() {
+    cancelAnimationFrame(raf);
+    var video = contentEl.querySelector('.onboarding-app__image video');
+    var bar = contentEl.querySelector('.onboarding-app__progress');
+    if (!video || !bar) return;
+    (function tick() {
+      if (video.duration) {
+        bar.style.transform = 'scaleX(' + Math.min(1, video.currentTime / video.duration) + ')';
+      }
+      raf = requestAnimationFrame(tick);
+    })();
+  }
+  trackProgress();
+
   function go(i) {
     if (i >= steps.length) { sheet.close(); return; }
     idx = i;
     contentEl.innerHTML = body(i);
     footerEl.querySelector('[data-action="onboarding-next"]').textContent = steps[i].button;
+    trackProgress();
   }
 
   sheet.el.addEventListener('click', function (e) {

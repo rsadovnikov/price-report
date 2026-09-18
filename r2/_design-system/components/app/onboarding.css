@@ -93,6 +93,31 @@
   box-shadow: inset 0 0 48px var(--transparent-black50a);
   pointer-events: none;
 }
+/* Полоска прогресса видео — макет 830:89439 (слой 2807:139678). Ширину ведёт
+   onboarding.js через `scaleX` от доли `currentTime / duration`.
+
+   3, а не 4 из макета: там полоса стоит на −1 и нижний пиксель уходит под обводку
+   кадра — на экспорте @4x видно ровно 3 px голубого над 1 px серого. У нас обводка —
+   рамка контейнера, и `overflow: hidden` режет по её внутреннему краю, поэтому
+   видимые 3 px — это вся полоса. Скругление кадра подрезает её левый край, как в
+   макете.
+
+   Цвет — литерал из макета: такого голубого среди токенов ДС нет (ближайшие
+   `--brand-cyan` #c1e8fd и `--solid-blue100` #9bc3ff заметно другие). Над внутренней
+   тенью `::after` — z-index, иначе кромка её притемнит. */
+.onboarding-app__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  height: 3px;
+  background: #74d6fd;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
 .onboarding-app__image img,
 .onboarding-app__image video {
   display: block;
