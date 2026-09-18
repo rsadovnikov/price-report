@@ -124,6 +124,7 @@ html[data-shelf] .tail-bar--lead .tail-bar__link svg { display: block; flex: non
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: 44px;
   padding: 12px 28px;
   /* Пилюля: в макете радиус 32, но на боксе 44 это уже полный круг — ведём токеном. */

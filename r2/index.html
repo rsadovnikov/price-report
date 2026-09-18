@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мои объявления — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609181331">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609181331">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609181400">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609181400">
   <style>
     /* === MAIN CONTENT === */
     .main-content {
@@ -182,6 +182,13 @@
     .listing-desc-address {
       font-size: 13px; line-height: 18px; color: var(--text-secondary);
     }
+    /* Бейдж информативности под адресом (макет 369:47263) — DS-label с шевроном.
+       Цвет у прод-Label свободный, поэтому пары тонов живут здесь, а не в ките:
+       «Средняя» — оранжевая, «Низкая» — красная, оба на accent-токенах макета. */
+    .listing-info { display: flex; margin-top: var(--unit2); }
+    .info-label--medium { background: var(--accent-warning-secondary); color: var(--accent-warning-primary); }
+    .info-label--low    { background: var(--accent-negative-secondary); color: var(--accent-negative-primary); }
+    .info-label svg { flex-shrink: 0; }
 
     /* Price column */
     .listing-price-col {
@@ -228,14 +235,17 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px;
     }
-    /* Красный каунтер апдейтов на кнопке «N конкурентов» (угловой бейдж, Overline). */
     .comp-btn { position: relative; overflow: visible; }
-    /* Счётчик апдейтов на кнопке — DS-компонент .counter.counter-s.counter-critical
-       (components/badges.css). Локально осталась только привязка к углу кнопки. */
+    /* Счётчик апдейтов на кнопке «N конкурентов» — DS-компонент .counter.counter-s
+       (components/badges.css) плюс привязка к углу кнопки. Цвет — оранжевый
+       control-warning по макету 369:47263 (правка Романа 2026-09-18, до неё был
+       красный counter-critical). У прод-Counter такой темы нет, их две — поэтому
+       цвет задан здесь, а не темой в ките. */
     .comp-update-badge {
       position: absolute;
       top: -6px;
       right: -6px;
+      background-color: var(--control-warning-primary-default);
     }
 
     /* Date column */
@@ -449,17 +459,17 @@
   </main>
 </div>
 
-<script src="_design-system/components/header.js?v=202609181331"></script>
-<script src="_design-system/components/sidebar.js?v=202609181331"></script>
-<script src="_design-system/components/drawer.js?v=202609181331"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609181331"></script>
-<script src="_design-system/components/toast.js?v=202609181331"></script>
+<script src="_design-system/components/header.js?v=202609181400"></script>
+<script src="_design-system/components/sidebar.js?v=202609181400"></script>
+<script src="_design-system/components/drawer.js?v=202609181400"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609181400"></script>
+<script src="_design-system/components/toast.js?v=202609181400"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609181331"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609181331"></script>
-<script src="mock-scenario.js?v=202609181331"></script>
-<script src="mock-connect.js?v=202609181331"></script>
+<script src="_mock-data/mock.js?v=202609181400"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609181400"></script>
+<script src="mock-scenario.js?v=202609181400"></script>
+<script src="mock-connect.js?v=202609181400"></script>
 <script>
 renderHeader('_design-system/');
 renderSidebar({ active: 'Мои объявления' });
@@ -513,16 +523,35 @@ function updatesTooltip(updates) {
   return lines.join('\n');
 }
 
+// Индексы объявлений в случайном порядке (Фишер — Йетс).
+function shuffledIdx() {
+  const pool = LISTINGS.map((_, i) => i);
+  for (let k = pool.length - 1; k > 0; k--) {
+    const j = Math.floor(Math.random() * (k + 1));
+    [pool[k], pool[j]] = [pool[j], pool[k]];
+  }
+  return pool;
+}
+
+const INFO_LABELS = {
+  medium: 'Средняя информативность',
+  low: 'Низкая информативность',
+};
+
 function renderListings() {
   const container = document.getElementById('listings');
   // Три состояния карточки на каждой загрузке (перемешиваем индексы, берём два непересекающихся набора):
   //   «Конкуренты» — отчёт ещё не активирован (1–2); «N конкурентов (X)» — сгенерирован + апдейты (1–2);
   //   остальные — сгенерирован без апдейтов.
-  const idxPool = LISTINGS.map((_, i) => i);
-  for (let k = idxPool.length - 1; k > 0; k--) {
-    const j = Math.floor(Math.random() * (k + 1));
-    [idxPool[k], idxPool[j]] = [idxPool[j], idxPool[k]];
-  }
+  const idxPool = shuffledIdx();
+  // Информативность раздаётся отдельной перетасовкой, от состояния отчёта не зависит:
+  // по одному «Средняя» и «Низкая» есть всегда, остальным — любой из двух или ничего
+  // (в макете 369:47263 — «Средняя», «Низкая», «Низкая», без бейджа).
+  const info = {};
+  shuffledIdx().forEach((idx, k) => {
+    info[idx] = k === 0 ? 'medium' : k === 1 ? 'low'
+      : [null, 'medium', 'low'][Math.floor(Math.random() * 3)];
+  });
   const nNotActivated = 1 + Math.floor(Math.random() * 2); // 1 или 2
   const nWithUpdates  = 1 + Math.floor(Math.random() * 2); // 1 или 2
   const notActivated = new Set(idxPool.slice(0, nNotActivated));
@@ -560,7 +589,7 @@ function renderListings() {
     // Лейбл кнопки: активирован → «N конкурент(а/ов)» (+бейдж апдейтов); не активирован → «Конкуренты».
     const compLabel = activated
       ? `${competitors} ${plural(competitors, ['конкурент', 'конкурента', 'конкурентов'])}` +
-        (updates > 0 ? `<span class="counter counter-s counter-critical comp-update-badge" title="${updatesTooltip(updates)}">${updates}</span>` : '')
+        (updates > 0 ? `<span class="counter counter-s comp-update-badge" title="${updatesTooltip(updates)}">${updates}</span>` : '')
       : 'Конкуренты';
 
     return `
@@ -578,6 +607,7 @@ function renderListings() {
             ${item.walkMin} мин
           </div>
           <div class="listing-desc-address">${zhkLine}</div>
+          ${info[i] ? `<div class="listing-info"><span class="label info-label info-label--${info[i]}"><span>${INFO_LABELS[info[i]]}</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.35355 12.7071L4.93934 11.2929L8.23223 8L4.93934 4.70711L6.35355 3.29289L11.0607 8L6.35355 12.7071Z" fill="currentColor"/></svg></span></div>` : ''}
         </div>
         <div class="listing-price-col">
           <div class="listing-price">${item.price} ₽</div>

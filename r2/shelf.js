@@ -49,8 +49,12 @@ window.ReportShelf = (function () {
      кнопки и не участвовал в раскладке — кнопка остаётся по центру полосы. */
   el.innerHTML =
       '<span class="shelf__center">'
-    +   '<a href="#" class="shelf__report" id="shelfReportCard">Создать отчёт для собственника</a>'
-    +   '<span class="shelf__factoid" id="shelfFactoid">77% риелторов уже отметили, что наглядный отчёт<br>помогает убедить собственника снизить цену</span>'
+    /* Шеврон вниз (макет 2467:116877): кнопка ведёт к настройке отчёта ниже по
+       странице. Иконка вне имени ссылки — aria-hidden. */
+    +   '<a href="#" class="shelf__report" id="shelfReportCard">Создать отчёт для собственника'
+    +     '<svg class="shelf__report-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.7071 6.35355L11.2929 4.93934L8 8.23223L4.70711 4.93934L3.29289 6.35355L8 11.0607L12.7071 6.35355Z" fill="currentColor"/></svg>'
+    +   '</a>'
+    +   '<span class="shelf__factoid" id="shelfFactoid">Собственники снижают цену в два раза<br>чаще, если им показывают отчёт</span>'
     + '</span>';
 
   var card = document.querySelector('.report-card');
