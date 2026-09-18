@@ -1730,32 +1730,76 @@
   }
   .onboarding-tooltip-close:hover { color: #fff; }
 
-  /* ===== Экран «генерации» отчёта (лоадер активации) ===== */
-  /* Полноэкранный оверлей поверх всего. По умолчанию невидим и click-through (нет флеша на обычных
-     заходах). Виден только при html.activating — класс вешает head-скрипт до первой отрисовки. */
-  .report-loader {
-    position: fixed;
-    inset: 0;
-    z-index: 1200;
-    background: var(--background-primary);
+  /* ===== Первая активация отчёта (?activate=1, макет 2731:130728) ===== */
+  /* Верх отчёта (заголовок, «Мой объект») виден, вкладки на месте, но заблокированы, под
+     ними — радар и «Ищем конкурентов…». Всё состояние держит класс html.activating: его
+     вешает guard в <head> до первой отрисовки (поэтому список не мигает), снимает
+     report.js через 3 с. До 2026-09-18 здесь был белый оверлей на весь экран со
+     спиннером ДС и «Формируем отчёт…» — отчёт под ним не было видно вовсе. */
+  .report-searching { display: none; }
+  html.activating .report-searching {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    min-height: 383px; /* область под вкладками в макете: 437 − ряд вкладок − зазор */
   }
-  html.activating .report-loader { opacity: 1; pointer-events: auto; }
-  /* Спиннер — DS-компонент .spinner (components/spinner.css + spinner.js).
-     Локальных стилей нет; прежнее вращающееся кольцо было не тем компонентом. */
-  .report-loader__label {
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--text-secondary-default);
+  /* Тот же глиф, что крутится в плашках «Следим…» (RADAR_SVG, раскладывает report.js),
+     крупнее: в макете внешнее кольцо ~28 в поле 48. У глифа кольцо занимает ~16 из 24
+     (r 7.48 + штрих), отсюда svg 42. Вращение — общий radar-spin выше. */
+  .report-searching__radar {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-secondary-default);
+  }
+  .report-searching__radar svg {
+    display: block;
+    width: 42px;
+    height: 42px;
+    transform-origin: 50% 50%;
+    animation: radar-spin 2.4s linear infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    .report-loader { transition: none; }
+    .report-searching__radar svg { animation: none; }
   }
+  .report-searching__label {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+    color: var(--text-secondary-default);
+  }
+
+  /* Вкладки заблокированы: серые, без подчёркивания и счётчика, клик не проходит. */
+  html.activating .report-section .tabs .tab {
+    color: var(--text-primary-disabled);
+    pointer-events: none;
+    cursor: default;
+  }
+  html.activating .report-section .tabs .tab::after { background: transparent; }
+  html.activating .report-section .tabs .tab-counter { display: none; }
+
+  /* Всё, что ниже вкладок, и всё, что живёт от списка: на время поиска списка ещё нет.
+     Перечислением, а не «всё после вкладок»: часть узлов стоит вне .report-section
+     (бар новых, карточка собственника, липкие копии шапки, полка). */
+  html.activating #archiveBanner,
+  html.activating #selectionBanner,
+  html.activating .report-section .filters,
+  html.activating .report-section .results-counter,
+  html.activating #trackingBanner,
+  html.activating #tableBSection,
+  html.activating #ratingRow,
+  html.activating #moreCompetitorsBar,
+  html.activating #archiveEndMarker,
+  html.activating .report-section .action-buttons,
+  html.activating #newCompetitorsBar,
+  html.activating #ownerReportCard,
+  html.activating #ownerFab,
+  html.activating #stickyTabsBar,
+  html.activating #stickyTableHeader,
+  html.activating .shelf { display: none !important; }
 

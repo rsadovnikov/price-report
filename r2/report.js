@@ -1,5 +1,6 @@
-  // Экран «генерации» отчёта: класс html.activating повесил head-скрипт report.html (при ?activate=1).
-  // Держим лоадер 3с, затем снимаем класс — отчёт (уже отрендерен за оверлеем) плавно открывается.
+  // Первая активация отчёта: класс html.activating повесил head-скрипт report.html (при ?activate=1).
+  // 3 с верх отчёта виден, вкладки заблокированы, под ними — «Ищем конкурентов…» (report.css);
+  // затем снимаем класс — список, уже отрендеренный под заглушкой, появляется.
   if (document.documentElement.classList.contains('activating')) {
     window.setTimeout(function () { document.documentElement.classList.remove('activating'); }, 3000);
   }
@@ -271,7 +272,8 @@
     var _u = parseInt(REPORT_PARAMS.get('u'), 10);
     var TOTAL_UPDATES = (_u >= 0) ? _u : (Math.floor(rand() * 6) + 1);
     // Число апдейтов наружу. Заводилось для автопоказа онбординга (helpTrigger), который
-    // сняли 2026-09-14; в продукте его больше никто не читает. Оставлено ради тестов:
+    // до 2026-09-14 зависел от апдейтов; теперь он зависит от активации, и в продукте
+    // это число больше никто не читает. Оставлено ради тестов:
     // `smoke-activate-loader` и `smoke-onboarding` сверяют по нему, что `?u` дошёл до отчёта.
     window.REPORT_TOTAL_UPDATES = TOTAL_UPDATES;
     function shuffleArr(a) {
@@ -641,7 +643,8 @@
       + ' style="background:conic-gradient(from 90deg,transparent 0deg,transparent 297.692deg,currentColor 360deg);height:100%;width:100%"></div>'
       + '</foreignObject></g></g><circle cx="12" cy="12" r="4.1978" stroke="currentColor" stroke-width="1.18465"/>'
       + '<ellipse cx="12" cy="12" rx="1.16643" ry="1.18465" fill="currentColor"/></svg>';
-    Array.prototype.forEach.call(document.querySelectorAll('.tracking-banner__radar'), function(slot) {
+    // Слоты — плашки «Следим…» и поиск при первой активации (.report-searching__radar).
+    Array.prototype.forEach.call(document.querySelectorAll('.tracking-banner__radar, .report-searching__radar'), function(slot) {
       slot.innerHTML = RADAR_SVG;
     });
 
@@ -2817,10 +2820,13 @@
     }
     link.addEventListener('click', openHelp);
 
-    /* ⚠️ Автопоказа НЕТ — модалка открывается только кликом по ссылке (решение Романа
-       2026-09-14: «отключи автоматически отстреливающий онбординг»). До этого она сама
-       выскакивала через 500 мс на каждом заходе без апдейтов у конкурентов и накрывала
-       отчёт раньше, чем агент успевал его увидеть. */
+    /* Автопоказ — только пока отчёт не активирован, то есть при первой активации
+       (?activate=1, класс html.activating): через 0,5 с поверх «Ищем конкурентов…», как
+       в приложении (report-app.js, showOnboarding). Решение Романа 2026-09-18.
+       ⚠️ История: до 2026-09-14 модалка выскакивала на КАЖДОМ заходе без апдейтов и
+       накрывала отчёт раньше, чем агент его видел; 14-го автопоказ сняли совсем. На
+       обычном заходе (отчёт уже активирован) его нет и сейчас — только по клику. */
+    if (document.documentElement.classList.contains('activating')) setTimeout(openHelp, 500);
   })();
 
   // === Онбординг секции отчёта: «Как он мне поможет» под «Создать отчёт для собственника» ===
