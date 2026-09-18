@@ -72,6 +72,38 @@
 .promo-modal__text .heading1 { margin: 0; }
 .promo-modal__text .body1 { margin: 0; }
 
+/* --- Лейаут 'window' (Figma ModalWindow_Desktop): заголовок сверху, под ним иллюстрация ---
+   Слайды в треке тянутся по самому высокому (align-items: stretch у flex), поэтому
+   тело — flex: 1 с центровкой: у слайда с однострочным заголовком иллюстрация встаёт
+   посередине оставшегося места, как в макете, а высота модалки не прыгает между слайдами. */
+.promo-modal--window .promo-modal__slide {
+  display: flex;
+  flex-direction: column;
+}
+.promo-modal__header {
+  padding: 28px 32px 20px;
+  color: var(--text-primary-default);
+}
+.promo-modal__header .heading1 { margin: 0; }
+.promo-modal__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+}
+/* Размер задают атрибуты width/height (CSS-пиксели, файл @2x). Экспорт может быть
+   шире 576 — тень иллюстрации выходит за рамку; она ложится в поле модалки. */
+.promo-modal__art {
+  display: block;
+  max-width: none;
+  height: auto;
+  flex-shrink: 0;
+}
+/* «Назад» на первом слайде в макете скрыт целиком (opacity 0), а не задизейблен;
+   место держим — иначе точки съедут. Ширина 100 — как в макете, по ней центруются точки. */
+.promo-modal--window .promo-modal__footer [data-action="prev"] { min-width: 100px; }
+.promo-modal--window .promo-modal__footer [data-action="prev"]:disabled { visibility: hidden; }
+
 /* --- Футер --- */
 .promo-modal__footer {
   display: flex;

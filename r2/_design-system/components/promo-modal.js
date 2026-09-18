@@ -4,6 +4,8 @@
  *
  * openPromoModal({
  *   slides: [{ image: 'url'|'', title: '...', text: '...' }, ...],  // обязателен, ≥1
+ *   layout: 'promo' | 'window', // 'window' — заголовок сверху, под ним картинка-иллюстрация
+ *                               // (слайд { title, image, width, height, alt }); см. promo-modal.md
  *   finishLabel: 'Готово',     // лейбл «Дальше» на последнем слайде
  *   nextLabel:  'Дальше',
  *   prevLabel:  'Назад',
@@ -26,10 +28,12 @@ function openPromoModal(config) {
   var CLOSE_SVG = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">'
     + '<path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
 
+  var windowLayout = config.layout === 'window';
+
   var overlay = document.createElement('div');
   overlay.className = 'promo-modal-overlay';
   overlay.innerHTML =
-    '<div class="promo-modal" role="dialog" aria-modal="true">'
+    '<div class="promo-modal' + (windowLayout ? ' promo-modal--window' : '') + '" role="dialog" aria-modal="true">'
       + '<div class="promo-modal__viewport"><div class="promo-modal__track"></div></div>'
       + '<div class="promo-modal__footer">'
         + '<button class="btn-secondary-md" type="button" data-action="prev">' + prevLabel + '</button>'
@@ -49,6 +53,18 @@ function openPromoModal(config) {
   slides.forEach(function (s) {
     var slide = document.createElement('div');
     slide.className = 'promo-modal__slide';
+    if (windowLayout) {
+      /* width/height — размер картинки в CSS-пикселях (файл — @2x). Без них слайд
+         до загрузки картинки нулевой высоты, и модалка прыгает, когда та доедет. */
+      slide.innerHTML = '<div class="promo-modal__header"><div class="heading1">' + (s.title || '') + '</div></div>'
+        + '<div class="promo-modal__body">'
+          + (s.image
+            ? '<img class="promo-modal__art" src="' + s.image + '" width="' + s.width + '" height="' + s.height + '" alt="' + (s.alt || '') + '">'
+            : '<div class="promo-modal__image--placeholder promo-modal__art" style="width:100%;height:333px"></div>')
+        + '</div>';
+      track.appendChild(slide);
+      return;
+    }
     var imgHtml = s.image
       ? '<img class="promo-modal__image" src="' + s.image + '" alt="">'
       : '<div class="promo-modal__image promo-modal__image--placeholder"></div>';
