@@ -182,6 +182,13 @@
          срок читается как обрывок другой мысли — «…визита, 2» и строкой ниже «дня назад». */
       'Что изменилось с вашего прошлого визита, '
       + '<span class="hint-app__muted">2\u00A0дня\u00A0назад</span>';
+    /* Радара здесь нет (правка Романа 2026-09-18): он говорит «следим прямо сейчас»,
+       а эта плашка — итог с прошлого визита. Иконку снимаем из разметки, а не прячем,
+       и плашка получает ровное поле слева — report-app.html, `.hint-app--changes`. */
+    var hintLink = document.getElementById('tracking-hint-link');
+    var hintIcon = hintLink.querySelector('.hint-app__icon');
+    if (hintIcon) hintIcon.remove();
+    hintLink.classList.add('hint-app--changes');
   }
 
   /* --- Строка-предложение --- */
