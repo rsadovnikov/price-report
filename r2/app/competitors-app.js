@@ -279,13 +279,14 @@
    * ------------------------------------------------------------------ */
 
   /* Кнопка под карточкой — переключатель, а не действие в одну сторону (макеты
-     64:39388 и 64:39461). Не отслеживается: залитая синяя «Добавить в отслеживаемые».
+     64:39388 и 64:39461). Не отслеживается: залитая синяя «Начать отслеживать» (до
+     2026-09-18 — «Добавить в отслеживаемые»; переименовали вслед за вебом, правка Романа).
      Отслеживается: та же кнопка вторичным стилем — светлая подложка, синий текст,
      галочка. Объявление при этом остаётся на месте, меняется только кнопка. */
   function trackButton(on) {
     if (!on) {
       return '<button class="btn-app btn-app--small btn-app--primary btn-app--main btn-app--block"'
-        + ' type="button" data-action="track" aria-pressed="false">Добавить в отслеживаемые</button>';
+        + ' type="button" data-action="track" aria-pressed="false">Начать отслеживать</button>';
     }
     return '<button class="btn-app btn-app--small btn-app--secondary btn-app--main btn-app--block"'
       + ' type="button" data-action="track" aria-pressed="true">'

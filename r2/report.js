@@ -2025,8 +2025,10 @@
           btn.className = 'btn-negative-secondary-sm visible';
           btn.textContent = 'Перестать отслеживать';
         } else {
+          // «Начать отслеживать» — пара к «Перестать отслеживать» (правка Романа 2026-09-18;
+          // до этого — «Добавить»). Та же кнопка стоит и в «Архивных».
           btn.className = 'btn-primary-sm visible';
-          btn.textContent = 'Добавить';
+          btn.textContent = 'Начать отслеживать';
         }
       }
 

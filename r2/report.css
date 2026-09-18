@@ -912,12 +912,16 @@
       animation: radar-spin 2.4s linear infinite;
     }
     .tracking-banner__radar svg { display: block; }
-    /* Баннер ценности архива — та же геометрия, что tracking-banner, иконка-архив 24×24. */
+    /* Баннер ценности архива — та же геометрия, что tracking-banner. Иконка — открытая
+       папка ДС 16 по центру поля 24 (макет 2621:114078, 2026-09-18); до этого стояла
+       коробка-архив 24×24. */
     .archive-banner__icon {
       flex: none;
       width: 24px;
       height: 24px;
       display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .archive-banner__icon svg { display: block; }
     /* Фильтр периода архива — один контрол на месте фасетного ряда. */
