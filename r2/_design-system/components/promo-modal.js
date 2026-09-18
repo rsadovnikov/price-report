@@ -5,7 +5,9 @@
  * openPromoModal({
  *   slides: [{ image: 'url'|'', title: '...', text: '...' }, ...],  // обязателен, ≥1
  *   layout: 'promo' | 'window', // 'window' — заголовок сверху, под ним картинка-иллюстрация
- *                               // (слайд { title, image, width, height, alt }); см. promo-modal.md
+ *                               // (слайд { title, image, width, height, alt, bodyHeight }); см. promo-modal.md
+ *                               // Слайд может переопределить: { layout: 'promo' } — смешанная карусель;
+ *                               // { nextLabel: '…' } — своя подпись «Дальше» на этом слайде.
  *   finishLabel: 'Готово',     // лейбл «Дальше» на последнем слайде
  *   nextLabel:  'Дальше',
  *   prevLabel:  'Назад',
@@ -53,11 +55,11 @@ function openPromoModal(config) {
   slides.forEach(function (s) {
     var slide = document.createElement('div');
     slide.className = 'promo-modal__slide';
-    if (windowLayout) {
+    if (s.layout ? s.layout === 'window' : windowLayout) {
       /* width/height — размер картинки в CSS-пикселях (файл — @2x). Без них слайд
          до загрузки картинки нулевой высоты, и модалка прыгает, когда та доедет. */
       slide.innerHTML = '<div class="promo-modal__header"><div class="heading1">' + (s.title || '') + '</div></div>'
-        + '<div class="promo-modal__body">'
+        + '<div class="promo-modal__body"' + (s.bodyHeight ? ' style="min-height:' + s.bodyHeight + 'px"' : '') + '>'
           + (s.image
             ? '<img class="promo-modal__art" src="' + s.image + '" width="' + s.width + '" height="' + s.height + '" alt="' + (s.alt || '') + '">'
             : '<div class="promo-modal__image--placeholder promo-modal__art" style="width:100%;height:333px"></div>')
@@ -103,7 +105,7 @@ function openPromoModal(config) {
     track.style.transform = 'translateX(' + (-index * 100) + '%)';
     prevBtn.disabled = index === 0;
     var last = index === slides.length - 1;
-    nextBtn.textContent = last ? finishLabel : nextLabel;
+    nextBtn.textContent = last ? finishLabel : (slides[index].nextLabel || nextLabel);
     renderDots();
   }
 

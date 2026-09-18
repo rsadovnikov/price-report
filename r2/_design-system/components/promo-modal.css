@@ -100,8 +100,15 @@
   flex-shrink: 0;
 }
 /* «Назад» на первом слайде в макете скрыт целиком (opacity 0), а не задизейблен;
-   место держим — иначе точки съедут. Ширина 100 — как в макете, по ней центруются точки. */
-.promo-modal--window .promo-modal__footer [data-action="prev"] { min-width: 100px; }
+   место держим. Точки — строго по центру футера при любой ширине кнопок: у «Ок, как с
+   ним работать» (~204) и у «Дальше» (96) разные ширины, и flex space-between увёл бы
+   точки вбок. Отсюда сетка 1fr · auto · 1fr. Ширина «Назад» 100 — как в макете. */
+.promo-modal--window .promo-modal__footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+}
+.promo-modal--window .promo-modal__footer [data-action="prev"] { min-width: 100px; justify-self: start; }
+.promo-modal--window .promo-modal__footer [data-action="next"] { justify-self: end; }
 .promo-modal--window .promo-modal__footer [data-action="prev"]:disabled { visibility: hidden; }
 
 /* --- Футер --- */
