@@ -219,7 +219,7 @@ secondary = светлая подложка + цветной текст. Ито�
 | новый файл | что внутри |
 |---|---|
 | `components/app/navbar.css` | мок статус-бара, NavigationBar / iOS, Cells / Title |
-| `components/app/tabs.css` | Tabs Control — контрол №4 из инвентаря |
+| `components/app/tabs.css` + `tabs.js` | Tabs Control — контрол №4 из инвентаря. `tabs.js` (`mountTabsApp`, 2026-09-18) включает режим `.tabs-app--slide`: подложка активного таба — отдельный узел, при тапе перетекает на новый таб, паддинги табов переходят вместе с ней (0.3 s, кривая пуша). Контент вкладки экран меняет сразу, в момент тапа. Без скрипта таб красит фон сам, как раньше. Подключён на `competitors-app`; в `mo-app` табы витринные |
 | `components/app/snippet.css` | сниппет объявления, блок продвижения, плитки действий, статистика |
 | `components/app/sheet.css` + `sheet.js` | шторка снизу — меню действий по «•••» (node `563:72835`) |
 | `components/app/badge.css` | Badge — ColorType × Style, набор `2:7340` из файла «☎️ Badge» |

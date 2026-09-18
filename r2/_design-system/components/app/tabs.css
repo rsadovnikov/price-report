@@ -54,3 +54,52 @@
   background: var(--surface-neutral-default);
   border-radius: var(--radius-m);
 }
+
+/* --- Перетекающая подложка: режим .tabs-app--slide, его включает tabs.js ---
+ *
+ * Фон активного таба рисует не сам таб, а общая подложка под рядом. Фон нельзя
+ * перенести с одного узла на другой, только погасить и зажечь — это и есть
+ * мгновенное переключение. Подложку можно перевезти.
+ *
+ * Паддинг таба тоже переходит плавно: активный шире на 16, и без перехода подписи
+ * прыгали бы на 8, пока под ними едет подложка. Время и кривая общие, поэтому
+ * подложка и края табов приходят на место вместе.
+ *
+ * Кривая — та же, что у пуша экрана и шторки (page-transition.css, sheet.css):
+ * быстрый старт, длинное торможение. 0.3 — чуть короче пуша: едет не экран, а
+ * контрол размером с палец.
+ *
+ * Без скрипта режим не включается, и таб красит фон сам, как выше.
+ */
+.tabs-app--slide {
+  --tabs-app-duration: 0.3s;
+  --tabs-app-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;                 /* система координат подложки; едет вместе с прокруткой ряда */
+}
+.tabs-app--slide .tab-app {
+  position: relative;                 /* поверх подложки: она первая в ряду */
+  transition: padding var(--tabs-app-duration) var(--tabs-app-ease);
+}
+.tabs-app--slide .tab-app--active { background: none; }
+
+.tabs-app__pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--surface-neutral-default);
+  border-radius: var(--radius-m);
+  pointer-events: none;
+  transition:
+    transform var(--tabs-app-duration) var(--tabs-app-ease),
+    width var(--tabs-app-duration) var(--tabs-app-ease);
+}
+
+/* Служебное: скрипт на миг выключает переходы, чтобы снять конечную геометрию
+   и поставить подложку без движения (первый кадр, смена ширины счётчика). */
+.tabs-app--still .tab-app,
+.tabs-app--still .tabs-app__pill { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs-app--slide .tab-app,
+  .tabs-app__pill { transition: none; }
+}

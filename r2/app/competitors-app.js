@@ -480,12 +480,13 @@
     createEl.setAttribute('href', 'owner-report-app.html?' + backQs);
   }
 
-  function markActiveTab() {
-    document.querySelectorAll('.tab-app').forEach(function (t) {
-      var on = t.dataset.tab === current;
-      t.classList.toggle('tab-app--active', on);
-      t.setAttribute('aria-selected', String(on));
-    });
+  /* Подложка активного таба перетекает на новый, а не переключается мгновенно
+     (просьба Романа 2026-09-18). Список при этом меняется сразу, в момент тапа:
+     страница не перезагружается, перерисовывается только лента — как в нативе. */
+  var tabsCtl = mountTabsApp(document.querySelector('.tabs-app'));
+  function markActiveTab(animate) {
+    tabsCtl.select(document.querySelector('.tab-app[data-tab="' + current + '"]'),
+                   { animate: animate !== false });
   }
 
   document.querySelector('.tabs-app').addEventListener('click', function (e) {
@@ -574,6 +575,6 @@
     }
   });
 
-  markActiveTab();
+  markActiveTab(false);                 // первый кадр — подложка сразу на месте, даже с ?tab=
   render();
 })();
