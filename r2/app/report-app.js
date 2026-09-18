@@ -206,6 +206,26 @@
     }
   }
 
+  /* --- «Больше возможных конкурентов» ---
+     Вход в подборку (вкладка «Активные»), когда новых конкурентов нет: строки-
+     предложения тогда нет, и искать новых агенту иначе неоткуда (макет 2757:139103,
+     2026-09-18). Кадры — первые кандидаты подборки по тому же правилу, что на экране
+     конкурентов (competitors-app.js): сравнимые, после первых n, не снятые. Кандидатов
+     нет вовсе — нет и входа: вёл бы в пустую вкладку. */
+  if (fresh === 0 && shown.length) {
+    var candidates = comparable.slice(n).filter(function (c) {
+      return !c.removed && c.photos && c.photos.length;
+    });
+    if (candidates.length) {
+      var moreRow = document.getElementById('more-row');
+      moreRow.querySelector('.photo-stack-app').innerHTML = candidates.slice(0, 3).map(function (c) {
+        return '<img src="' + esc(c.photos[0]) + '" alt="">';
+      }).join('');
+      listEl.classList.add('ad-list-app--closed');
+      moreRow.hidden = false;
+    }
+  }
+
   /* Вход в отчёт ведёт в настройку на этой же поверхности (2026-08-15).
      Раньше он уходил в вебовый report.html — настройки для приложения просто
      не было. Сам PDF по-прежнему собирается в вебовой версии, кнопка на него
@@ -221,6 +241,7 @@
   var suggestQs = new URLSearchParams(qs);
   suggestQs.set('tab', 'selection');
   document.getElementById('suggest-link').setAttribute('href', 'competitors-app.html?' + suggestQs);
+  document.getElementById('more-link').setAttribute('href', 'competitors-app.html?' + suggestQs);
 
   /* Кнопка нулевого состояния ведёт туда же: выбирать конкурентов негде, кроме
      подборки — вкладка «Отслеживаемые» на этом экране как раз и пуста. */

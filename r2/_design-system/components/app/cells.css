@@ -76,10 +76,17 @@ a.section-head-app:active { opacity: 0.6; }
   font-weight: var(--type-h3-weight);
   color: var(--text-primary-default);
 }
+/* Иконка в макете — Icons/Action/12 целиком: коробка 12×12, глиф 7×11 по центру.
+   Раньше обёртка была по глифу, и строка выходила 27,4 вместо 28, а шеврон стоял
+   на 2,4 правее макета (сверка 2757:139103, 2026-09-18). То же у `ad-row-app__chevron`. */
 .section-head-app__chevron {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex: none;
+  box-sizing: content-box;   /* base.css ставит border-box — паддинг съел бы коробку */
+  width: 12px;
+  height: 12px;
   padding: var(--unit2) 0;
 }
 
@@ -165,11 +172,16 @@ a.section-head-app:active { opacity: 0.6; }
   font-weight: var(--type-body2-weight);
   color: var(--text-primary-default);
 }
-/* Шеврон 12: обёртка с паддингом 8 по вертикали — тач-зона без роста строки */
+/* Шеврон 12: коробка 12×12, как Icons/Action/12 в макете, и паддинг 8 по вертикали —
+   тач-зона 28 без роста строки. */
 .ad-row-app__chevron {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex: none;
+  box-sizing: content-box;   /* base.css ставит border-box — паддинг съел бы коробку */
+  width: 12px;
+  height: 12px;
   padding: var(--unit2) 0;
 }
 .ad-row-app__chevron img { display: block; width: 7.121px; height: 11.414px; }
