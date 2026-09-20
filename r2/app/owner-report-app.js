@@ -280,17 +280,45 @@
   var ownPrice = toNumber(base.price);
   document.getElementById('range-own').textContent = format(ownPrice) + ' ₽';
 
-  /* Маркер стоит там, где цена попадает относительно границ рынка.
-     Зоны делят полосу на три равные части, поэтому «Хорошая цена» — это
-     отрезок 33.3…66.7%, а границы рынка — его концы.
-     ⚠️ Цена вне рынка прижимается к границе, а не уходит в глубину зоны:
-     так стоит маркер в макете (19 130 000 при максимуме 17 500 000 нарисован
-     ровно на стыке). Насколько именно цена выше рынка, полоса не показывает —
-     это вопрос к макету, а не дефект вёрстки. */
-  var t = (ownPrice - MARKET_MIN) / (MARKET_MAX - MARKET_MIN);
-  if (!isFinite(t)) t = 0.5;
-  t = Math.max(0, Math.min(1, t));
-  document.getElementById('range-marker').style.left = (33.333 + t * 33.333).toFixed(2) + '%';
+  /* Маркер стоит там, где цена попадает относительно границ рынка. Шкала сквозная:
+     «Хорошая цена» — это отрезок MARKET_MIN…MARKET_MAX, и тот же рубль-на-пиксель
+     продолжается в соседние зоны. Поэтому 18 499 000 при максимуме 17 500 000 стоит
+     В зоне «Выше рынка», а не на стыке с ней.
+     ⚠️ До 2026-09-21 цена вне рынка прижималась к границе — так она нарисована в
+     макете (19 130 000 при максимуме 17 500 000 стоит ровно на стыке). Роман прочитал
+     это как ошибку компонента: метка правее границы, а лежит на зелёном. Прижатие
+     снято, осталось только у самых краёв полосы.
+
+     Считаем по реальным прямоугольникам зон, а не по 33.3 %: у полосы зазоры 2 px
+     между зонами, и проценты промахиваются мимо стыка на эти пиксели. */
+  var markerEl = document.getElementById('range-marker');
+  var barEl = document.querySelector('.market-range-app__bar');
+  var goodEl = document.querySelector('.market-range-app__zone--good');
+  var bubbleEl = markerEl.querySelector('.market-range-app__bubble');
+
+  function placeMarker() {
+    var bar = barEl.getBoundingClientRect();
+    var good = goodEl.getBoundingClientRect();
+    if (!bar.width || !good.width) return;
+    var t = (ownPrice - MARKET_MIN) / (MARKET_MAX - MARKET_MIN);
+    if (!isFinite(t)) t = 0.5;
+    var x = (good.left - bar.left) + t * good.width;
+    /* Остриё не свисает с полосы: половина его ширины (8) с каждого края. */
+    x = Math.max(4, Math.min(bar.width - 4, x));
+    markerEl.style.left = (x / bar.width * 100).toFixed(2) + '%';
+    /* Пузырь шире полосы у краёв — уводим его внутрь, остриё остаётся на цене. */
+    var half = bubbleEl.offsetWidth / 2;
+    var shift = 0;
+    if (x - half < 0) shift = half - x;
+    else if (x + half > bar.width) shift = bar.width - x - half;
+    bubbleEl.style.transform = shift ? 'translateX(' + shift.toFixed(1) + 'px)' : '';
+  }
+
+  placeMarker();
+  /* Ширина пузыря зависит от шрифта, а полосы — от экрана: пересчитываем, когда
+     догрузился шрифт и когда экран меняет ширину. */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeMarker);
+  window.addEventListener('resize', placeMarker);
 
   /* Тумблер «Показывать оценку от Циана»: гасит саму полосу, подпись остаётся. */
   var cianSwitch = document.getElementById('cian-switch');
