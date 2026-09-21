@@ -5,7 +5,7 @@
     window.setTimeout(function () { document.documentElement.classList.remove('activating'); }, 3000);
   }
 
-  renderHeader('_design-system/');
+  renderHeader('_design-system/', { avatar: 'media/web-avatar.png' });
   renderSidebar({ active: '' });
 
   // =========================================================
@@ -65,10 +65,6 @@
 
     // === ПАРАМЕТРЫ И СЛУЧАЙНОСТЬ ===
     var REPORT_PARAMS = new URLSearchParams(location.search);
-    /* Вариант отчёта с нижней полкой (report-shelf.html → ?shelf=1). Флаг читаем
-       с <html>, а не из адреса: его туда поставил guard в шапке, и второе чтение
-       того же параметра завело бы второй источник правды. */
-    var SHELF = document.documentElement.getAttribute('data-shelf') === '1';
     // Теперь, когда сам объект стабилен, случаен только выбор — какие объекты попали в
     // отчёт и кому прилетел апдейт. Чтобы расклад можно было воспроизвести (показать тот
     // же кейс дважды, прислать ссылку), ?seed=… переводит выбор на детерминированный
@@ -260,6 +256,12 @@
       rest.forEach(add);                        // если ближнего круга не хватило — добираем дальше
       picked.forEach(function(i) { checkedIds.add(i); });
     })();
+    /* Каким набор пришёл агенту. Нужен плашке «Отслеживаемых»: пока агент ничего не
+       трогал, она говорит «подобрали», после правки — «следим». Держим снимок, а не
+       флаг с обработчиков: добавляют и убирают из шести мест (чекбокс, плавающая
+       кнопка, снекбар с «Восстановить», …), и седьмое место молча осталось бы без
+       флага. Сравнение множеств переживает и отмену: вернул как было — вернулся текст. */
+    var INITIAL_TRACKED = new Set(checkedIds);
 
     // === АПДЕЙТЫ КОНКУРЕНТОВ ===
     // Всего апдейтов прокидывается из «Мои объявления» (?u=…, как и ?n=…) — каунтер на
@@ -670,26 +672,43 @@
          Правило то же, что на поверхности приложения (2026-08-22). */
       return days === 1 ? 'вчера' : days + '\u00A0' + (days < 5 ? 'дня' : 'дней') + '\u00A0назад';
     })();
-    function setBannerChanged(banner, changed) {
-      var textEl = banner && banner.querySelector('.tracking-banner__text');
+    /* Тексты плашек — таблица Романа 2026-09-21 «сценарий × вкладка».
+         «Активные»  — всегда про поиск новых, с локатором. Раньше они тоже уезжали в
+                       «Что изменилось с вашего прошлого визита», и это читалось как
+                       вранье: изменилось — в отслеживаемых, а не здесь.
+         «Архивные»  — всегда про пользу архива (текст в разметке, JS его не трогает).
+         «Отслеживаемые» — три состояния:
+            есть апдейты            → «Что изменилось…», локатора нет;
+            набор правили ИЛИ есть  → «Следим, меняется ли у конкурентов цена…»;
+              новые конкуренты
+            всё как подобрали       → «Подобрали конкурентов под ваш объект…».
+       ⚠️ «Есть новые» отдаёт тот же текст, что и «агент правил набор»: так в таблице.
+       Вопрос «почему» — к таблице, а не к вёрстке. */
+    var BANNER_PICKED = 'Подобрали конкурентов под ваш объект — покажем, если у них поменяется цена или объявление уйдёт в архив';
+    var BANNER_WATCH  = 'Следим, меняется ли у конкурентов цена, и отмечаем, если объявления уходят в архив';
+
+    function trackedEdited() {
+      if (checkedIds.size !== INITIAL_TRACKED.size) return true;
+      var edited = false;
+      checkedIds.forEach(function(i) { if (!INITIAL_TRACKED.has(i)) edited = true; });
+      return edited;
+    }
+
+    /* ⚠️ Зовётся из ДВУХ мест — из `renderTableB` и из `syncMeta`: добавление с плавающей
+       кнопки ленту не перерисовывает, а только пересчитывает счётчики, и плашка, висевшая
+       лишь на отрисовке, осталась бы «Подобрали…» после того, как агент правил набор. */
+    function updateTrackingBanner() {
+      var textEl = trackingBanner && trackingBanner.querySelector('.tracking-banner__text');
       if (!textEl) return;
-      if (textEl.dataset.idle === undefined) textEl.dataset.idle = textEl.innerHTML;
+      var changed = TOTAL_UPDATES > 0;
       textEl.innerHTML = changed
         ? 'Что изменилось с вашего прошлого визита, <span class="tracking-banner__period">' + VISIT_PERIOD + '</span>'
-        : textEl.dataset.idle;
-      var radar = banner.querySelector('.tracking-banner__radar');
+        : (trackedEdited() || newCount() > 0 ? BANNER_WATCH : BANNER_PICKED);
+      var radar = trackingBanner.querySelector('.tracking-banner__radar');
       if (radar) radar.hidden = changed;
-      banner.classList.toggle('tracking-banner--no-icon', changed);
+      trackingBanner.classList.toggle('tracking-banner--no-icon', changed);
     }
-    setBannerChanged(trackingBanner, TOTAL_UPDATES > 0);
-    /* Состояние «Активных» живое: новые уходят в отслеживаемые по клику агента и
-       возвращаются отменой. ⚠️ Зовётся из ДВУХ мест — из `renderTableB` и из `syncMeta`:
-       добавление с плавающей кнопки ленту не перерисовывает, а только пересчитывает
-       счётчики, и плашка, висевшая лишь на отрисовке, оставалась бы «Что изменилось…»
-       после того, как агент забрал последнего нового. */
-    function updateSelectionBanner() {
-      setBannerChanged(selectionBanner, newCount() > 0);
-    }
+    updateTrackingBanner();
     var scrollbarMain = document.getElementById('scrollbarMain');
     var scrollbarTrack = document.getElementById('scrollbarTrack');
     var scrollbarThumb = document.getElementById('scrollbarThumb');
@@ -875,7 +894,7 @@
       if (selectionBanner) {
         selectionBanner.style.display = (activeTab === 'selection') ? 'flex' : 'none';
       }
-      updateSelectionBanner();
+      updateTrackingBanner();
 
       updateRatingRow();                          // оценка подборки — конец «Отслеживаемых»
       // Хвостовые блоки лент — та же точка ре-рендера
@@ -896,7 +915,7 @@
          (правка Романа 2026-09-10) — значит нижний зазор он там не снимает. Конец
          подборки снимает в обеих версиях: он и там кончает список. */
       var section = document.querySelector('.report-section');
-      if (section) section.classList.toggle('no-bottom-gap', (!SHELF && freshInfo.shown) || archInfo.shown);
+      if (section) section.classList.toggle('no-bottom-gap', archInfo.shown);
 
       tableB.scrollLeft = savedScrollLeft;
       syncProxyWidth();
@@ -1010,7 +1029,7 @@
       var ownerSubtitle = document.getElementById('ownerReportSubtitle');
       var stepTitle = document.getElementById('stepCompetitorsTitle');
 
-      updateOwnerFab(); // единая точка синхрона: сюда сходятся все правки checkedIds
+      updateShelfLanding(); // единая точка синхрона: сюда сходятся все правки checkedIds
 
       if (checkedIds.size === 0) {
         ownerTitle.classList.add('title-disabled');
@@ -1316,32 +1335,19 @@
     });
 
     renderFilterRow();
-    // === OWNER REPORT FAB ===
-    // Кнопка в правом нижнем углу ведёт к настройке отчёта — и уезжает, когда та
-    // на экране. Два условия, и оба про «есть ли ей что делать»:
+    // === НИЖНЯЯ ПОЛКА: ПОРОГ УХОДА И ПЕРЕХОД К НАСТРОЙКЕ ===
+    // Полка уезжает вниз, когда настройка отчёта на экране: там ей больше нечего
+    // делать. Признак «дошёл» — первый ШАГ настройки, строка «Выбраны N конкурентов»,
+    // целиком во вьюпорте (правка Романа 2026-09-08). Не заголовок карточки: он только
+    // называет раздел, а работа начинается на первом шаге.
     //
-    //   1. Отслеживаемых нет — вести некуда, карточка отчёта заблокирована.
-    //   2. Карточка уже видна — привела, дальше только мешает.
+    // ⚠️ Порог правился трижды, и две прежние версии срабатывали РАНО: «верх карточки
+    // выше 40 % экрана» (число на глаз) и «заголовок карточки во вьюпорте» (на экране
+    // одна вывеска и ни строчки настройки). Условие ниже покрывает оба случая: низ
+    // строки не ниже низа окна.
     //
-    // ⚠️ Второе условие когда-то было (`!ownerPanelReached()`), но ушло вместе с
-    // полкой-teaser, которую кнопка заменила. Последствие нашёл Роман 2026-08-23:
-    // кнопка доживала до самого низа страницы и стояла ПОВЕРХ той секции, куда сама
-    // же и ведёт, со стрелкой «вниз» — то есть звала туда, где ты уже стоишь.
-    // Заодно накрывала нижний край карточки с «Создать PDF-отчёт».
-    //
-    // Признак «дошёл» — первый ШАГ настройки, строка «Выбраны N конкурентов», целиком
-    // во вьюпорте (правка Романа 2026-09-08). Не заголовок карточки: он только называет
-    // раздел, а работа начинается на первом шаге — вот когда вести уже некуда.
-    //
-    // ⚠️ Порог правился дважды за день, обе прежние версии срабатывали РАНО:
-    //   1. доля экрана, «верх карточки выше 40 %» — число подобрано на глаз;
-    //   2. заголовок карточки целиком во вьюпорте — кнопка уходила, когда на экране
-    //      была одна вывеска и ни строчки настройки.
-    //
-    // Условие одно и покрывает оба случая: низ строки не ниже низа окна. Проскроллили
-    // насквозь — низ ушёл выше края, условие тем более выполнено.
-    var ownerFabEl = document.getElementById('ownerFab');
-
+    // ⚠️ До 2026-09-21 тот же порог уводил и плавающую кнопку `#ownerFab` из старой
+    // версии низа. Версия удалена вместе с кнопкой, порог остался один и служит полке.
     function ownerPanelReached() {
       var step = document.getElementById('stepCompetitorsTitle');
       if (!step) return false;
@@ -1350,36 +1356,23 @@
       return line.getBoundingClientRect().bottom <= window.innerHeight;
     }
 
-    // Два повода уехать — и у каждого своё направление, потому что смысл разный:
-    // вести некуда → вбок (кнопки тут больше нет), привела → вниз (уступила место
-    // содержимому). Классы взаимоисключающие: у обоих свой transform, и вместе они
-    // спорили бы за одно свойство.
-    function updateOwnerFab() {
-      /* Порог один на двоих: та же строка первого шага уводит вниз и плавающую кнопку,
-         и нижнюю полку варианта `?shelf=1`. Полке отдаём сам ПОРОГ, а не класс кнопки:
-         класс завязан ещё и на пустой отбор, а полка уезжает в любом случае — на
-         секции отчёта ей больше нечего делать. */
-      var reached = ownerPanelReached();
-      ReportShelf.setLanded(reached);
-      if (!ownerFabEl) return;
-      var nothingToShow = checkedIds.size === 0;
-      ownerFabEl.classList.toggle('owner-fab--hidden', nothingToShow);
-      ownerFabEl.classList.toggle('owner-fab--landed', !nothingToShow && reached);
+    function updateShelfLanding() {
+      ReportShelf.setLanded(ownerPanelReached());
     }
 
     // Видимость зависит от прокрутки, а не только от состояния отбора, — значит
     // пересчитывать надо и на скролле. Через rAF: обработчик дёргается сотнями раз.
-    (function watchOwnerFab() {
+    (function watchShelfLanding() {
       var queued = false;
       function onScroll() {
         if (queued) return;
         queued = true;
-        requestAnimationFrame(function () { queued = false; updateOwnerFab(); });
+        requestAnimationFrame(function () { queued = false; updateShelfLanding(); });
       }
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);
       /* 🔴 Прокрутки и ресайза мало. Первый расчёт приходится на момент, когда фотографии
-         ленты ещё не загружены: строка первого шага стоит НИЖЕ, чем встанет, кнопка
+         ленты ещё не загружены: строка первого шага стоит НИЖЕ, чем встанет, и полка
          остаётся на экране — и висит там, пока не тронешь колесо. На длинной выдаче это
          незаметно (строка всё равно за экраном), а при одном отслеживаемом видно сразу.
          Поймано тестом 2026-09-08, когда порог переехал на строку шага.
@@ -1392,15 +1385,13 @@
       }
     })();
 
-    // В разметке кнопка скрыта и с transition: none — стартовое состояние (его ставит
-    // init через updateOwnerReportBlock) не должно проигрываться анимацией. Снимаем
-    // стоп-кадр через два кадра: одного мало — снятие успевает попасть в тот же пересчёт
-    // стилей, что и смена класса, и переход всё-таки запускается.
-    if (ownerFabEl) requestAnimationFrame(function() {
-      requestAnimationFrame(function() { ownerFabEl.classList.remove('owner-fab--preload'); });
-    });
-
-    if (ownerFabEl) ownerFabEl.addEventListener('click', function() {
+    /* Кнопка полки ведёт к настройке отчёта. Обработчик здесь, а не в `shelf.js`:
+       полка рисует себя, а куда ведёт кнопка — правило отчёта. Слушатель делегирован
+       документу, потому что узел полки создаётся скриптом позже этого места. */
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('#shelfReportCard');
+      if (!btn) return;
+      e.preventDefault();
       var card = document.getElementById('ownerReportCard');
       if (!card) return;
       var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 67;
@@ -2052,7 +2043,7 @@
 
       function syncMeta() {
         updateTabLabels();
-        updateSelectionBanner();   // та же пара «счётчик вкладки ↔ плашка» — см. функцию
+        updateTrackingBanner();    // плашка «Отслеживаемых» зависит от набора — см. функцию
         updateResultsCounter();
         updateFooter();
         updateOwnerReportBlock();

@@ -1480,91 +1480,6 @@
        ни в HTML, ни в JS (проверено грепом). Прод-аналог — UI-Kit/Accordion,
        заводить в ДС под задачу, а не переносить мёртвый код. */
 
-    /* === OWNER REPORT FAB ===
-       Статичная кнопка «Отчёт для собственника» в правом нижнем углу, на всех вкладках.
-       Макет: Figma «Доработки отчёта о цене и конкурентах», узел 603:65864 —
-       пилюля 48px, padding 12/24, gap 16, radius 32, тень 0 4px 8px --shadow-default,
-       Heading4 на --text-inverted-default. Отступы от края вьюпорта: 36 справа, 24 снизу.
-
-       Пришла на смену полке-teaser, которая выезжала снизу по скроллу и толкала бар
-       «новых конкурентов» вверх: логика появления оказалась сложной без выигрыша. */
-    .owner-fab {
-      position: fixed;
-      /* ⚠️ Стоит по центру КОНТЕНТНОЙ полосы, а не у правого края (правка Романа
-         2026-09-08: угол занял кругляш Telegram). Полоса — от сайдбара (244, задан в
-         `web.css`) до правого поля страницы (16); замерено на 1280 / 1440 / 1680 —
-         оба числа постоянны, карточка везде идёт 244…vw−16.
-         Центруем автоотступами, а НЕ `transform`: тот занят состояниями ухода и
-         перебил бы центровку. Проверка сверяет центр кнопки с центром карточки,
-         а не эти два числа. */
-      left: 244px;
-      right: 16px;
-      margin-inline: auto;
-      width: fit-content;
-      bottom: 24px;
-      z-index: 150;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--unit4);
-      padding: var(--unit3) var(--unit6);
-      border: none;
-      border-radius: 32px;
-      /* В макете фон подписан токеном --icon-main-default, но это заливка контрола,
-         а не иконка. Цвет тот же (#006cfd), ведём семантически верным токеном. */
-      background: var(--control-main-primary-default);
-      color: var(--text-inverted-default);
-      box-shadow: 0 4px 8px var(--shadow-default);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background-color 0.15s ease, transform 0.25s ease, visibility 0s;
-    }
-    /* Кнопка уходит по двум разным поводам, и направление их различает.
-       Общее у них только то, что кнопки больше нет: visibility гасим ПОСЛЕ доезда
-       (задержка в transition), чтобы она не оставалась в табе и под кликом, пока
-       висит за вьюпортом. */
-    .owner-fab--hidden,
-    .owner-fab--landed {
-      visibility: hidden;
-      pointer-events: none;
-      transition: background-color 0.15s ease, transform 0.25s ease, visibility 0s linear 0.25s;
-    }
-    /* Вести некуда: ни одного отслеживаемого, карточка отчёта заблокирована
-       (см. .owner-content-locked). Уезжает вбок — движение поперёк прокрутки читается
-       как «этой кнопки тут больше нет». */
-    /* ⚠️ 100vw, а не «ширина кнопки плюс отступ»: от угла до края было ровно 36, а из
-       центра полосы расстояние зависит от ширины окна. Сдвиг на целый вьюпорт уносит
-       за правый край гарантированно — левый край кнопки не бывает меньше нуля. Цена —
-       кнопка улетает быстрее, чем уезжала: те же 0.25s, но путь впятеро длиннее. */
-    .owner-fab--hidden { transform: translateX(100vw); }
-    /* Привела: настройка отчёта на экране, работа сделана. Уезжает ВНИЗ за нижний
-       край (просьба Романа 2026-08-23) — туда же, откуда появлялась. Движение вдоль
-       прокрутки читается как «уступила место содержимому», а не «пропала».
-       24 — собственный отступ кнопки от края, иначе она замирает, едва коснувшись его. */
-    .owner-fab--landed { transform: translateY(calc(100% + 24px)); }
-    /* Стартовое состояние выставляется без анимации. Без этого на пустом отчёте FAB
-       успевает отрисоваться на месте и уезжает уже на глазах: report.js стоит в конце
-       body, но браузер отдаёт кадры до него (замерено — transitionrun на transform
-       через ~5 кадров после первой отрисовки). Класс снимается через два кадра. */
-    .owner-fab--preload { transition: none; }
-    @media (prefers-reduced-motion: reduce) {
-      .owner-fab,
-      .owner-fab--hidden,
-      .owner-fab--landed { transition: background-color 0.15s ease; }
-    }
-    .owner-fab:hover { background: var(--control-main-primary-hovered); }
-    .owner-fab:active { background: var(--control-main-primary-pressed); }
-    .owner-fab:focus-visible {
-      outline: 2px solid var(--stroke-control-focused);
-      outline-offset: 2px;
-    }
-    .owner-fab__label {
-      font-family: var(--font-base, 'Lato', sans-serif);
-      font-size: 16px;
-      line-height: 24px;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-      font-feature-settings: 'liga' off, 'clig' off;
-    }
     /* В углу тостов (bottom-right, отступ 24) стоит кругляш Telegram. Без поправки он
        накрывает кнопку действия тоста — а там живёт отмена («Вернуть»), то есть снятие
        с отслеживания стало бы неоткатным. Поднимаем стопку на высоту кругляша: 52 + 8.
@@ -1604,16 +1519,6 @@
     }
     /* Глиф 24 с отбивкой 4 справа — та самая оптическая центровка. */
     .tg-fab svg { display: block; margin-right: 4px; }
-
-    /* Внешний бокс иконки 16×16, лист внутри — своей геометрии (13.997×15.939), как в макете */
-    .owner-fab__icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-    }
 
     /* === PRICE HISTORY TOOLTIP === */
     .price-tooltip {
@@ -1802,7 +1707,6 @@
   html.activating .report-section .action-buttons,
   html.activating #newCompetitorsBar,
   html.activating #ownerReportCard,
-  html.activating #ownerFab,
   html.activating #stickyTabsBar,
   html.activating #stickyTableHeader,
   html.activating .shelf { display: none !important; }

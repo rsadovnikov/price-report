@@ -1,8 +1,14 @@
 /**
  * Shared Header component.
  * Usage: <div id="header"></div> + renderHeader()
+ *
+ * Аватар справа — заглушка с placehold.co, пока страница не дала свой:
+ *   renderHeader('../../_design-system/', { avatar: 'media/web-avatar.png' })
+ * Путь идёт от страницы, а не от ДС: лицо принадлежит прототипу (его же агент
+ * подписывает PDF-отчёт), а не библиотеке.
  */
-function renderHeader(basePath = '') {
+function renderHeader(basePath = '', options = {}) {
+  const avatar = options.avatar || 'https://placehold.co/40x40';
   const el = document.getElementById('header');
   if (!el) return;
   el.outerHTML = `
@@ -42,7 +48,7 @@ function renderHeader(basePath = '') {
       Разместить объявление
     </button>
     <div class="header-avatar">
-      <img src="https://placehold.co/40x40" alt="avatar">
+      <img src="${avatar}" alt="Аватар">
     </div>
   </div>
 </header>`;

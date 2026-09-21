@@ -5,54 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Обзор конкурентов для объекта — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609210045">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609210045">
-  <link rel="stylesheet" href="report.css?v=202609210045">
-  <!-- Вариант с нижней полкой (report-shelf.html → ?shelf=1). Без флага файл ничего не делает. -->
-  <link rel="stylesheet" href="shelf.css?v=202609210045">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/popover.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/slider.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/promo-modal.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/radio.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609211046">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609211046">
+  <link rel="stylesheet" href="report.css?v=202609211046">
+  <!-- Нижняя полка с кнопкой отчёта: единственная версия низа с 2026-09-21. -->
+  <link rel="stylesheet" href="shelf.css?v=202609211046">
   <!-- FOUC-guard: до отрисовки body вешаем класс, чтобы лоадер активации был виден с первого кадра (в report.js нельзя — он подключается в конце body). -->
   <script>(function(){var q=new URLSearchParams(location.search);
-    if (q.has('activate')) document.documentElement.classList.add('activating');
-    /* Полку включаем ДО первой отрисовки: иначе хвостовые бары и кнопка отчёта,
-       которые она собой заменяет, успевают мигнуть на экране.
-
-       Выбор версии ЗАПОМИНАЕТСЯ (просьба Романа 2026-09-10: «переключаться, не меняя
-       урл»). Держать флаг в адресе на показе не выходит: `index.html` уводит в
-       `report.html` без него, и версия терялась на первом же переходе внутрь
-       прототипа. Поэтому адрес — команда, память — состояние: параметр в адресе
-       главнее и он же записывается, без параметра берём запомненное.
-       `?shelf=0` — не просто «обычная версия», а СБРОС памяти в обычную.
-       Ключ объявлен здесь и отсюда его читает `dev-shelf.js`: guard отрабатывает
-       первым, поэтому источник правды у ключа один.
-
-       ⚠️ ПО УМОЛЧАНИЮ — ПОЛКА (решение Романа 2026-09-14: «сделаем дефолтной вторую
-       версию»). Ничего не выбрано — пустая память или хранилище недоступно — значит
-       полка; обычная версия открывается только явным `0`. */
-    window.SHELF_FLAG_KEY = 'v-next:shelf';
-    var on = true;
-    if (q.has('shelf')) {
-      on = q.get('shelf') !== '0';
-      try { localStorage.setItem(window.SHELF_FLAG_KEY, on ? '1' : '0'); } catch (_) {}
-    } else {
-      try { on = localStorage.getItem(window.SHELF_FLAG_KEY) !== '0'; } catch (_) {}
-    }
-    if (on) document.documentElement.setAttribute('data-shelf','1');}());</script>
+    if (q.has('activate')) document.documentElement.classList.add('activating');}());</script>
 </head>
 <body>
 
@@ -210,7 +186,7 @@
     <div class="tracking-banner archive-banner" id="archiveBanner" style="display:none">
       <!-- Icons/File/16/OpenFolder из ДС (макет 2621:114078), 16 в поле 24 --> <span class="archive-banner__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.33333 14.3333H13.3333C13.9467 14.3333 14.4667 13.9133 14.62 13.3333L16 7.66667H4L2 13V5.66667H15.3333C15.3333 4.5621 14.4379 3.66667 13.3333 3.66667H8L6.66667 1.66667H1.33333C0.593333 1.66667 0 2.26 0 3V13C0 13.7333 0.593333 14.3333 1.33333 14.3333Z" fill="#7683A0"/></svg></span>
       <div class="tracking-banner__lines">
-        <span class="tracking-banner__text">Объекты, которые недавно продались, попадают в архив, но всё ещё могут быть полезными в отчёте для клиента</span>
+        <span class="tracking-banner__text">Объекты, которые недавно продались, всё ещё могут быть полезными в отчёте для клиента</span>
       </div>
     </div>
 
@@ -259,7 +235,8 @@
     <!-- Микро-онбординг отслеживания (вкладка «Отслеживаемые», ≥1 объект) -->
     <div class="tracking-banner" id="trackingBanner" style="display:none">
       <span class="tracking-banner__radar" aria-hidden="true"></span><!-- глиф ставит report.js, RADAR_SVG -->
-      <span class="tracking-banner__text">Следим за тем, меняется ли у конкурента цена и видимость объявления на сайте</span>
+      <!-- текст ставит report.js: он зависит от сценария (см. updateTrackingBanner) -->
+      <span class="tracking-banner__text">Подобрали конкурентов под ваш объект — покажем, если у них поменяется цена или объявление уйдёт в архив</span>
     </div>
 
     <!-- Table B: Competitors -->
@@ -636,21 +613,6 @@
 
 <!-- ===== SNACKBAR CONTAINER ===== -->
 
-<!-- ===== OWNER REPORT FAB =====
-     Статичная кнопка в правом нижнем углу, видна на всех вкладках.
-     Макет: Figma «Доработки отчёта о цене и конкурентах», узел 603:65864.
-     Заменила полку-teaser, выезжавшую по скроллу (логика появления оказалась сложной).
-     До инициализации — скрыта и без анимации (--hidden --preload): есть ли отслеживаемые
-     объекты, известно только после report.js, а таблица всё равно рендерится им же. -->
-<button class="owner-fab owner-fab--hidden owner-fab--preload" id="ownerFab" type="button">
-  <span class="owner-fab__label">Отчёт для собственника</span>
-  <span class="owner-fab__icon">
-    <!-- Icons/Action/16/ArrowDown из кита, экспорт из макета: лист 13.997×15.939 в боксе 16×16 -->
-    <svg width="13.997" height="15.939" viewBox="0 0 13.997 15.9387" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M8.04868 0H5.95029V12.0883L1.40661 7.59308L0 9.01485L6.99848 15.9387L13.997 9.01485L12.5904 7.59308L8.04868 12.0863V0Z" fill="currentColor"/>
-    </svg>
-  </span>
-</button>
 
 <!-- ===== TELEGRAM FAB =====
      Кругляш 52 в правом нижнем углу окна, макет 2338:54054. Прилеплен к углу при любой
@@ -672,29 +634,28 @@
   <div class="price-tooltip-body"></div>
 </div>
 
-<script src="_design-system/components/header.js?v=202609210045"></script>
-<script src="_design-system/components/sidebar.js?v=202609210045"></script>
-<script src="_design-system/components/promo-modal.js?v=202609210045"></script>
+<script src="_design-system/components/header.js?v=202609211046"></script>
+<script src="_design-system/components/sidebar.js?v=202609211046"></script>
+<script src="_design-system/components/promo-modal.js?v=202609211046"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи для отчёта — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609210045"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609210045"></script>
-<script src="mock-scenario.js?v=202609210045"></script>
-<script src="mock-connect.js?v=202609210045"></script>
+<script src="_mock-data/mock.js?v=202609211046"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609211046"></script>
+<script src="mock-scenario.js?v=202609211046"></script>
+<script src="mock-connect.js?v=202609211046"></script>
 <!-- Предустановка фильтров по объекту — общая с поверхностью приложения. Не «app-only»
      вопреки имени: модуль чистая логика, DOM не трогает, и ряд фасетов обязан совпадать
      на обеих поверхностях. -->
-<script src="preset.js?v=202609210045"></script>
-<script src="filters.js?v=202609210045"></script>
-<script src="_design-system/components/popover.js?v=202609210045"></script>
-<script src="_design-system/components/slider.js?v=202609210045"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609210045"></script>
-<script src="_design-system/components/toast.js?v=202609210045"></script>
-<script src="_design-system/components/textarea.js?v=202609210045"></script>
-<script src="shelf.js?v=202609210045"></script>
+<script src="preset.js?v=202609211046"></script>
+<script src="filters.js?v=202609211046"></script>
+<script src="_design-system/components/popover.js?v=202609211046"></script>
+<script src="_design-system/components/slider.js?v=202609211046"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609211046"></script>
+<script src="_design-system/components/toast.js?v=202609211046"></script>
+<script src="_design-system/components/textarea.js?v=202609211046"></script>
+<script src="shelf.js?v=202609211046"></script>
 <!-- ⌘⇧S переключает версию отчёта (обычная ↔ с полкой). Инструмент показа. -->
-<script src="dev-shelf.js?v=202609210045"></script>
-<script src="report.js?v=202609210045"></script>
+<script src="report.js?v=202609211046"></script>
 
 <!-- ===== ONBOARDING TOOLTIP ===== -->
 
