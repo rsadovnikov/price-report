@@ -329,11 +329,11 @@
       '<div class="onb-benefits">'
     +   '<div class="onb-benefit">'
     +     '<p class="onb-benefit__text"><b>Следите за всеми конкурентами</b> в&nbsp;одном месте и&nbsp;держите ситуацию на&nbsp;рынке под&nbsp;контролем</p>'
-    +     '<img class="onb-benefit__art onb-benefit__art--radar" src="media/onb-benefit-radar.png?v=202609211209" width="73" height="73" alt="">'
+    +     '<img class="onb-benefit__art onb-benefit__art--radar" src="media/onb-benefit-radar.png?v=202609211246" width="73" height="73" alt="">'
     +   '</div>'
     +   '<div class="onb-benefit">'
     +     '<p class="onb-benefit__text"><b>Ведите переговоры о&nbsp;цене</b> не&nbsp;на&nbsp;основе ощущений и&nbsp;ожиданий клиента, а&nbsp;опираясь на&nbsp;реальные данные</p>'
-    +     '<img class="onb-benefit__art" src="media/onb-benefit-price.png?v=202609211209" width="70" height="70" alt="">'
+    +     '<img class="onb-benefit__art" src="media/onb-benefit-price.png?v=202609211246" width="70" height="70" alt="">'
     +   '</div>'
     +   '<div class="onb-benefit onb-benefit--promo">'
     +     '<div class="onb-benefit__body">'
@@ -341,7 +341,7 @@
     +       '<p class="onb-benefit__source">на&nbsp;основе опроса агентов на&nbsp;Циане</p>'
     +     '</div>'
     +     '<img class="onb-benefit__back" src="media/onb-benefit-x2-back.svg" width="92" height="106" alt="">'
-    +     '<img class="onb-benefit__art" src="media/onb-benefit-x2.png?v=202609211209" width="70" height="70" alt="">'
+    +     '<img class="onb-benefit__art" src="media/onb-benefit-x2.png?v=202609211246" width="70" height="70" alt="">'
     +   '</div>'
     + '</div>';
   var STEPS = [
@@ -351,18 +351,18 @@
     { title: 'Обзор конкурентов объекта',
       note: 'Все похожие объекты в одном месте: выбирайте подходящие и сравнивайте по важным для вас параметрам',
       button: 'И это ещё не всё',
-      video: 'media/onb-1.mp4?v=202609211209',
-      poster: 'media/onb-1.jpg?v=202609211209' },
+      video: 'media/onb-1.mp4?v=202609211246',
+      poster: 'media/onb-1.jpg?v=202609211246' },
     { title: 'Изменения в онлайн-режиме',
       note: 'Отслеживайте конкурентов в динамике: покажем, если у них изменилась цена, их продали или сняли с публикации',
       button: 'А что ещё есть?',
-      video: 'media/onb-2.mp4?v=202609211209',
-      poster: 'media/onb-2.jpg?v=202609211209' },
+      video: 'media/onb-2.mp4?v=202609211246',
+      poster: 'media/onb-2.jpg?v=202609211246' },
     { title: 'Отчёт для собственника',
       note: 'Соберите PDF-отчёт, который поможет обосновать изменение стоимости для клиента',
       button: 'Будем разбираться',
-      video: 'media/onb-3.mp4?v=202609211209',
-      poster: 'media/onb-3.jpg?v=202609211209' }
+      video: 'media/onb-3.mp4?v=202609211246',
+      poster: 'media/onb-3.jpg?v=202609211246' }
   ];
 
   function showOnboarding() {
