@@ -1428,7 +1428,9 @@
       e.preventDefault();
       var card = document.getElementById('ownerReportCard');
       if (!card) return;
-      var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 67;
+      // --header-h = 0: шапка не липкая (web.css). `|| 0`, а не `|| 67`: ноль — честное
+      // значение, а не «не измерено».
+      var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
       var gap = 80;     // сколько предыдущего раздела показать сверху
       var targetY = card.getBoundingClientRect().top + window.scrollY - headerH - gap;
       window.scrollTo({ top: targetY, behavior: 'smooth' });
@@ -1925,7 +1927,7 @@
     // оказываются под легендой. rAF — чтобы мерить после reflow от смены вкладки.
     function scrollToTabs() {
       requestAnimationFrame(function () {
-        var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 67;
+        var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
         var legendH = stickyTableHeader ? stickyTableHeader.offsetHeight : 0;
         tabsRowEl.style.scrollMarginTop = (headerH + legendH + 8) + 'px';
         tabsRowEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2463,10 +2465,13 @@
     var stickyBarsActivated = false;
     var tableAHeadOutOfView = false;
 
-    // Измеряем реальные высоты хедера и таб-бара и прокидываем в CSS-переменные
+    // Измеряем реальные высоты хедера и таб-бара и прокидываем в CSS-переменные.
+    // HEADER_H — сколько сверху окна ЗАНИМАЕТ шапка при скролле: липнет — её высота,
+    // стоит в потоке (как сейчас, web.css) — ноль, и липкие вкладки встают к самому верху.
     function measureStickyHeights() {
       var headerEl = document.querySelector('.header');
-      var HEADER_H = headerEl ? headerEl.offsetHeight : 67;
+      var pos = headerEl ? getComputedStyle(headerEl).position : '';
+      var HEADER_H = (pos === 'fixed' || pos === 'sticky') ? headerEl.offsetHeight : 0;
       var TABS_BAR_H = tabsRowEl ? tabsRowEl.offsetHeight : 44;
       document.documentElement.style.setProperty('--header-h', HEADER_H + 'px');
       document.documentElement.style.setProperty('--tabs-bar-h', TABS_BAR_H + 'px');

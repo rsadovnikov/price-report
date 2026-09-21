@@ -789,7 +789,7 @@
     .tabs {
       margin-top: 12px;
       /* доскролл к вкладкам учитывает фикс-хедер + небольшой зазор сверху */
-      scroll-margin-top: calc(var(--header-h, 67px) + 8px);
+      scroll-margin-top: calc(var(--header-h, 0px) + 8px);
     }
     /* === FILTERS === */
     .filters {
@@ -1255,7 +1255,7 @@
     /* === STICKY TABS BAR === */
     .sticky-tabs-bar {
       position: fixed;
-      top: var(--header-h, 67px);
+      top: var(--header-h, 0px);
       left: 244px;
       right: 0;
       z-index: 11;
@@ -1277,7 +1277,7 @@
     /* === STICKY TABLE HEADER === */
     .sticky-table-header {
       position: fixed;
-      top: var(--header-h, 67px);
+      top: var(--header-h, 0px);
       left: 244px;
       right: 0;
       z-index: 10;
@@ -1288,7 +1288,7 @@
       pointer-events: none;
     }
     .sticky-table-header.tabs-visible {
-      top: calc(var(--header-h, 67px) + var(--tabs-bar-h, 44px));
+      top: calc(var(--header-h, 0px) + var(--tabs-bar-h, 44px));
     }
     .sticky-table-header.visible {
       visibility: visible;

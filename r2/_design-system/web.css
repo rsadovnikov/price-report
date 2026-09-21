@@ -29,9 +29,12 @@
    ⚠️ В макете правая группа кончается на 1338 из 1440 (на части экранов — на 1228):
    в компоненте между группами стоит фиксированный зазор, а не «прижать вправо». Здесь
    она прижата к правому полю 28 — одно правило `justify-content`. */
+/* ⚠️ Шапка НЕ липкая — стоит в потоке и уезжает при скролле, как на проде (правка
+   Романа 2026-09-21; до того была `position: fixed`, и под неё сдвигали всё остальное).
+   Липкому содержимому страниц отступ под шапку больше не нужен: --header-h = 0. */
+:root { --header-h: 0px; }
 .header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
+  position: relative;
   height: 67px;
   box-sizing: border-box;
   background: var(--background-primary);
@@ -95,14 +98,15 @@
 }
 
 /* === LAYOUT === */
-.layout { display: flex; padding-top: 67px; min-height: 100vh; background: #F3F5FA; }
+.layout { display: flex; min-height: 100vh; background: #F3F5FA; }
 
 /* === SIDEBAR === */
 .sidebar {
   width: 244px; min-width: 244px;
   background: #F3F5FA;
-  position: sticky; top: 67px;
-  height: calc(100vh - 67px);
+  /* Сайдбар липнет к верху окна: шапка уехала — отступ под неё не нужен. */
+  position: sticky; top: 0;
+  height: 100vh;
   display: flex; flex-direction: column;
   overflow-y: auto;
 }
