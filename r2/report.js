@@ -440,6 +440,17 @@
       out.shown = true;
       return out;
     }
+    /* Шеврон у «Посмотреть» во всех хвостовых блоках — Icons/Action/16/ChevronRightSmall
+       из кита. Ставится ОДНИМ местом на все три ссылки: раньше глиф жил в shelf.js и
+       доставался только первой строке списка, а два других «Посмотреть» оставались без
+       него (макеты 2468:151416, 2468:154223, 2477:48242 — везде Action Link).
+       Иконка вне имени ссылки: aria-hidden. */
+    var TAIL_CHEVRON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+      + '<path fill-rule="evenodd" clip-rule="evenodd" d="M6.35355 12.7071L4.93934 11.2929L8.23223 8L4.93934 4.70711L6.35355 3.29289L11.0607 8L6.35355 12.7071Z" fill="currentColor"/></svg>';
+    Array.prototype.forEach.call(document.querySelectorAll('.tail-bar__link'), function(a) {
+      if (!a.querySelector('svg')) a.insertAdjacentHTML('beforeend', TAIL_CHEVRON);
+    });
+
     // «Посмотреть» → вкладка «Активные» (новые отсортированы наверх), доскролл к вкладкам
     document.querySelector('#newCompetitorsBar [data-action="view-new"]')
       .addEventListener('click', function(e) {

@@ -22,8 +22,6 @@ window.ReportShelf = (function () {
      Переезжает САМ УЗЕЛ, а не его копия: у него уже есть и обработчик «Посмотреть»,
      и пересчёт стопки в `report.js`. Копия развела бы одно поведение по двум местам —
      та же ловушка, что была с иконкой радара. */
-  var CHEVRON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
-    + '<path fill-rule="evenodd" clip-rule="evenodd" d="M6.35355 12.7071L4.93934 11.2929L8.23223 8L4.93934 4.70711L6.35355 3.29289L11.0607 8L6.35355 12.7071Z" fill="currentColor"/></svg>';
   var bar = document.getElementById('newCompetitorsBar');
   var list = document.getElementById('tableBSection');
   if (bar && list && list.parentNode) {
@@ -31,8 +29,6 @@ window.ReportShelf = (function () {
     bar.classList.remove('tail-bar--sticky');
     bar.classList.add('tail-bar--lead');
     list.parentNode.insertBefore(bar, list);
-    var link = bar.querySelector('.tail-bar__link');
-    if (link) link.insertAdjacentHTML('beforeend', CHEVRON);
   }
 
   /* === Полка: одна круглая кнопка отчёта === */
