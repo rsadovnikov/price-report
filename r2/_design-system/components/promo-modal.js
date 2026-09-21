@@ -4,6 +4,10 @@
  *
  * openPromoModal({
  *   slides: [{ image: 'url'|'', title: '...', text: '...' }, ...],  // обязателен, ≥1
+ *                               // { video: 'url', poster: 'url' } — ролик вместо картинки
+ *                               // (лейаут 'promo'): встроенный плеер браузера, сам не стартует.
+ *                               // + autoplay: true — сам играет на активном слайде, с начала,
+ *                               // в цикле, с полоской прогресса (как в приложении).
  *   layout: 'promo' | 'window', // 'window' — заголовок сверху, под ним картинка-иллюстрация
  *                               // (слайд { title, image, width, height, alt, bodyHeight }); см. promo-modal.md
  *                               // Слайд может переопределить: { layout: 'promo' } — смешанная карусель;
@@ -33,6 +37,7 @@ function openPromoModal(config) {
     + '<path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
 
   var windowLayout = config.layout === 'window';
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var overlay = document.createElement('div');
   overlay.className = 'promo-modal-overlay';
@@ -70,7 +75,30 @@ function openPromoModal(config) {
       track.appendChild(slide);
       return;
     }
-    var imgHtml = s.image
+    /* Ролик. По умолчанию — встроенный плеер браузера (`controls`): постер, Play, шкала,
+       полный экран. Сам не стартует и не зациклен — запускает человек, когда готов
+       смотреть; досмотрел — ролик стоит на последнем кадре (решение Романа 2026-09-21:
+       самозапуск сбивал, «не сразу схватываешь, что происходит в ролике»).
+       Звука в роликах нет и не будет (Роман), поэтому кнопки звука у плеера нет — её
+       прячет promo-modal.css. Скачивание и трансляция из меню плеера убраны — ролик часть
+       онбординга, а не файл. Сам `controls` здесь не ставится: его вешает settlePlayer,
+       когда слайд доехал до места (почему — там).
+       `autoplay: true` у слайда — прежний режим, как в онбординге приложения
+       (components/app/onboarding.js): без звука, в цикле, полоска прогресса по нижней
+       кромке. Атрибута `autoplay` нет и там: слайды карусели живут в DOM все сразу, и
+       ролик крутился бы за кадром — стартует только активный слайд (syncVideos), с начала.
+       При `prefers-reduced-motion` такой слайд тоже получает плеер. */
+    var auto = s.autoplay && !calm;
+    var imgHtml = s.video
+      ? '<div class="promo-modal__media">'
+        + '<video class="promo-modal__image" src="' + s.video + '"' + (s.poster ? ' poster="' + s.poster + '"' : '')
+          + ' playsinline'
+          + (auto ? ' muted loop preload="auto" data-autoplay'
+                  : ' data-player controlslist="nodownload noremoteplayback" disablepictureinpicture preload="metadata"')
+          + '></video>'
+        + (auto ? '<span class="promo-modal__progress" aria-hidden="true"></span>' : '')
+      + '</div>'
+      : s.image
       ? '<img class="promo-modal__image" src="' + s.image + '" alt="">'
       : '<div class="promo-modal__image promo-modal__image--placeholder"></div>';
     slide.innerHTML = imgHtml
@@ -110,11 +138,71 @@ function openPromoModal(config) {
     var last = index === slides.length - 1;
     nextBtn.textContent = last ? finishLabel : (slides[index].nextLabel || nextLabel);
     renderDots();
+    syncVideos();
+  }
+
+  /* Уход со слайда ставит его ролик на паузу — любой, и плеер тоже: иначе запущенный
+     агентом ролик доигрывал бы за кадром. Плеер при этом помнит место. Ролик `autoplay`
+     активного слайда — с начала. Полоска идёт за `currentTime`
+     каждый кадр, а не по `timeupdate` (тот приходит раза четыре в секунду — полоса ползла
+     бы ступеньками). Конец ролика ловить не нужно: на петле `currentTime` сам падает в
+     ноль, и полоса уходит в начало вместе с ним. */
+  var raf = 0;
+  function syncVideos() {
+    cancelAnimationFrame(raf);
+    cancelSettle();
+    var active = null;
+    Array.prototype.forEach.call(track.children, function (slide, i) {
+      var v = slide.querySelector('video');
+      if (!v) return;
+      var player = v.hasAttribute('data-player');
+      if (i !== index) { v.pause(); if (player) v.controls = false; return; }
+      if (player) { settlePlayer(v); return; } // плеер: запускает человек
+      active = slide;
+      v.muted = true;
+      v.currentTime = 0;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    });
+    var bar = active && active.querySelector('.promo-modal__progress');
+    if (!bar) return;
+    var video = active.querySelector('video');
+    bar.style.transform = 'scaleX(0)';
+    (function tick() {
+      if (video.duration) bar.style.transform = 'scaleX(' + Math.min(1, video.currentTime / video.duration) + ')';
+      raf = requestAnimationFrame(tick);
+    })();
+  }
+
+  /* Панель плеера — только у слайда, который стоит на месте. Chrome раскладывает её по
+     ВИДИМОЙ части ролика: пока трек едет, у въезжающего слайда видна полоса слева, и панель
+     застывала этой ширины — на треть ролика, со срезом по вертикали (поймал Роман
+     2026-09-21, воспроизводится только в видимом окне; в фоновом Chrome и в тестовом
+     браузере — нет). Поэтому `controls` ставится, когда трек доехал (transitionend или
+     запасной таймер — перехода может не быть), а у ушедших слайдов снимается. */
+  var settle = null;
+  function cancelSettle() {
+    if (!settle) return;
+    clearTimeout(settle.timer);
+    track.removeEventListener('transitionend', settle.onEnd);
+    settle = null;
+  }
+  function settlePlayer(v) {
+    function done() { cancelSettle(); v.controls = true; }
+    var dur = parseFloat(getComputedStyle(track).transitionDuration) || 0;
+    if (!dur) { done(); return; }
+    settle = {
+      onEnd: function (e) { if (e.target === track) done(); },
+      timer: setTimeout(done, dur * 1000 + 150),
+    };
+    track.addEventListener('transitionend', settle.onEnd);
   }
 
   var bodyOverflow = document.body.style.overflow;
 
   function close() {
+    cancelAnimationFrame(raf);
+    cancelSettle();
     document.removeEventListener('keydown', onKey);
     overlay.classList.remove('is-open');
     document.body.style.overflow = bodyOverflow;
@@ -129,6 +217,8 @@ function openPromoModal(config) {
   function closeToOrigin() {
     var origin = config.originEl;
     if (!origin || !origin.getBoundingClientRect || !origin.isConnected) { close(); return; }
+    cancelAnimationFrame(raf);
+    cancelSettle();
     document.removeEventListener('keydown', onKey);
     var m = modalEl.getBoundingClientRect();
     var o = origin.getBoundingClientRect();

@@ -52,6 +52,28 @@
   height: 340px;
   object-fit: cover;
 }
+/* Ролик слайда (`video` в слайде) — в обёртке, чтобы над ним лечь полоске прогресса.
+   Полоска — как в онбординге приложения (макет 830:89439, components/app/onboarding.css):
+   3 px по нижней кромке, ширину ведёт promo-modal.js через `scaleX` от доли
+   `currentTime / duration`. Цвет — литерал оттуда же: такого голубого в токенах ДС нет. */
+.promo-modal__media { position: relative; }
+/* Звука в роликах онбординга нет и не будет — кнопка звука плеера лишняя. Chrome рисует
+   её и у записи без звуковой дорожки (серой, неактивной). Псевдоэлементы — Chrome и
+   Safari; в Firefox своя панель, там кнопка останется. */
+.promo-modal__media video::-webkit-media-controls-mute-button,
+.promo-modal__media video::-webkit-media-controls-volume-slider,
+.promo-modal__media video::-webkit-media-controls-volume-control-container { display: none !important; }
+.promo-modal__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: #74d6fd;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
 /* Плейсхолдер-шахматка, когда картинка не задана */
 .promo-modal__image--placeholder {
   background-color: #fafbfc;
