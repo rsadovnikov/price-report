@@ -451,7 +451,8 @@
       if (!a.querySelector('svg')) a.insertAdjacentHTML('beforeend', TAIL_CHEVRON);
     });
 
-    // «Посмотреть» → вкладка «Активные» (новые отсортированы наверх), доскролл к вкладкам
+    // «Посмотреть» → вкладка «Активные» (новые отсортированы наверх); доскролл к вкладкам —
+    // только если ряд вкладок не на экране (см. scrollToTabs)
     document.querySelector('#newCompetitorsBar [data-action="view-new"]')
       .addEventListener('click', function(e) {
         e.preventDefault();
@@ -487,7 +488,7 @@
       .addEventListener('click', function(e) {
         e.preventDefault();
         tabSelection.click();
-        scrollToTabs(); // доскролл наверх к вкладкам — видно, что открыта «Активные»
+        scrollToTabs(); // вкладки ушли с экрана — доскролл к ним, видно, что открыта «Активные»
       });
 
     // === Блок конца подборки → переход в архив (низ вкладки «Активные») ===
@@ -1925,8 +1926,28 @@
     // (#stickyTableHeader — шапка колонок + скроллбар) пиннится на top:header-h и
     // перекрывает вкладки. Поэтому закладываем её высоту в смещение, иначе вкладки
     // оказываются под легендой. rAF — чтобы мерить после reflow от смены вкладки.
+    //
+    // ⚠️ Вкладки уже на экране — НЕ двигаем их (правка Романа 2026-09-21: «если вкладки и
+    // так во вьюпорте, не нужно модифицировать их координаты, это сбивает»). До этого
+    // «Посмотреть» у новых конкурентов — строка сразу под вкладками — каждый раз утаскивал
+    // ряд к верху окна. Доскролл остаётся там, где он нужен: агент долистал список, ряд
+    // вкладок ушёл вверх (тогда видна его липкая копия) или спрятан под полкой внизу.
+    // Решение принимает сама функция, а не вызовы: зовут её пять мест, и правило обязано
+    // быть одним. Меряем в rAF — после перерисовки от смены вкладки.
+    function tabsRowOnScreen() {
+      if (stickyTabsBar.classList.contains('visible')) return false; // ряд ушёл за верх
+      var r = tabsRowEl.getBoundingClientRect();
+      var bottom = window.innerHeight;
+      var shelf = document.getElementById('reportShelf');
+      if (shelf && getComputedStyle(shelf).display !== 'none') {
+        var sr = shelf.getBoundingClientRect();
+        if (sr.height > 0 && sr.top < bottom) bottom = sr.top;   // полка закрывает низ окна
+      }
+      return r.height > 0 && r.top >= 0 && r.bottom <= bottom;
+    }
     function scrollToTabs() {
       requestAnimationFrame(function () {
+        if (tabsRowOnScreen()) return;
         var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
         var legendH = stickyTableHeader ? stickyTableHeader.offsetHeight : 0;
         tabsRowEl.style.scrollMarginTop = (headerH + legendH + 8) + 'px';
