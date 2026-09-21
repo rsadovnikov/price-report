@@ -119,11 +119,14 @@
     .owner-step:last-child .owner-step-body {
       padding-bottom: 0;
     }
+    /* Heading4 — тот же размер, что у заголовков остальных шагов («Дайте рекомендацию
+       по цене», «Статистика по объекту собственника»): это один уровень в секции, и
+       в макете 359:41819 он тоже Heading4. Было 18/-0.5 — шаг 1 выбивался. */
     .owner-step-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       line-height: 24px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.2px;
       color: var(--text-primary);
       margin-bottom: 4px;
     }
@@ -139,7 +142,45 @@
       color: var(--control-primary);
       cursor: pointer;
       width: fit-content;
+    }
+    /* Шапка шага 1: слева заголовок со ссылкой, справа обложки выбранных объектов
+       (макет 2473:44547 — ряд по центру, зазор 24). Отступ до списка держит шапка,
+       а не ссылка: внутри флекса её margin наружу уже не выходит. */
+    .owner-step-head {
+      display: flex;
+      align-items: center;
+      gap: 24px;
       margin-bottom: 16px;
+    }
+    .owner-step-headtext { min-width: 0; }
+    /* Обложки (макет 2473:44540): кадр 32×32, радиус 4, зазор 4. Сколько кадров
+       показываем и что делает остаток — STEP_PHOTOS_MAX в report.js. */
+    .owner-step-photos {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .owner-step-photos img,
+    .owner-step-photos .owner-step-photos__more {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .owner-step-photos img {
+      display: block;
+      object-fit: cover;
+    }
+    .owner-step-photos__more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-neutral-default);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
     }
     .owner-step-subtitle {
       font-size: 14px;

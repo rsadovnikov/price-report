@@ -1023,6 +1023,27 @@
       tbody.innerHTML = rows.join('');
     }
 
+    /* Обложки выбранных объектов в шапке шага 1 (макет 2473:44540). Кадр на каждый
+       выбранный объект — в макете их пять, потому что выбрано пять, а не потому что
+       это потолок. Потолок нужен прототипу: выбрать можно все 97 объектов датасета,
+       и ряд ушёл бы за край карточки. Остаток сворачивается в плитку «+N» той же
+       геометрии; поднимаешь потолок — проверь ширину на 1280. */
+    var STEP_PHOTOS_MAX = 10;
+    function renderOwnerStepPhotos() {
+      var box = document.getElementById('ownerStepPhotos');
+      if (!box) return;
+      var ids = [];
+      checkedIds.forEach(function(idx) { if (ALL_COMPETITORS[idx]) ids.push(idx); });
+      var shown = ids.length > STEP_PHOTOS_MAX ? ids.slice(0, STEP_PHOTOS_MAX - 1) : ids;
+      var html = shown.map(function(idx) {
+        return '<img src="' + coverPhoto(idx) + '" onerror="this.src=\'https://placehold.co/64x64\'" alt="">';
+      }).join('');
+      if (ids.length > shown.length) {
+        html += '<span class="owner-step-photos__more">+' + (ids.length - shown.length) + '</span>';
+      }
+      box.innerHTML = html;
+    }
+
     function updateOwnerReportBlock() {
       var ownerContent = document.getElementById('ownerReportContent');
       var ownerTitle = document.getElementById('ownerReportTitle');
@@ -1035,6 +1056,7 @@
         ownerTitle.classList.add('title-disabled');
         ownerSubtitle.textContent = 'Чтобы создать отчёт, выберите хотя бы одного конкурента';
         ownerContent.classList.add('owner-content-locked');
+        renderOwnerStepPhotos();   // выбор сняли до последнего — ряд обложек тоже пуст
       } else {
         ownerTitle.classList.remove('title-disabled');
         ownerSubtitle.textContent = '';
@@ -1044,6 +1066,7 @@
           stepTitle.textContent = n + '\u00a0' + pluralize(n, 'конкурент', 'конкурента', 'конкурентов');
         }
         renderOwnerCompetitorsList();
+        renderOwnerStepPhotos();
         // Sync chevron state
         var chevron = document.getElementById('stepListChevron');
         var wrap = document.getElementById('ownerCompWrap');
