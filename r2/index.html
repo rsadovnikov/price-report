@@ -5,20 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мои объявления — ЦИАН</title>
   <!-- Полный Lato с кириллицей (self-hosted в дизайн-системе) -->
-  <link rel="stylesheet" href="_design-system/fonts.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/tokens.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/links.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/base.css?v=202609211246">
-  <link rel="stylesheet" href="_design-system/web.css?v=202609211246">
+  <link rel="stylesheet" href="_design-system/fonts.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/tokens.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/buttons.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/links.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/chips.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/inputs.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/tabs.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/drawer.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/gallery-modal.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/checkbox.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/badges.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/components/toast.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/base.css?v=202609211828">
+  <link rel="stylesheet" href="_design-system/web.css?v=202609211828">
+  <!-- Флаги показа, ставятся до стилей — иначе мигнула бы не та версия:
+       ?actions=1 — ЭКСПЕРИМЕНТ: иконки действий справа в сниппете по наведению (в основной
+                    версии их нет, макет 2467:114727);
+       ?info=1    — бейдж информативности под адресом (ВРЕМЕННО скрыт с 2026-09-21). -->
+  <script>(function (q, c) {
+    if (/[?&]actions=1(&|$)/.test(q)) c.add('exp-actions');
+    if (/[?&]info=1(&|$)/.test(q)) c.add('show-info');
+  })(location.search, document.documentElement.classList);</script>
   <style>
     /* === MAIN CONTENT === */
     .main-content {
@@ -46,24 +54,43 @@
 
     /* Tabs (DS-компонент tabs.css). Внутренний паддинг компонента (0 24px) убираем —
        выравниваем по левому краю контента страницы; разделитель — на всю ширину. */
-    .status-tabs { padding: 0; margin-bottom: 16px; }
+    /* 28 до чипсов — по макету 2467:114727 (вкладки кончаются на 132, чипсы на 159–160;
+       было 16). */
+    .status-tabs { padding: 0; margin-bottom: 28px; }
     .status-tabs::after { left: 0; right: 0; }
 
-    /* Category chips */
+    /* Category chips — две группы Chip S ВСТЫК (макет 2467:114743): общая граница
+       (соседний чип заходит на −1), скруглены только внешние углы (4), между группами 16,
+       разделителя нет. Высота 36 вместе с рамкой — как у Chip S в макете: там рамка
+       ВНУТРИ паддинга 8/12, у нас снаружи, поэтому паддинг 7/11 (в ките `.chip-s` даёт 38).
+       Выбранный и наведённый рисуются поверх соседа — иначе синюю рамку перекроет серая.
+       ⚠️ До 2026-09-21 чипсы стояли порознь через 8, 34 высотой, радиус 8, с чертой
+       между группами. */
     .category-row {
-      display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+      display: flex; gap: 16px; margin-bottom: 16px; align-items: center;
     }
-    .category-row .separator {
-      width: 1px; height: 24px; background: var(--stroke-divider-default);
-      margin: 0 4px;
+    .chip-join { display: flex; }
+    .chip-join .chip {
+      box-sizing: border-box;
+      height: 36px;
+      padding: 7px 11px;
+      border-radius: 0;
+      position: relative;
     }
-    /* .chip — см. components/chips.css */
+    .chip-join .chip + .chip { margin-left: -1px; }
+    .chip-join .chip:first-child { border-radius: var(--radius-m) 0 0 var(--radius-m); }
+    .chip-join .chip:last-child  { border-radius: 0 var(--radius-m) var(--radius-m) 0; }
+    .chip-join .chip:hover  { z-index: 1; }
+    .chip-join .chip.active { z-index: 2; }
 
-    /* Dropdown filters */
+    /* Dropdown filters — DS-компонент .select (components/inputs.css), XS 36.
+       По макету 2467:114727: ширины заданы (188 · 162 · 250 · 250), а не по тексту;
+       зазор 16 (было 8) и столько же до чекбоксов. Незаданный фильтр показывает подпись
+       серым, как плейсхолдер (#b1bad2 в макете); выбранное значение — тёмным. */
     .filter-row {
-      display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+      display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
     }
-    /* Фильтры-дропдауны — DS-компонент .select (components/inputs.css). */
+    .filter-row .select--unset { color: var(--text-primary-disabled); }
 
     /* Checkbox filters — ряд DS-чекбоксов */
     .checkbox-filters {
@@ -101,10 +128,18 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 16px; padding-bottom: 12px;
     }
+    /* Строка сортировки — 16/20 (макет 2467:114781). Ссылка без подчёркивания (правка
+       Романа 2026-09-21), шеврон — иконка ChevronDownSmall 16, а не символ «▾». */
     .sort-label {
-      font-size: 14px; line-height: 20px; color: var(--text-primary);
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 16px; line-height: 20px; color: var(--text-primary);
     }
-    .sort-label a { color: var(--text-main); text-decoration: underline; cursor: pointer; }
+    .sort-label a {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--text-main-default); text-decoration: none; cursor: pointer;
+    }
+    .sort-label a:hover { color: var(--text-main-hovered); }
+    .sort-label a svg { display: block; flex: none; }
     .sort-actions { display: flex; gap: 8px; }
     /* Select all */
     .select-all {
@@ -186,6 +221,9 @@
        Цвет у прод-Label свободный, поэтому пары тонов живут здесь, а не в ките:
        «Средняя» — оранжевая, «Низкая» — красная, оба на accent-токенах макета. */
     .listing-info { display: flex; margin-top: var(--unit2); }
+    /* ⚠️ ВРЕМЕННО СКРЫТ (правка Романа 2026-09-21: «информативность временно скрой»).
+       Раздача и вёрстка целы; показать — флаг ?info=1, вернуть насовсем — убрать правило. */
+    html:not(.show-info) .listing-info { display: none; }
     .info-label--medium { background: var(--accent-warning-secondary); color: var(--accent-warning-primary); }
     .info-label--low    { background: var(--accent-negative-secondary); color: var(--accent-negative-primary); }
     .info-label svg { flex-shrink: 0; }
@@ -301,6 +339,11 @@
       opacity: 1;
       pointer-events: auto;
     }
+    /* ⚠️ ЭКСПЕРИМЕНТ (правка Романа 2026-09-21): в основной версии иконок нет — в макете
+       2467:114727 сниппет по наведению только подкрашивается. Всё, что выше, живёт под
+       флагом ?actions=1 (класс html.exp-actions ставится в <head>). Клик по сниппету
+       открывает шторку в обеих версиях. */
+    html:not(.exp-actions) .listing-actions { display: none; }
     .action-icon {
       width: 24px; height: 24px;
       display: flex; align-items: center; justify-content: center;
@@ -393,22 +436,25 @@
 
     <!-- Category Chips -->
     <div class="category-row">
-      <span class="chip active">Все</span>
-      <span class="chip">Аренда</span>
-      <span class="chip">Продажа</span>
-      <div class="separator"></div>
-      <span class="chip active">Все</span>
-      <span class="chip">Квартиры и комнаты</span>
-      <span class="chip">Загородка</span>
-      <span class="chip">Коммерческая</span>
+      <div class="chip-join" role="group" aria-label="Тип сделки">
+        <span class="chip active">Все</span>
+        <span class="chip">Аренда</span>
+        <span class="chip">Продажа</span>
+      </div>
+      <div class="chip-join" role="group" aria-label="Категория">
+        <span class="chip active">Все</span>
+        <span class="chip">Квартиры и комнаты</span>
+        <span class="chip">Загородка</span>
+        <span class="chip">Коммерческая</span>
+      </div>
     </div>
 
     <!-- Dropdown Filters -->
     <div class="filter-row">
-      <select class="select"><option>Всё агентство</option></select>
-      <select class="select"><option>Тип размещения</option></select>
-      <select class="select"><option>Статус проверки в Росреестре</option></select>
-      <select class="select"><option>За счёт агентства и сотрудника</option></select>
+      <select class="select select--unset" style="width:188px"><option>Всё агентство</option></select>
+      <select class="select select--unset" style="width:162px"><option>Тип размещения</option></select>
+      <select class="select select--unset" style="width:250px"><option>Статус проверки в Росреестре</option></select>
+      <select class="select" style="width:250px"><option>За счёт агентства и сотрудника</option></select>
     </div>
 
     <!-- Checkbox Filters -->
@@ -441,10 +487,11 @@
 
     <!-- Sort Row -->
     <div class="sort-row">
-      <span class="sort-label">4 объявления отсортированы <a>по дате размещения ▾</a></span>
+      <span class="sort-label">4 объявления отсортированы <a>по дате размещения<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.707 6.354 11.293 4.94 8 8.232 4.707 4.94 3.293 6.354 8 11.06z" fill="currentColor"/></svg></a></span>
+      <!-- Одна кнопка, серая обводка (Button Small · Secondary · без заливки, макет
+           2467:114787). «Настроить календарь» в макете нет — убрана 2026-09-21. -->
       <div class="sort-actions">
-        <button class="btn-outline-sm">Обновить даты</button>
-        <button class="btn-outline-sm">Настроить календарь</button>
+        <button class="btn-outline-sm style-secondary">Обновить даты</button>
       </div>
     </div>
 
@@ -459,17 +506,17 @@
   </main>
 </div>
 
-<script src="_design-system/components/header.js?v=202609211246"></script>
-<script src="_design-system/components/sidebar.js?v=202609211246"></script>
-<script src="_design-system/components/drawer.js?v=202609211246"></script>
-<script src="_design-system/components/gallery-modal.js?v=202609211246"></script>
-<script src="_design-system/components/toast.js?v=202609211246"></script>
+<script src="_design-system/components/header.js?v=202609211828"></script>
+<script src="_design-system/components/sidebar.js?v=202609211828"></script>
+<script src="_design-system/components/drawer.js?v=202609211828"></script>
+<script src="_design-system/components/gallery-modal.js?v=202609211828"></script>
+<script src="_design-system/components/toast.js?v=202609211828"></script>
 <!-- Общая база мок-данных: объявления в модели ЦИАНа. Сценарий (чьи объекты,
      что показано снятым) — в mock-scenario.js, форма записи — в mock-connect.js. -->
-<script src="_mock-data/mock.js?v=202609211246"></script>
-<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609211246"></script>
-<script src="mock-scenario.js?v=202609211246"></script>
-<script src="mock-connect.js?v=202609211246"></script>
+<script src="_mock-data/mock.js?v=202609211828"></script>
+<script src="_mock-data/datasets/cian-secondary/listings.js?v=202609211828"></script>
+<script src="mock-scenario.js?v=202609211828"></script>
+<script src="mock-connect.js?v=202609211828"></script>
 <script>
 renderHeader('_design-system/', { avatar: 'media/web-avatar.png' });
 renderSidebar({ active: 'Мои объявления' });
