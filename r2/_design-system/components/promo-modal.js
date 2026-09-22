@@ -11,7 +11,8 @@
  *   layout: 'promo' | 'window', // 'window' — заголовок сверху, под ним картинка-иллюстрация
  *                               // (слайд { title, image, width, height, alt, bodyHeight }); см. promo-modal.md
  *                               // Слайд может переопределить: { layout: 'promo' } — смешанная карусель;
- *                               // { nextLabel: '…' } — своя подпись «Дальше» на этом слайде.
+ *                               // { nextLabel: '…' } — своя подпись «Дальше» на этом слайде;
+ *                               // { nextIcon: '<svg…>' } — иконка справа от неё (16, currentColor).
  *                               // { content: '<div>…</div>' } — своя вёрстка тела вместо картинки
  *                               // (HTML страницы, компонент его не экранирует и не стилизует).
  *   finishLabel: 'Готово',     // лейбл «Дальше» на последнем слайде
@@ -137,6 +138,9 @@ function openPromoModal(config) {
     prevBtn.disabled = index === 0;
     var last = index === slides.length - 1;
     nextBtn.textContent = last ? finishLabel : (slides[index].nextLabel || nextLabel);
+    // Иконка после подписи — зазор даёт сама кнопка (gap у btn-*-md). На последнем
+    // слайде подпись своя (finishLabel), иконка слайда к ней не относится.
+    if (!last && slides[index].nextIcon) nextBtn.insertAdjacentHTML('beforeend', slides[index].nextIcon);
     renderDots();
     syncVideos();
   }

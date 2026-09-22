@@ -5,7 +5,7 @@
     window.setTimeout(function () { document.documentElement.classList.remove('activating'); }, 3000);
   }
 
-  renderHeader('_design-system/', { avatar: 'media/web-avatar.png?v=202609212236' });
+  renderHeader('_design-system/', { avatar: 'media/web-avatar.png?v=202609221237' });
   renderSidebar({ active: '' });
 
   // =========================================================
@@ -2852,12 +2852,14 @@
   (function helpTrigger() {
     var link = document.querySelector('[data-action="open-help"]');
     if (!link || typeof openPromoModal !== 'function') return;
-    /* Первый слайд — по макету Figma 2690:129422: лейаут 'window', тело — живая вёрстка
-       (`content`), а не картинка. До вечера 2026-09-18 здесь стоял экспорт всей вёрстки
-       одной картинкой с текстом в alt; переписано по команде Романа вслед за приложением.
-       Картинками остались только иконки 48 (вторая — ₽ в облачке, с вечера 18-го вместо человечка) и плитка «×2» (шрифта Grtsk в ДС нет), подложка
-       под плиткой — два вектора макета в одном svg. Стили — report.css, «Карточки пользы».
-       Тело 420 — как в макете (модалка 600): без него высоту задали бы слайды-плейсхолдеры.
+    /* Первый слайд — по макету Figma 2977:111188 (2026-09-22; до этого 2690:129422): лейаут
+       'window', тело — живая вёрстка (`content`), графика — статикой. Карточки пользы:
+       иконка 48, под ней через 16 абзац Heading4 16/24, начало фразы жирным — ровно одним
+       абзацем, как в макете (до 22-го было два: заголовок 14/20 и текст 14/20). Иконки —
+       радар (прежняя) и оранжевый квадрат с облачком (вместо ₽ в облачке). В синей плашке
+       справа — таблица отчёта в перспективе (вместо плитки «×2» с подложкой): это срез
+       правого края экспорта плашки @2x, 144×124, текст плашки в него не попадает.
+       Стили — report.css, «Карточки пользы». Тело 420 — как в макете (модалка 600).
        Второй и третий — лейаут 'promo' с роликами Романа (2026-09-21; запись экрана
        1920×1020 — ровно слот 640×340, пропорция 32:17) во встроенном плеере браузера:
        сам не стартует, запускает агент. Вернуть самозапуск с полоской, как в приложении, —
@@ -2868,32 +2870,26 @@
       +   '<div class="help-benefits__row">'
       +     '<div class="help-benefit">'
       +       '<img class="help-benefit__icon help-benefit__icon--radar" src="media/web-help-benefit-radar.png?v=1" width="50" height="50" alt="">'
-      +       '<div><p class="help-benefit__title">Следите за всеми конкурентами</p>'
-      +       '<p class="help-benefit__text">на&nbsp;одной странице и&nbsp;держите ситуацию на&nbsp;рынке под&nbsp;контролем</p></div>'
+      +       '<p class="help-benefit__text"><b>Следите за&nbsp;всеми конкурентами</b> на&nbsp;одной странице и&nbsp;держите ситуацию на&nbsp;рынке под&nbsp;контролем</p>'
       +     '</div>'
       +     '<div class="help-benefit">'
-      +       '<img class="help-benefit__icon" src="media/web-help-benefit-price.png?v=1" width="48" height="48" alt="">'
-      +       '<div><p class="help-benefit__title">Ведите переговоры о&nbsp;цене</p>'
-      +       '<p class="help-benefit__text">не&nbsp;на&nbsp;основе ощущений<br>и&nbsp;ожиданий клиента, а&nbsp;опираясь на&nbsp;реальные данные</p></div>'
+      +       '<img class="help-benefit__icon" src="media/web-help-benefit-talk.png?v=1" width="48" height="48" alt="">'
+      +       '<p class="help-benefit__text"><b>Ведите переговоры о&nbsp;цене</b> не&nbsp;на&nbsp;основе ощущений<br>и&nbsp;ожиданий клиента, а&nbsp;опираясь на&nbsp;реальные данные</p>'
       +     '</div>'
       +   '</div>'
       +   '<div class="help-promo">'
-      +     '<svg class="help-promo__back" width="104" height="116" viewBox="0 0 104 116" fill="none" aria-hidden="true">'
-      +       '<path d="M0 31.3489C0 22.5056 6.42391 14.9722 15.1562 13.575L100 0V116L15.1562 102.425C6.4239 101.028 0 93.4944 0 84.6511V31.3489Z" fill="#F4631B"/>'
-      +       '<path transform="translate(4 12)" d="M0 21.8479C0 14.0275 6.00832 7.51933 13.8038 6.89569L100 0V92L13.8038 85.1043C6.0083 84.4807 0 77.9725 0 70.1521V21.8479Z" fill="#F1AF11"/>'
-      +     '</svg>'
       +     '<div class="help-promo__body">'
       +       '<p class="help-promo__text">Собственники снижают цену в&nbsp;два раза чаще,<br>если им показывают отчёт о&nbsp;конкурентах</p>'
-      +       '<p class="help-promo__source">на&nbsp;основе опроса агентов на&nbsp;Циане</p>'
+      +       '<p class="help-promo__source">по&nbsp;данным опроса агентов на&nbsp;Циане</p>'
       +     '</div>'
-      +     '<img class="help-promo__x2" src="media/web-help-benefit-x2.png?v=1" width="70" height="70" alt="">'
+      +     '<img class="help-promo__art" src="media/web-help-promo-report.png?v=1" width="144" height="124" alt="">'
       +   '</div>'
       + '</div>';
     var slides = [
       { layout: 'window', title: 'Чем полезен этот сервис', content: BENEFITS, bodyHeight: 420,
         nextLabel: 'Как это работает' },
-      { layout: 'promo', video: 'media/web-onb-1.mp4?v=202609212236', poster: 'media/web-onb-1.jpg?v=202609212236', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },
-      { layout: 'promo', video: 'media/web-onb-2.mp4?v=202609212236', poster: 'media/web-onb-2.jpg?v=202609212236', title: 'Отчёт для собственника', text: 'Соберите наглядный отчёт по выбранным конкурентам. 77% агентов отмечают, что он помогает в разговоре с собственником о цене.' },
+      { layout: 'promo', video: 'media/web-onb-1.mp4?v=202609221237', poster: 'media/web-onb-1.jpg?v=202609221237', title: 'Изменения у конкурентов', text: 'Возвращайтесь и отслеживайте апдейты: кто снизил цену, кто ещё в продаже, а кто уже снят с публикации.' },
+      { layout: 'promo', video: 'media/web-onb-2.mp4?v=202609221237', poster: 'media/web-onb-2.jpg?v=202609221237', title: 'Отчёт для собственника', text: 'Соберите наглядный отчёт по выбранным конкурентам. 77% агентов отмечают, что он помогает в разговоре с собственником о цене.' },
     ];
     function openHelp() {
       openPromoModal({
@@ -2916,7 +2912,8 @@
   // === Онбординг секции отчёта: «Как он мне поможет» под «Создать отчёт для собственника» ===
   // Только веб — в приложении такого нет (решение Романа 2026-09-18). Две модалки по
   // макету Figma 980:65188 (PromoModal, лейаут 'window': заголовок сверху, иллюстрация
-  // под ним). Иллюстрации — экспорт нод @2x в media/: в них шрифт Grtsk, которого в ДС
+  // под ним): шаг 1 — 2977:111424 (с 2026-09-22 «77%» с сеткой человечков, кнопка
+  // «Как помогает отчёт →»), шаг 2 — 2690:128160 (с 22-го карточки цветные). Иллюстрации — экспорт нод @2x в media/: в них шрифт Grtsk, которого в ДС
   // нет, поэтому живой вёрсткой их не собрать. Текст картинок продублирован в alt.
   // ?v= — версия файла: имя при переэкспорте не меняется, и без неё браузер (и кэш
   // Pages, 10 минут) показывает старую картинку. Переэкспортировал — подними число.
@@ -2924,14 +2921,19 @@
   (function ownerHelpTrigger() {
     var link = document.querySelector('[data-action="open-owner-help"]');
     if (!link || typeof openPromoModal !== 'function') return;
+    /* Стрелка на кнопке первого шага — Icons/Action/16/ArrowRight из макета (2982:113876),
+       в ДС её нет. Цвет — от кнопки (currentColor). */
+    var ARROW_RIGHT_16 = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+      + '<path d="M0.0306635 9.0502V6.95181L12.1189 6.95181L7.62374 2.40813L9.04552 1.00152L15.9693 8L9.04552 14.9985L7.62374 13.5919L12.117 9.0502H0.0306635Z" fill="currentColor"/></svg>';
     var slides = [
       /* Неразрывный пробел держит «снижение стоимости» на второй строке, как в макете:
          Lato в браузере уже, чем в Figma, и без него строка рвётся на «…снижение / стоимости». */
       { title: 'Отчёт помогает аргументировать снижение\u00A0стоимости',
-        image: 'media/web-owner-onb-1.png?v=1', width: 586, height: 333,
+        image: 'media/web-owner-onb-1.png?v=2', width: 576, height: 333,
+        nextLabel: 'Как помогает отчёт', nextIcon: ARROW_RIGHT_16,
         alt: '77% риелторов уже отметили, что разговор с собственником об изменении цены проходит проще, если показать отчёт' },
       { title: 'У собственника всё перед глазами',
-        image: 'media/web-owner-onb-2.png?v=2', width: 576, height: 333,
+        image: 'media/web-owner-onb-2.png?v=3', width: 576, height: 333,
         alt: 'В отчёте: ваша экспертная оценка и оценка от Циана, информация о конкурентах, статистика по объявлению собственника и ваш вывод на основе этих данных' },
     ];
     link.addEventListener('click', function () {
